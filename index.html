@@ -6404,7 +6404,7 @@ let ELEVE = {
 
 // ── Envoyer vers Google Sheets ────────────────────────────────────
 function sendToSheets(data) {
-  if (!SHEETS_URL || SHEETS_URL === 'https://script.google.com/macros/s/AKfycbxCWLMOOQf8S4YeP7HBruQA_w3fddTfv6vHCI117kJ-_tbTM0pmsR46fm9SFQ8tM7v7Yg/exec') return;
+  if (!SHEETS_URL) return; // URL configurée
   if (!ELEVE.nom) return;
 
   const payload = {
