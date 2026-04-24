@@ -606,6 +606,80 @@ canvas { display:block;max-width:100%;border-radius:10px;background:var(--surf2)
 .fhint { font-size:.75rem; color:var(--muted);
   display:flex; align-items:center; gap:4px; opacity:.7 }
 .fnb:hover { background:var(--surf2); border-color:var(--muted) }
+
+/* ── HERO AMÉLIORÉ ── */
+.hero { position:relative; overflow:hidden }
+.hero-deco { position:absolute;bottom:-1.5rem;right:-1rem;font-size:11rem;
+  opacity:.07;pointer-events:none;line-height:1 }
+.hero-avantages { display:flex;flex-wrap:wrap;gap:8px;margin-top:18px }
+.hero-av { display:flex;align-items:center;gap:6px;padding:6px 14px;
+  border-radius:30px;background:rgba(255,255,255,0.12);
+  font-size:.82rem;font-weight:700;color:rgba(255,255,255,0.92);
+  backdrop-filter:blur(4px) }
+
+/* ── SECTIONS ACCUEIL ── */
+.home-section-title { font-size:1.25rem;font-weight:900;margin:28px 0 14px;
+  background:linear-gradient(135deg,var(--text),var(--sec));
+  background-clip:text;-webkit-background-clip:text;color:transparent }
+
+/* Spotlight chapitre à la une */
+.home-spotlight { display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:20px 24px;border-radius:18px;
+  background:var(--surf);border:2px solid var(--border);
+  cursor:pointer;transition:.2s;margin-bottom:10px;flex-wrap:wrap }
+.home-spotlight:hover { border-color:var(--sec);transform:translateY(-2px);
+  box-shadow:0 8px 24px var(--sect) }
+.spotlight-left { display:flex;align-items:center;gap:16px;flex:1 }
+.spotlight-icon { font-size:2.2rem;flex-shrink:0 }
+.spotlight-title { font-weight:800;font-size:1.05rem;margin-bottom:4px }
+.spotlight-sub { color:var(--muted);font-size:.83rem;margin-bottom:8px }
+.spotlight-tags { display:flex;gap:6px;flex-wrap:wrap }
+.spotlight-tags span { font-size:.72rem;font-weight:700;padding:3px 10px;
+  border-radius:20px;background:var(--secl);color:var(--secd);
+  border:1px solid var(--sec) }
+.spotlight-btn { padding:10px 20px;border-radius:30px;background:var(--sec);
+  color:#fff;font-weight:800;font-size:.88rem;white-space:nowrap;flex-shrink:0 }
+
+/* Grille avantages */
+.home-avantages { display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:14px;margin-bottom:24px }
+.home-av-card { padding:18px;border-radius:16px;background:var(--surf);
+  border:1.5px solid var(--border);transition:.2s }
+.home-av-card:hover { border-color:var(--sec);transform:translateY(-2px) }
+.home-av-icon { font-size:1.8rem;margin-bottom:8px }
+.home-av-card h4 { font-size:1rem;font-weight:800;margin-bottom:4px }
+.home-av-card p { font-size:.82rem;color:var(--muted);line-height:1.5 }
+
+@media(max-width:640px){
+  .hero-avantages { gap:6px }
+  .hero-av { font-size:.75rem;padding:5px 10px }
+  .home-spotlight { flex-direction:column;align-items:flex-start }
+  .spotlight-btn { width:100%;text-align:center }
+  .home-avantages { grid-template-columns:1fr 1fr }
+}
+
+/* ── FOOTER ── */
+#site-footer { background:var(--surf2);border-top:1.5px solid var(--border);
+  margin-top:40px;padding:32px 20px 0 }
+.footer-inner { max-width:900px;margin:0 auto;display:flex;
+  gap:32px;flex-wrap:wrap;justify-content:space-between;padding-bottom:24px }
+.footer-logo { display:flex;flex-direction:column;gap:8px }
+.footer-logo svg { color:var(--text) }
+.footer-logo p { font-size:.78rem;color:var(--muted);font-weight:600 }
+.footer-links { display:flex;gap:28px;flex-wrap:wrap }
+.footer-col { display:flex;flex-direction:column;gap:7px;min-width:130px }
+.footer-col-title { font-size:.75rem;font-weight:900;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted);margin-bottom:2px }
+.footer-col a { font-size:.83rem;color:var(--text);cursor:pointer;
+  opacity:.75;transition:.15s;text-decoration:none }
+.footer-col a:hover { opacity:1;color:var(--sec) }
+.footer-bottom { border-top:1px solid var(--border);padding:14px 0;
+  text-align:center;font-size:.75rem;color:var(--muted);
+  max-width:900px;margin:0 auto }
+@media(max-width:640px){
+  .footer-inner { flex-direction:column;gap:20px }
+  .footer-links { gap:16px }
+}
 </style>
 </head>
 <body>
@@ -622,10 +696,11 @@ canvas { display:block;max-width:100%;border-radius:10px;background:var(--surf2)
     <!-- Pointe en bas -->
     <circle cx="19" cy="34" r="2" fill="#1d4ed8"/>
     <!-- Texte MathPro -->
-    <text x="40" y="27" font-family="Georgia,serif" font-size="20" font-weight="700" fill="var(--text)" letter-spacing="-0.3">Math</text>
-    <text x="88" y="27" font-family="Georgia,serif" font-size="20" font-weight="700" fill="#2563eb" letter-spacing="-0.3">Pro</text>
-    <!-- Trait sous Pro uniquement -->
-    <line x1="88" y1="30" x2="125" y2="30" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="40" y="23" font-family="Georgia,serif" font-size="20" font-weight="700" fill="var(--text)" letter-spacing="-0.3">Math</text>
+    <text x="88" y="23" font-family="Georgia,serif" font-size="20" font-weight="700" fill="#2563eb" letter-spacing="-0.3">Pro</text>
+    <line x1="88" y1="26" x2="125" y2="26" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"/>
+    <!-- Sous-titre -->
+    <text x="40" y="37" font-family="system-ui,sans-serif" font-size="9.5" fill="var(--muted)" letter-spacing="0.02em">Maths simplifiées pour tous</text>
   </svg>
 </div>
   <div id="sw">
@@ -689,18 +764,75 @@ canvas { display:block;max-width:100%;border-radius:10px;background:var(--surf2)
 
 <main>
 <div id="p-home" class="page on">
+  <!-- HERO SECTION -->
   <div class="hero">
-    <div class="eyebrow">✦ Programme officiel complet</div>
+    <div class="hero-deco">📐</div>
+    <div class="eyebrow">✦ Programme officiel complet — Lycée Professionnel</div>
     <h1>Mathématiques<br><span class="ac">Lycée Professionnel</span></h1>
-    <p>Cours clairs · Exercices progressifs · Quiz interactifs · Cartes mémoire</p>
+    <p>Des cours clairs, des exercices progressifs et des quiz pour réussir en maths du CAP à la Terminale Bac Pro.</p>
     <div class="srow">
       <div class="sbox"><div class="sn" id="sn-c" style="color:var(--cap)">0</div><div class="sl">Chapitres</div></div>
       <div class="sbox"><div class="sn" id="sn-e" style="color:var(--sec)">0</div><div class="sl">Exercices</div></div>
       <div class="sbox"><div class="sn" id="sn-q" style="color:var(--pre)">0</div><div class="sl">Quiz</div></div>
       <div class="sbox"><div class="sn" id="sn-v" style="color:var(--ter)">0</div><div class="sl">Consultés</div></div>
     </div>
+    <!-- Avantages rapides -->
+    <div class="hero-avantages">
+      <div class="hero-av"><span>🎯</span><span>Progressif</span></div>
+      <div class="hero-av"><span>📖</span><span>Corrigés détaillés</span></div>
+      <div class="hero-av"><span>📱</span><span>Mobile & PC</span></div>
+      <div class="hero-av"><span>🧠</span><span>Quiz interactifs</span></div>
+      <div class="hero-av"><span>🏆</span><span>Parcours adaptatifs</span></div>
+      <div class="hero-av"><span>🆓</span><span>100% gratuit</span></div>
+    </div>
   </div>
+
+  <!-- NIVEAUX -->
+  <div class="home-section-title">📚 Choisissez votre niveau</div>
   <div class="lgrid" id="lgrid"></div>
+
+  <!-- CHAPITRE À LA UNE -->
+  <div class="home-section-title">⭐ Chapitre à la une</div>
+  <div class="home-spotlight" onclick="document.querySelector('[onclick=\'showPageParcours()\']').click()">
+    <div class="spotlight-left">
+      <div class="spotlight-icon">📐</div>
+      <div>
+        <div class="spotlight-title">Suites arithmétiques — Première Bac Pro</div>
+        <div class="spotlight-sub">Cours complet · Exercices progressifs · Quiz · Cartes mémoire · Parcours adaptatif</div>
+        <div class="spotlight-tags">
+          <span>🎓 Première</span>
+          <span>📊 Nouveau contenu</span>
+          <span>✅ Exercices originaux</span>
+        </div>
+      </div>
+    </div>
+    <div class="spotlight-btn">Découvrir →</div>
+  </div>
+
+  <!-- POURQUOI MATHSPRO -->
+  <div class="home-section-title">✨ Pourquoi MathsPro ?</div>
+  <div class="home-avantages">
+    <div class="home-av-card">
+      <div class="home-av-icon">🎯</div>
+      <h4>Progressif</h4>
+      <p>Exercices classés par difficulté : ⭐ facile → ⭐⭐⭐⭐ expert</p>
+    </div>
+    <div class="home-av-card">
+      <div class="home-av-icon">📖</div>
+      <h4>Corrigés détaillés</h4>
+      <p>Chaque étape est expliquée, pas seulement la réponse finale</p>
+    </div>
+    <div class="home-av-card">
+      <div class="home-av-icon">🏆</div>
+      <h4>Parcours adaptatifs</h4>
+      <p>10 exercices réussis par niveau · 50 parcours disponibles</p>
+    </div>
+    <div class="home-av-card">
+      <div class="home-av-icon">🔧</div>
+      <h4>Par filière métier</h4>
+      <p>Électricité · Menuiserie · Bâtiment · Cuisine · Petite enfance</p>
+    </div>
+  </div>
 </div>
 
 <div id="p-level" class="page">
@@ -756,6 +888,48 @@ canvas { display:block;max-width:100%;border-radius:10px;background:var(--surf2)
 </div>
 
 </main>
+
+<!-- FOOTER -->
+<footer id="site-footer">
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <svg width="100" height="26" viewBox="0 0 100 26" xmlns="http://www.w3.org/2000/svg">
+        <line x1="8" y1="4" x2="13" y2="22" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="18" y1="4" x2="13" y2="22" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M4,19 Q13,6 22,19" fill="none" stroke="#93c5fd" stroke-width="1.4" stroke-dasharray="2,2"/>
+        <circle cx="13" cy="4" r="2" fill="#2563eb"/>
+        <text x="28" y="17" font-family="Georgia,serif" font-size="13" font-weight="700" fill="currentColor">Math</text>
+        <text x="58" y="17" font-family="Georgia,serif" font-size="13" font-weight="700" fill="#2563eb">Pro</text>
+      </svg>
+      <p>Maths simplifiées pour tous</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <div class="footer-col-title">Niveaux</div>
+        <a onclick="openLvl('cap')">CAP</a>
+        <a onclick="openLvl('sec')">Seconde Bac Pro</a>
+        <a onclick="openLvl('pre')">Première Bac Pro</a>
+        <a onclick="openLvl('ter')">Terminale Bac Pro</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Fonctionnalités</div>
+        <a onclick="showPageParcours()">Parcours adaptatifs</a>
+        <a onclick="showProg()">Ma progression</a>
+        <a>Quiz interactifs</a>
+        <a>Cartes mémoire</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">À propos</div>
+        <a>100% gratuit</a>
+        <a>Programme officiel</a>
+        <a>Lycée Professionnel</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    MathsPro Lycée — Cours, exercices et quiz pour le CAP, la 2de, 1ère et Terminale Bac Pro · 100% gratuit
+  </div>
+</footer>
 <script>
 // ── HELPERS ──
 const c_ = k => `var(--${k})`;
@@ -2813,18 +2987,25 @@ quiz:[
 // ─── P3 Suites numériques arithmétiques ───
 {id:'p3',num:3,title:'Suites numériques',desc:'Suites arithmétiques : définition, raison, terme général, représentation',
 cours:
-  SEC('pre','1','Définition d\'une suite',
-    DEF('pre','Une <strong>suite numérique</strong> (uₙ) est une liste ordonnée de nombres : u₁, u₂, u₃, …<br>Elle peut être définie par une <strong>expression du terme général</strong> : uₙ=f(n)<br>ou par une <strong>relation de récurrence</strong> : uₙ₊₁ en fonction de uₙ.')
-    +EX('pre','Suite 2, −1, −4, −7 : uₙ₊₁=uₙ−3 avec u₀=2, ou uₙ=2−3n')
+  SEC('pre','1','Définition d\'une suite arithmétique',
+    DEF('pre','Une <strong>suite arithmétique</strong> est une suite où l\'on passe d\'un terme au suivant en ajoutant toujours le même nombre appelé <strong>raison r</strong>.')
+    +FB('pre','Relation de récurrence : uₙ₊₁ = uₙ + r')
+    +FB('pre','Terme général : uₙ = u₀ + n×r &nbsp;(ou uₙ = u₁ + (n−1)×r si le premier terme est u₁)')
+    +EX('pre','u₀ = 5 et r = 3 → u₃ = 5 + 3×3 = <strong>14</strong>')
+    +TIP('Pour vérifier qu\'une suite est arithmétique : tous les écarts uₙ₊₁ − uₙ doivent être égaux à r.')
   )
-  +SEC('pre','2','Suite arithmétique',
-    DEF('pre','Une <strong>suite arithmétique</strong> : chaque terme = terme précédent + raison r (constante).<br>uₙ₊₁ = uₙ + r &nbsp;&nbsp; et &nbsp;&nbsp; uₙ = u₀ + n×r (ou uₙ = u₁ + (n−1)×r)')
-    +FB('pre','Pour vérifier qu\'une suite est arithmétique : tous les écarts uₙ₊₁−uₙ doivent être égaux à r.')
-    +EX('pre','Suite 1 · 5 · 9 · 13 · 17 :<br>5−1=4 · 9−5=4 · 13−9=4 → <strong>arithmétique, r=4, u₁=1</strong><br>u₁₀ = 1+(10−1)×4 = 1+36 = <strong>37</strong>')
+  +SEC('pre','2','Méthode — Calculer un terme quelconque',
+    DEF('pre','<strong>Étape 1</strong> : Rappeler la formule uₙ = u₀ + n × r<br><strong>Étape 2</strong> : Remplacer u₀, n et r par les valeurs<br><strong>Étape 3</strong> : Effectuer le calcul')
+    +EX('pre','u₀ = 7, r = 4 → u₁₀ = 7 + 10 × 4 = <strong>47</strong>')
   )
-  +SEC('pre','3','Sens de variation et somme',
-    FB('pre','r>0 → croissante · r<0 → décroissante · r=0 → constante<br>Somme Sₙ = n×(u₁+uₙ) ÷ 2')
-    +EX('pre','💰 Salaire : u₁=1500€, r=80€/an → Salaire après 10 ans : u₁₁=1500+10×80=<strong>2300€</strong><br>Somme des 5 premiers : S₅=5×(1+17)÷2=45 (pour suite 1,5,9,13,17)')
+  +SEC('pre','3','Méthode — Trouver r et u₀ à partir de deux termes',
+    DEF('pre','<strong>Étape 1</strong> : Écrire uₚ = u₀ + p×r et u_q = u₀ + q×r<br><strong>Étape 2</strong> : Soustraire les deux équations pour éliminer u₀<br><strong>Étape 3</strong> : En déduire r<br><strong>Étape 4</strong> : Remplacer r pour trouver u₀')
+    +EX('pre','u₃ = 11 et u₇ = 23 :<br>u₇ − u₃ = 4r → 23 − 11 = 4r → r = 3<br>u₀ = u₃ − 3r = 11 − 9 = <strong>u₀ = 2</strong>')
+  )
+  +SEC('pre','4','Sens de variation, somme et représentation',
+    FB('pre','r > 0 → suite <strong>croissante</strong> · r < 0 → suite <strong>décroissante</strong> · r = 0 → suite <strong>constante</strong>')
+    +FB('pre','Somme des n premiers termes : Sₙ = n × (u₁ + uₙ) ÷ 2')
+    +EX('pre','💰 Employé : u₀ = 1800€, r = 40€/an<br>Salaire dans 5 ans : u₅ = 1800 + 5×40 = <strong>2000€</strong><br>Il dépasse 2000€ à n > 5, donc dans <strong>6 ans</strong> (u₆ = 2040€)')
     +SVG_(280,130,`
       <line x1="20" y1="110" x2="265" y2="110" stroke="var(--border)" stroke-width="1.5"/>
       <line x1="20" y1="110" x2="20" y2="15" stroke="var(--border)" stroke-width="1.5"/>
@@ -2843,31 +3024,43 @@ cours:
   ),
 exos:
   `<div class="exos">${DIFF('pre','⭐','Facile')}
-  ${EXO('pre',1,'Reconnaître et caractériser',
-    'Ces suites sont-elles arithmétiques ? Si oui, donne le premier terme et la raison :<br>a) 3,4 · 5,1 · 6,8 · 8,5 · 10,2<br>b) 2 · 4 · 8 · 16 · 32<br>c) 15 · 12 · 9 · 6 · 3',
-    'a) Écarts : 1,7·1,7·1,7·1,7 → <strong>Oui, u₀=3,4, r=1,7</strong><br>b) 4−2=2 · 8−4=4 → écarts différents → <strong>Non</strong><br>c) Écarts : −3·−3·−3·−3 → <strong>Oui, u₁=15, r=−3</strong>'
+  ${EXO('pre',1,'Premiers termes et u₂₀',
+    'Une suite arithmétique (uₙ) a pour premier terme u₀ = 10 et raison r = −2.<br>a) Calculer u₁, u₂, u₃.<br>b) Calculer u₂₀.',
+    'a) u₁ = 10 + (−2) = <strong>8</strong> · u₂ = 8 + (−2) = <strong>6</strong> · u₃ = 6 + (−2) = <strong>4</strong><br>b) u₂₀ = 10 + 20×(−2) = 10 − 40 = <strong>−30</strong>'
+  )}
+  ${EXO('pre',2,'Calculer un terme',
+    'Calculer le 15ème terme d\'une suite arithmétique de premier terme u₀ = 3 et de raison r = 5.',
+    'u₁₅ = 3 + 15×5 = 3 + 75 = <strong>78</strong>'
   )}</div>
   <div class="exos">${DIFF('pre','⭐⭐','Moyen')}
-  ${EXO('pre',2,'Terme général et calculs',
-    '💶 Un apprenti reçoit 1200€/mois la 1ère année, avec +50€ chaque année.<br>a) u₁=? · b) Raison r=? · c) Salaire la 4ème année ? · d) Quand dépasse-t-il 1500€ ?',
-    'a) u₁=<strong>1200€</strong> · b) r=<strong>+50€</strong><br>c) u₄=1200+3×50=<strong>1350€</strong><br>d) 1200+(n−1)×50>1500 → (n−1)×50>300 → n>7 → <strong>8ème année</strong>'
+  ${EXO('pre',3,'Trouver r et u₀ à partir de deux termes',
+    'Dans une suite arithmétique, u₂ = 17 et u₅ = 32. Calculer r et u₀.',
+    'u₂ = u₀ + 2r = 17 · u₅ = u₀ + 5r = 32<br>Soustraction : 3r = 15 → <strong>r = 5</strong><br>u₀ + 2×5 = 17 → <strong>u₀ = 7</strong>'
+  )}
+  ${EXO('pre',4,'Retrouver u₀ depuis un terme',
+    'Une suite arithmétique a pour raison r = −3 et u₄ = 12. Déterminer u₀.',
+    'u₄ = u₀ + 4×(−3) = 12<br>u₀ − 12 = 12 → <strong>u₀ = 24</strong>'
   )}</div>
   <div class="exos">${DIFF('pre','⭐⭐⭐','Difficile')}
-  ${EXO('pre',3,'Somme et application',
-    '🏗️ Un chantier : 1ère semaine 50 briques, +20 briques/semaine.<br>a) Briques la 6ème semaine ? b) Total sur 6 semaines ?',
-    'a) u₆=50+5×20=<strong>150 briques</strong><br>b) S₆=6×(u₁+u₆)÷2=6×(50+150)÷2=6×100=<strong>600 briques</strong>'
+  ${EXO('pre',5,'Problème concret — salaire',
+    '💼 Un employé gagne 1800€/mois. Chaque année, il reçoit +40€/mois.<br>a) Quel sera son salaire dans 5 ans ?<br>b) Dans combien d\'années dépassera-t-il 2000€/mois ?',
+    'Modélisation : u₀ = 1800, r = 40<br>a) u₅ = 1800 + 5×40 = 1800 + 200 = <strong>2000€</strong><br>b) 1800 + 40n > 2000 → 40n > 200 → n > 5<br>→ Dans <strong>6 ans</strong> (u₆ = 1800 + 240 = 2040€)'
+  )}
+  ${EXO('pre',6,'Reconnaître et caractériser',
+    'Ces suites sont-elles arithmétiques ? Si oui, donner r :<br>a) 3,4 · 5,1 · 6,8 · 8,5 · 10,2<br>b) 2 · 4 · 8 · 16 · 32<br>c) 15 · 12 · 9 · 6 · 3',
+    'a) Écarts = 1,7 partout → <strong>Oui, r = 1,7</strong><br>b) 4−2=2, 8−4=4 → écarts différents → <strong>Non</strong><br>c) Écarts = −3 partout → <strong>Oui, r = −3</strong>'
   )}</div>`,
 quiz:[
-  {q:'Suite arithmétique u₀=3, r=4. u₅=?',c:['15','18','23','35'],a:2,exp:'u₅=3+5×4=23'},
-  {q:'Pour vérifier qu\'une suite est arithmétique, on calcule :',c:['Les produits uₙ₊₁×uₙ','Les quotients uₙ₊₁/uₙ','Les différences uₙ₊₁−uₙ','Les carrés'],a:2,exp:'Arithmétique = différences consécutives toutes égales à r.'},
-  {q:'r<0 → la suite arithmétique est :',c:['Croissante','Constante','Décroissante','Indéfinie'],a:2,exp:'r<0 → chaque terme diminue → décroissante.'},
-  {q:'u₁=10, u₅=22. Raison r=?',c:['3','4','5','12'],a:0,exp:'u₅=u₁+4r → 22=10+4r → r=3'},
-  {q:'u₁=5, r=3. Terme u₄=?',c:['11','14','17','20'],a:1,exp:'u₄=5+3×3=5+9=14... attends u₄=u₁+(4−1)×r=5+3×3=14'},
-  {q:'Suite : 20 · 17 · 14 · 11. Type et raison ?',c:['Arithmétique r=3','Arithmétique r=−3','Géométrique q=3','Aucun'],a:1,exp:'17−20=−3 · 14−17=−3 → arithmétique r=−3'},
-  {q:'Somme S₅=5×(u₁+u₅)÷2. Avec u₁=2, u₅=10 :',c:['25','30','20','12'],a:1,exp:'S₅=5×(2+10)÷2=5×6=30'},
-  {q:'u₁₀=u₁+9×r. Pour u₁=4 et r=6 :',c:['54','58','68','34'],a:1,exp:'4+9×6=4+54=58'},
-  {q:'Représentation graphique d\'une suite arithmétique : les points sont :',c:['Sur une parabole','Sur une droite','Aléatoires','Sur une courbe exponentielle'],a:1,exp:'Points (n;uₙ) alignés sur une droite de pente r.'},
-  {q:'u₀=100, r=−5. Premier terme négatif ?',c:['n=19','n=20','n=21','n=22'],a:1,exp:'100+(n)×(−5)<0 → n>20 → n=21... u₂₀=100−100=0 · u₂₁=−5 → n=21. Recalc: u₂₀=100−100=0 donc premier négatif n=21.'},
+  {q:'Suite arithmétique r=3 et u₀=5. Que vaut u₄ ?',c:['12','15','17','20'],a:2,exp:'u₄ = 5 + 4×3 = 5 + 12 = 17'},
+  {q:'Suite arithmétique u₂=10 et u₅=19. Quelle est la raison r ?',c:['2','3','4','5'],a:1,exp:'u₅−u₂ = 3r → 19−10 = 3r → r = 3'},
+  {q:'La formule uₙ = u₀ + n×r permet de calculer :',c:['Le premier terme','Le n-ième terme','La raison','La somme'],a:1,exp:'C\'est la formule du terme général — elle donne le n-ième terme directement.'},
+  {q:'r < 0 → la suite arithmétique est :',c:['Croissante','Constante','Décroissante','Indéfinie'],a:2,exp:'r < 0 → chaque terme diminue → suite décroissante.'},
+  {q:'u₀=10, r=−2. Valeur de u₂₀ ?',c:['−30','−40','−50','−20'],a:0,exp:'u₂₀ = 10 + 20×(−2) = 10 − 40 = −30'},
+  {q:'u₃=11 et u₇=23. Raison r ?',c:['2','3','4','5'],a:1,exp:'u₇−u₃ = 4r → 23−11 = 4r → r = 3'},
+  {q:'u₀=3, r=5. Valeur de u₁₅ ?',c:['68','73','78','83'],a:2,exp:'u₁₅ = 3 + 15×5 = 3 + 75 = 78'},
+  {q:'u₄=12, r=−3. Valeur de u₀ ?',c:['18','20','24','28'],a:2,exp:'u₄ = u₀ + 4×(−3) = 12 → u₀ − 12 = 12 → u₀ = 24'},
+  {q:'Représentation graphique d\'une suite arithmétique : les points sont :',c:['Sur une parabole','Sur une droite','Aléatoires','Sur une courbe exp.'],a:1,exp:'Les points (n ; uₙ) sont alignés sur une droite de pente r.'},
+  {q:'Somme S₅ = 5×(u₁+u₅)÷2. Avec u₁=2, u₅=10 :',c:['25','30','20','12'],a:1,exp:'S₅ = 5×(2+10)÷2 = 5×6 = 30'},
 ]},
 
 // ─── P4 Résolution graphique équations et inéquations ───
@@ -6195,10 +6388,10 @@ function getAnimForChapter(ch) {
 // ═══════════════════════════════════════════════════════════════════
 
 // ⚠️ REMPLACEZ PAR VOTRE URL Google Apps Script
-const SHEETS_URL = 'VOTRE_URL_ICI';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycby7Dz-JSS4oAFx8zuXtPdSvbknjjM0SAOfsU_K6IJZKrCO9NlVQEyraRJQqJ9mYYVm__Q/exec';
 
 // ⚠️ REMPLACEZ PAR VOTRE EMAIL ENSEIGNANT
-const PROF_EMAIL = 'votre.email@gmail.com';
+const PROF_EMAIL = 'aouaidsaid@gmail.com';
 
 // Données de l'élève courant
 let ELEVE = {
@@ -6211,7 +6404,7 @@ let ELEVE = {
 
 // ── Envoyer vers Google Sheets ────────────────────────────────────
 function sendToSheets(data) {
-  if (!SHEETS_URL || SHEETS_URL === 'VOTRE_URL_ICI') return;
+  if (!SHEETS_URL || SHEETS_URL === 'https://script.google.com/macros/s/AKfycby7Dz-JSS4oAFx8zuXtPdSvbknjjM0SAOfsU_K6IJZKrCO9NlVQEyraRJQqJ9mYYVm__Q/exec') return;
   if (!ELEVE.nom) return;
 
   const payload = {
@@ -6220,18 +6413,29 @@ function sendToSheets(data) {
     email:    ELEVE.email,
     classe:   ELEVE.classe,
     appareil: ELEVE.appareil,
-    profEmail:PROF_EMAIL,
     duree: ELEVE.startTime
       ? Math.round((Date.now() - ELEVE.startTime) / 60000)
       : '-'
   };
 
-  fetch(SHEETS_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(payload)
-  }).catch(() => {});
+  // Méthode GET via paramètre URL — la plus fiable avec Google Apps Script
+  try {
+    const params = new URLSearchParams();
+    params.set('data', JSON.stringify(payload));
+    const url = SHEETS_URL + '?' + params.toString();
+    
+    // Technique image — contourne les restrictions CORS complètement
+    const img = new Image();
+    img.src = url;
+    
+    // Backup : fetch en text/plain
+    fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    }).catch(() => {});
+  } catch(e) {}
 }
 
 // ── CSS du modal et du badge ──────────────────────────────────────
@@ -6472,6 +6676,15 @@ function showP(id){
   window.scrollTo(0,0);
 }
 function goHome(){showP('home');updateHome();}
+function openLvl(id){
+  const lv=LVL[id]; if(!lv) return;
+  curLvl=id; curLvlData=lv;
+  document.getElementById('ltitle').textContent=lv.label;
+  document.getElementById('lsub').textContent=lv.sub||'';
+  buildChapGrid(lv);
+  showP('level');
+  window.scrollTo(0,0);
+}
 
 function showLevel(k){
   curLvl=k; const lv=LVL[k];
