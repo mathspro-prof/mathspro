@@ -6404,7 +6404,7 @@ let ELEVE = {
 
 // ── Envoyer vers Google Sheets ────────────────────────────────────
 function sendToSheets(data) {
-  if (!SHEETS_URL) return; // URL configurée
+  if (!SHEETS_URL) return;
   if (!ELEVE.nom) return;
 
   const payload = {
