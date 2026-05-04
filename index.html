@@ -4639,14 +4639,29 @@ return{enonce:`P(défaut) = ${pct}%. Sur ${n} pièces, combien défectueuses ?`,
 {id:'cap_c4',titre:'Proportionnalité',icon:'⚖️',desc:'Produit en croix et tableaux de proportionnalité',niveau:'cap',color:'cap',metier:false,
 niveaux:[
 {id:'cap_c4_n1',label:'Niveau 1',sublabel:'Produit en croix',icon:'✖',
-gen:()=>{const a=rnd(2,12),b=rnd(2,10)*rnd(1,4),c=rnd(2,18);const rep=+(a*c/b).toFixed(2);
-return{enonce:`${a} articles coûtent ${b}€. Prix de ${c} articles ?`,html:`<div class="pq-tableau"><div class="pq-col"><div class="pq-h">Quantité</div><div class="pq-v">${a}</div><div class="pq-v text-q">${c}</div></div><div class="pq-col"><div class="pq-h">Prix (€)</div><div class="pq-v">${b}</div><div class="pq-v pq-inco">?</div></div></div>`,reponse:rep,tolerance:0.05,indice:`💡 x = ${c}×${b}÷${a}`,aide:`📘 ${c}×${b}÷${a}=${rep}€`,explication:`✅ <strong>${rep}€</strong>`};}},
+gen:()=>{
+  const prixUnit=pick([1.5,2,2.5,3,4,5,6,8,10]);
+  const a=rnd(2,8);
+  const b=+(a*prixUnit).toFixed(2);
+  const c=rnd(3,15);
+  const rep=+(c*prixUnit).toFixed(2);
+  return{enonce:`${a} articles coûtent ${b}€. Prix de ${c} articles ?`,
+  html:`<div class="pq-tableau"><div class="pq-col"><div class="pq-h">Quantité</div><div class="pq-v">${a}</div><div class="pq-v text-q">${c}</div></div><div class="pq-col"><div class="pq-h">Prix (€)</div><div class="pq-v">${b}</div><div class="pq-v pq-inco">?</div></div></div>`,
+  reponse:rep,tolerance:0.05,indice:`💡 x = ${c}×${b}÷${a}`,aide:`📘 prix unitaire = ${b}÷${a} = ${prixUnit}€ → ${c}×${prixUnit} = ${rep}€`,explication:`✅ <strong>${rep}€</strong>`};}},
 {id:'cap_c4_n2',label:'Niveau 2',sublabel:'Coefficient k',icon:'k',
 gen:()=>{const k=rnd(2,9)+rnd(0,9)*0.1;const x=rnd(3,15);const y=+(k*x).toFixed(2);
 return{enonce:`Tableau proportionnel : x=${x} → y=${y}. Coefficient k ?`,eq:`${y}÷${x}=?`,reponse:+k.toFixed(2),tolerance:0.05,indice:`💡 k = y÷x`,aide:`📘 ${y}÷${x}=${k.toFixed(2)}`,explication:`✅ k = <strong>${k.toFixed(2)}</strong>`};}},
 {id:'cap_c4_n3',label:'Niveau 3',sublabel:'Recette',icon:'🍳',
-gen:()=>{const p1=rnd(2,6),p2=p1+rnd(2,p1*2);const q=rnd(100,500);const rep=Math.round(q*p2/p1);
-return{enonce:`Recette pour ${p1} personnes : ${q}g de farine. Pour ${p2} personnes ?`,eq:`${q}×${p2}÷${p1}=?`,reponse:rep,tolerance:1,indice:`💡 k=${q}÷${p1}`,aide:`📘 ${q/p1*p2}g`,explication:`✅ <strong>${rep}g</strong>`};}}
+gen:()=>{
+  const couples=[[2,4],[2,6],[3,6],[3,9],[4,8],[5,10],[4,12],[5,15]];
+  const [p1,p2]=couples[Math.floor(Math.random()*couples.length)];
+  const q=rnd(1,10)*p1*10;
+  const rep=q*p2/p1;
+  return{enonce:`Recette pour ${p1} personnes : ${q}g de farine. Pour ${p2} personnes ?`,
+  eq:`${q}×${p2}÷${p1}=?`,reponse:rep,tolerance:0,
+  indice:`💡 coefficient = ${p2}÷${p1} = ${p2/p1}`,
+  aide:`📘 ${q}×${+(p2/p1).toFixed(2)} = ${rep}g`,
+  explication:`✅ <strong>${rep}g</strong>`};}}
 ]},
 
 {id:'cap_c5',titre:'Pourcentages professionnels',icon:'%',desc:'Remises, TVA, augmentations et taux de variation',niveau:'cap',color:'cap',metier:false,
