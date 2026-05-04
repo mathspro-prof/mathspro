@@ -9143,10 +9143,10 @@ function(){
 // ═══════════════════════════════════════════════════════════════════
 
 // ⚠️ REMPLACEZ PAR VOTRE URL Google Apps Script
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxCWLMOOQf8S4YeP7HBruQA_w3fddTfv6vHCI117kJ-_tbTM0pmsR46fm9SFQ8tM7v7Yg/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxTDyuJCqaO6u5X7iaQC_alpREdEosPksE_DydexxWdTn6xETazYWTDgzUb_BqwkyW6rA/exec';
 
 // ⚠️ REMPLACEZ PAR VOTRE EMAIL ENSEIGNANT
-const PROF_EMAIL = 'votre.email@gmail.com';
+const PROF_EMAIL = 'aouaidsaid@gmail.com';
 
 // Données de l'élève courant
 let ELEVE = {
@@ -9159,7 +9159,7 @@ let ELEVE = {
 
 // ── Envoyer vers Google Sheets ────────────────────────────────────
 function sendToSheets(data) {
-  if (!SHEETS_URL || SHEETS_URL === 'https://script.google.com/macros/s/AKfycbxCWLMOOQf8S4YeP7HBruQA_w3fddTfv6vHCI117kJ-_tbTM0pmsR46fm9SFQ8tM7v7Yg/exec') return;
+  if (!SHEETS_URL) return;
   if (!ELEVE.nom) return;
 
   const payload = {
