@@ -1437,6 +1437,14 @@ button, .bk, .qbtn, .fnb, .fnb {
 
 
 
+
+
+
+
+
+
+
+
 // ── HELPERS ──
 const c_ = k => `var(--${k})`;
 const FB  = (c,t) => `<div class="fb" style="background:${c_(`${c}l`)};border-color:${c_(c)}">${t}</div>`;
@@ -4227,71 +4235,89 @@ const PRE_DATA = {
   chapters:[
 
 // ── P1 Statistique à deux variables ─────────────────────────────
-{id:'p1',num:1,title:'Statistique à deux variables',
-desc:'Nuage de points · Ajustement affine (moindres carrés) · Coefficient R² · Interpolation et extrapolation',
+{id:'p1',num:1,title:'Statistique \u00e0 deux variables',
+desc:'Nuage de points \u00b7 Ajustement affine \u00b7 Moindres carr\u00e9s \u00b7 Coefficient R\u00b2 \u00b7 Interpolation et extrapolation \u00b7 Simulateur NumWorks',
 cours:
-  SEC('pre','1','Nuage de points et série à deux variables',
-    DEF('pre','Une <strong>série statistique à deux variables</strong> associe à chaque individu deux valeurs (xᵢ ; yᵢ). On représente l\'ensemble des couples par un <strong>nuage de points</strong>.<br><br>📌 Compétences BO : représenter graphiquement un nuage · lire et interpréter · distinguer corrélation et causalité')
-    +EX('pre','📊 Températures (°C) et consommation électrique (MWh) sur 6 jours :<br>'+MT(['x (°C)','−2','0','5','10','15','20'],
-       [['y (MWh)','90','82','68','55','40','30']])+
-    'Nuage décroissant : quand la température augmente, la consommation diminue → <strong>corrélation négative</strong>.<br>⚠️ Corrélation ≠ causalité : deux phénomènes peuvent être corrélés sans lien de cause à effet.')
-    +TIP('Nuage croissant → corrélation positive · Nuage décroissant → corrélation négative · Nuage dispersé → pas de corrélation')
+  SEC('pre','1','S\u00e9rie statistique \u00e0 deux variables',
+    DEF('pre','Une <strong>s\u00e9rie statistique \u00e0 deux variables</strong> \u00e9tudie le lien entre <strong>deux caract\u00e8res quantitatifs</strong> mesur\u00e9s sur une m\u00eame population. On note <strong>(x\u1d62 ; y\u1d62)</strong> les couples de valeurs.')
+    +EX('pre','<strong>Exemple \u2014 Kilom\u00e9trage et prix de v\u00e9hicules d\u2019occasion :</strong><br>'
+      +MT(
+        ['Kilom\u00e9trage x (milliers km)','20','45','60','85','110','130','150','175'],
+        [['Prix y (milliers \u20ac)','18','15','13','10','8','6','5','3']]
+      )
+    )
+    +EX('pre','<strong>Nuage de points</strong> : chaque couple (x ; y) est repr\u00e9sent\u00e9 par un point dans un rep\u00e8re. L\u2019ensemble forme un <strong>nuage de points</strong>.')
+    +DEF('pre',''+MT(
+      ['Nuage','Interpr\u00e9tation'],
+      [['Points align\u00e9s, pente positive','<strong>Corr\u00e9lation positive</strong>'],
+       ['Points align\u00e9s, pente n\u00e9gative','<strong>Corr\u00e9lation n\u00e9gative</strong>'],
+       ['Points dispers\u00e9s','<strong>Pas de corr\u00e9lation</strong>']]
+    ))
+    +TIP('\u26a0\ufe0f Corr\u00e9lation \u2260 Causalit\u00e9 : deux variables peuvent \u00eatre corr\u00e9l\u00e9es sans que l\u2019une cause l\u2019autre !')
   )
-  +SEC('pre','2','Droite d\'ajustement affine par les moindres carrés',
-    DEF('pre','On détermine à l\'aide d\'un outil numérique la <strong>droite d\'ajustement</strong> d\'équation <strong>y = ax + b</strong> qui minimise la somme des carrés des écarts.<br><br>Cette droite passe par le <strong>point moyen G(x̄ ; ȳ)</strong>.<br><br>📌 BO : utiliser les outils numériques pour déterminer a et b · on indique aux élèves quel ajustement réaliser (x en y ou y en x)')
-    +FB('pre','y = ax + b  ·  G(x̄ ; ȳ) ∈ droite  ·  a et b calculés par outil numérique')
-    +EX('pre','🏗️ Coût de construction C (k€) selon surface S (m²) :<br>Données : G(120 ; 85) · Ajustement : C = 0,65S + 7<br>Interprétation : chaque m² supplémentaire coûte environ <strong>0,65 k€</strong>.')
+  +SEC('pre','2','Ajustement affine',
+    DEF('pre','Une <strong>droite d\u2019ajustement</strong> passe "au plus pr\u00e8s" des points du nuage. Son \u00e9quation est <strong>y = ax + b</strong>.<br><strong>a</strong> = coefficient directeur | <strong>b</strong> = ordonn\u00e9e \u00e0 l\u2019origine')
+    +FB('pre','M\u00e9thode des moindres carr\u00e9s : utilis\u00e9e par la calculatrice. Elle minimise la somme des carr\u00e9s des \u00e9carts entre les points et la droite. On ne calcule pas a et b \u00e0 la main.')
+    +EX('pre',''+MT(
+      ['Action','D\u00e9finition','Fiabilit\u00e9'],
+      [['<strong>Interpolation</strong>','Estimer y pour x <strong>dans</strong> l\u2019intervalle des donn\u00e9es','\u2705 Bonne'],
+       ['<strong>Extrapolation</strong>','Estimer y pour x <strong>hors</strong> de l\u2019intervalle','\u26a0\ufe0f Risqu\u00e9e']]
+    ))
   )
-  +SEC('pre','3','Coefficient de détermination R²',
-    DEF('pre','Le <strong>coefficient de détermination R²</strong> mesure la qualité de l\'ajustement affine :<br>• R² proche de <strong>1</strong> → ajustement excellent, forte corrélation linéaire<br>• R² proche de <strong>0</strong> → ajustement médiocre<br><br>R² se calcule à l\'aide d\'un outil numérique.<br>⚠️ Un R² élevé ne signifie pas nécessairement une relation de <strong>causalité</strong>.')
-    +FB('pre','R²∈[0;1] · R²≈1 → bon ajustement · R²≈0 → mauvais ajustement')
-    +EX('pre','📈 Résultats d\'un tableur pour des données de ventes :<br>Droite : y = 1,2x + 5  ·  R² = 0,94<br>→ R² = 0,94 ≈ 1 : <strong>ajustement excellent</strong>, la droite modélise bien les données.')
+  +SEC('pre','3','Coefficient de d\u00e9termination R\u00b2',
+    DEF('pre','R\u00b2 mesure la <strong>qualit\u00e9 de l\u2019ajustement affine</strong>. Il est compris entre <strong>0 et 1</strong>.')
+    +EX('pre',''+MT(
+      ['R\u00b2','Qualit\u00e9'],
+      [['R\u00b2 > 0,9','Excellent \u2705'],
+       ['0,7 < R\u00b2 < 0,9','Bon \uD83D\uDC4D'],
+       ['0,5 < R\u00b2 < 0,7','Moyen \uD83D\uDE10'],
+       ['R\u00b2 < 0,5','Faible \u274c']]
+    ))
+    +TIP('Plus R\u00b2 est proche de 1, plus l\u2019ajustement affine est pertinent pour pr\u00e9dire.')
   )
-  +SEC('pre','4','Interpolation et extrapolation',
-    DEF('pre','Une fois la droite y = ax + b déterminée :<br>• <strong>Interpoler</strong> : estimer y pour un x compris dans les données observées<br>• <strong>Extrapoler</strong> : estimer y pour un x hors de la plage observée<br><br>⚠️ L\'extrapolation est moins fiable : le modèle peut ne plus être valide.')
-    +EX('pre','🌡️ Droite : C = −3T + 90 (consommation en MWh, T en °C)<br>Interpolation : T=8°C → C = −24+90 = <strong>66 MWh</strong><br>Extrapolation : T=30°C → C = −90+90 = <strong>0 MWh</strong> (à interpréter avec prudence !)')
+  +SEC('pre','4','Proc\u00e9dure NumWorks',
+    DEF('pre','')
+    +EX('pre','1\u00b0 Ouvrir <strong>R\u00e9gression</strong> depuis l\u2019\u00e9cran d\u2019accueil<br>2\u00b0 Onglet <strong>Donn\u00e9es</strong> : saisir X\u2081 et Y\u2081<br>3\u00b0 Onglet <strong>Graphique</strong> : visualiser le nuage de points<br>4\u00b0 Onglet <strong>R\u00e9gression</strong> : obtenir y = ax + b, r, R\u00b2<br>5\u00b0 Menu <strong>OK \u2192 Donn\u00e9es</strong> : Pr\u00e9dire Y sachant X')
+    +TIP('Sur NumWorks, le r donn\u00e9 est le coefficient de corr\u00e9lation lin\u00e9aire. R\u00b2 = r\u00b2. Si r < 0, la corr\u00e9lation est n\u00e9gative.')
   ),
 exos:
-  `<div class="exos">${DIFF('pre','⭐','Niveau 1 — Lecture et représentation')}
-  ${EXO('pre',1,'Nuage de points — données professionnelles',
-    '🏭 Un technicien mesure la résistance R (Ω) d\'un câble selon sa longueur L (m) :<br>'+MT(['L (m)','2','4','6','8','10','12'],
-    [['R (Ω)','3,1','6,0','9,2','11,8','15,1','18,0']])+
-    'a) Représenter le nuage de points (L ; R).<br>b) Décrire la corrélation (positive, négative, absente).<br>c) Le point moyen G est-il visible sur le nuage ? Calculer G.',
-    'a) Nuage croissant — les points s\'alignent sur une droite<br>b) Corrélation <strong>positive</strong> : plus le câble est long, plus sa résistance est grande<br>c) x̄=(2+4+6+8+10+12)/6=7 · ȳ=(3,1+6+9,2+11,8+15,1+18)/6≈<strong>G(7 ; 10,5)</strong>'
-  )}
-  ${EXO('pre',2,'R² — évaluer la qualité d\'un ajustement',
-    '📊 Pour trois séries statistiques, un tableur donne :<br>Série A : R²=0,97 · Série B : R²=0,42 · Série C : R²=0,85<br><br>a) Classer les trois séries du meilleur au moins bon ajustement affine.<br>b) Pour quelle(s) série(s) l\'ajustement affine est-il pertinent ?<br>c) Pour la série B, que conseiller ?',
-    'a) A (0,97) > C (0,85) > B (0,42)<br>b) Séries A et C : R²≥0,8 → ajustement <strong>pertinent</strong><br>c) Série B : R²=0,42 très éloigné de 1 → <strong>l\'ajustement affine n\'est pas adapté</strong>, chercher un autre modèle'
-  )}
-  ${EXO('pre',3,'Interpoler et extrapoler',
-    '🚗 Un atelier mesure la consommation de carburant C (L) selon la distance D (km) :<br>Droite ajustée : C = 0,08D + 1,5 · R²=0,96<br><br>a) Interpoler C pour D=150 km.<br>b) Interpoler C pour D=300 km.<br>c) Un trajet de 800 km donne C=65 L selon le modèle. Est-ce fiable ? Pourquoi ?',
-    'a) C=0,08×150+1,5=12+1,5=<strong>13,5 L</strong><br>b) C=0,08×300+1,5=24+1,5=<strong>25,5 L</strong><br>c) D=800 km est une <strong>extrapolation</strong> : si les données observées allaient jusqu\'à 400 km, le modèle peut ne plus être valide au-delà → résultat à utiliser avec <strong>prudence</strong>'
-  )}</div>
-  <div class="exos">${DIFF('pre','⭐⭐','Niveau 2 — Droite d\'ajustement')}
-  ${EXO('pre',4,'Déterminer et utiliser une droite d\'ajustement',
-    '📈 Évolution du prix moyen P (€) d\'un produit selon les années t (t=0 en 2015) :<br>'+MT(['t','0','2','4','6','8'],
-    [['P (€)','12','15','17','22','25']])+
-    'Un outil numérique donne : P = 1,65t + 11,2 · R²=0,99<br>a) La droite passe-t-elle par G ? Calculer G et vérifier.<br>b) Interpoler le prix en 2019 (t=4).<br>c) Extrapoler le prix en 2027 (t=12). Commenter.',
-    'a) x̄=(0+2+4+6+8)/5=4 · ȳ=(12+15+17+22+25)/5=18,2 → G(4;18,2)<br>Vérification : P(4)=1,65×4+11,2=6,6+11,2=17,8 ≈ 18,2 ✓ (point moyen proche)<br>b) t=4 → P=1,65×4+11,2=<strong>17,8 €</strong><br>c) t=12 → P=1,65×12+11,2=<strong>31 €</strong> — extrapolation : fiable seulement si la tendance linéaire se maintient'
-  )}
-  ${EXO('pre',5,'Corrélation ou causalité ?',
-    '📊 Un chercheur observe sur 10 pays : plus la consommation de chocolat par habitant est élevée, plus le nombre de prix Nobel est grand. R²=0,79.<br><br>a) Y a-t-il une corrélation ? De quel type ?<br>b) Peut-on affirmer que manger du chocolat favorise l\'obtention d\'un prix Nobel ? Justifier.<br>c) Quelle notion du programme illustre cet exemple ?',
-    'a) Oui, corrélation <strong>positive</strong> (R²=0,79 assez proche de 1, nuage croissant)<br>b) Non — il s\'agit d\'une <strong>corrélation, pas d\'une causalité</strong>. Un troisième facteur (niveau de développement économique) explique probablement les deux variables.<br>c) BO : "<strong>distinguer corrélation et causalité</strong>" — corrélation ≠ lien de cause à effet'
-  )}</div>`,
+  `<div class="exos">${DIFF('pre','\u2b50','Niveau 1 \u2014 Lecture de nuage')}
+  ${EXO('pre',1,'Corr\u00e9lation','Le nuage montre des points align\u00e9s avec une pente n\u00e9gative. Quelle corr\u00e9lation ?','Pente n\u00e9gative \u2192 <strong>corr\u00e9lation n\u00e9gative</strong> (quand x augmente, y diminue).')}
+  ${EXO('pre',2,'R\u00b2','On donne R\u00b2 = 0,95. L\u2019ajustement affine est-il pertinent ?','R\u00b2 = 0,95 > 0,9 \u2192 <strong>Excellent ajustement</strong>. Oui, tr\u00e8s pertinent.')}</div>
+  <div class="exos">${DIFF('pre','\u2b50\u2b50','Niveau 2 \u2014 Utilisation de la droite')}
+  ${EXO('pre',3,'Interpolation ou extrapolation ?','y = \u22122x + 50. Estimer y pour x = 10. Donn\u00e9es : x entre 5 et 40.','y = \u22122\u00d710+50 = <strong>30</strong>. x=10 est dans [5;40] \u2192 <strong>interpolation</strong>.')}
+  ${EXO('pre',4,'Extrapolation','M\u00eame \u00e9quation. Estimer y pour x = 100.','y = \u22122\u00d7100+50 = <strong>\u2212150</strong>. x=100 est hors de [5;40] \u2192 <strong>extrapolation</strong> \u26a0\ufe0f peu fiable.')}</div>
+  <div class="exos">${DIFF('pre','\u2b50\u2b50\u2b50','Niveau 3 \u2014 Tableau')}
+  ${EXO('pre',5,'Compl\u00e9ter','Donn\u00e9es : x=2;5;8;11. y=7;13;19;25. Estimer y pour x=14.','Diff\u00e9rence constante de 6 pour +3 en x \u2192 r=2. y=2\u00d714+3=<strong>31</strong>.')}
+  ${EXO('pre',6,'NumWorks','Saisir les donn\u00e9es de l\u2019ex. 5 dans NumWorks. Donner l\u2019\u00e9quation et R\u00b2.','y = 2x + 3 | R\u00b2 = <strong>1</strong> (corr\u00e9lation parfaite, points exactement align\u00e9s).')}</div>
+  <div class="exos">${DIFF('pre','\u2b50\u2b50\u2b50\u2b50','Niveau 4 \u2014 Probl\u00e8mes')}
+  ${EXO('pre',7,'CA et publicit\u00e9','Publicit\u00e9 (k\u20ac) : 2;5;8;10;12;15. CA (M\u20ac) : 30;42;55;65;72;85. a) \u00c9quation. b) R\u00b2. c) CA pour 20 k\u20ac.','a) y\u22484,83x+19,6 | b) R\u00b2\u22480,998 \u2192 excellent | c) y\u22484,83\u00d720+19,6\u2248<strong>116,2 M\u20ac</strong> (extrapolation \u26a0\ufe0f)')}
+  ${EXO('pre',8,'Conso \u00e9lectrique','Temp\u00e9rature : \u22125;0;5;10;15;20;25. Conso (kWh) : 45;38;30;22;15;10;8. a) R\u00b2 ? b) Conso \u00e0 30\u00b0C ?','a) R\u00b2\u22480,990 \u2192 excellent ajustement | b) extrapolation : pr\u00e9caution \u26a0\ufe0f')}</div>
+  <div class="exos">${DIFF('pre','\u2605','Expert \u2014 Interpr\u00e9tation')}
+  ${EXO('pre',9,'Corr\u00e9lation et causalit\u00e9','S\u00e9rie A : R\u00b2=0,95. S\u00e9rie B : R\u00b2=0,62. Laquelle a le meilleur ajustement ? Peut-on conclure une relation de cause \u00e0 effet ?','S\u00e9rie A (R\u00b2=0,95) a le <strong>meilleur ajustement</strong>. Mais corr\u00e9lation \u2260 causalit\u00e9 : un 3\u00e8me facteur peut expliquer les deux variables.')}
+  ${EXO('pre',10,'Extrapolation risqu\u00e9e','Un mod\u00e8le y=3x+10 pr\u00e9dit un CA de 10 010 M\u20ac pour x=3 330. Pourquoi est-ce probl\u00e9matique ?','X=3330 est tr\u00e8s loin des donn\u00e9es initiales \u2192 <strong>extrapolation tr\u00e8s risqu\u00e9e</strong>. Le mod\u00e8le lin\u00e9aire n\u2019est plus valide.')}</div>`,
 quiz:[
-  {q:'R²=0,98 pour un ajustement affine. Cela signifie :',c:['Ajustement excellent — forte corrélation linéaire','Ajustement médiocre','Aucune corrélation','R² doit être négatif'],a:0,exp:'R² proche de 1 → très bon ajustement affine, forte corrélation.'},
-  {q:'La droite d\'ajustement passe toujours par :',c:['L\'origine (0;0)','Le point moyen G(x̄ ; ȳ)','Le premier point de la série','Le dernier point'],a:1,exp:'La droite des moindres carrés passe toujours par le point moyen G(x̄ ; ȳ).'},
-  {q:'Interpoler, c\'est :',c:['Estimer une valeur hors de la plage observée','Estimer une valeur à l\'intérieur de la plage observée','Calculer R²','Tracer le nuage'],a:1,exp:'Interpoler = estimer à l\'intérieur. Extrapoler = estimer à l\'extérieur (moins fiable).'},
-  {q:'Corrélation positive signifie :',c:['Quand x augmente, y diminue','Quand x augmente, y augmente','R² est négatif','Les points sont dispersés'],a:1,exp:'Corrélation positive : nuage de points croissant, x et y évoluent dans le même sens.'},
-  {q:'R²=0,30. L\'ajustement affine est :',c:['Excellent','Médiocre — chercher un autre modèle','Parfait','Impossible à évaluer'],a:1,exp:'R²=0,30 très éloigné de 1 → mauvais ajustement affine.'},
-  {q:'Droite : y = 2x + 3. Pour x=7 (interpolation) :',c:['y=10','y=17','y=13','y=21'],a:1,exp:'y=2×7+3=14+3=17'},
-  {q:'Corrélation élevée entre deux variables signifie obligatoirement :',c:['Un lien de causalité','Que l\'une cause l\'autre','Qu\'un troisième facteur explique les deux','Non, corrélation ≠ causalité'],a:3,exp:'Corrélation ≠ causalité. Deux phénomènes peuvent varier ensemble sans que l\'un cause l\'autre.'},
-  {q:'La méthode des moindres carrés détermine la droite qui :',c:['Passe par le plus de points','Minimise la somme des carrés des écarts','A la pente la plus forte','Passe par l\'origine'],a:1,exp:'Définition des moindres carrés : minimiser Σ(yᵢ − ŷᵢ)².'},
-  {q:'Point moyen G(5 ; 12). Droite : y=2x+b. Valeur de b ?',c:['b=2','b=12','b=22','b=−2'],a:0,exp:'G∈droite → 12=2×5+b → b=12−10=2.'},
-  {q:'Extrapoler est moins fiable qu\'interpoler car :',c:['Le modèle peut ne plus être valide hors des données observées','Les calculs sont plus compliqués','R² change','La droite n\'existe plus'],a:0,exp:'Hors de la plage d\'observation, le modèle linéaire peut ne plus être adapté à la réalité.'},
+  {q:'Une s\u00e9rie \u00e0 deux variables \u00e9tudie :',c:['Un seul caract\u00e8re','Deux caract\u00e8res','Une population seule'],a:1,exp:'On \u00e9tudie deux caract\u00e8res quantitatifs mesur\u00e9s sur la m\u00eame population.'},
+  {q:'Chaque individu fournit :',c:['Un couple (x;y)','Un seul nombre','Une moyenne'],a:0,exp:'On associe \u00e0 chaque individu un couple de valeurs (x\u1d62;y\u1d62).'},
+  {q:'Le nuage de points repr\u00e9sente :',c:['Les x seuls','Les y seuls','Les couples (x;y)'],a:2,exp:'Chaque point du nuage correspond \u00e0 un couple (x;y).'},
+  {q:'Points align\u00e9s, pente positive \u2192 :',c:['Pas de lien','Corr\u00e9lation positive','Corr\u00e9lation n\u00e9gative'],a:1,exp:'Pente positive : quand x augmente, y augmente aussi.'},
+  {q:'\u00c9quation de la droite d\u2019ajustement :',c:['y = ax','y = ax + b','x = ay + b'],a:1,exp:'La droite d\u2019ajustement a pour \u00e9quation y = ax + b.'},
+  {q:'M\u00e9thode utilis\u00e9e pour trouver a et b :',c:['Moindres cubes','Moindres carr\u00e9s','Moindres rectangles'],a:1,exp:'La m\u00e9thode des moindres carr\u00e9s minimise la somme des carr\u00e9s des \u00e9carts.'},
+  {q:'Sur NumWorks, on saisit les donn\u00e9es dans :',c:['Calculs','R\u00e9gression > Donn\u00e9es','Graphes'],a:1,exp:'Menu R\u00e9gression, onglet Donn\u00e9es : saisir X\u2081 et Y\u2081.'},
+  {q:'Pour l\u2019\u00e9quation et R\u00b2, aller dans :',c:['Donn\u00e9es','Graphique','R\u00e9gression'],a:2,exp:'L\u2019onglet R\u00e9gression donne l\u2019\u00e9quation y=ax+b et les valeurs r, R\u00b2.'},
+  {q:'Estimer dans l\u2019intervalle des donn\u00e9es =',c:['Interpolation','Extrapolation','Ajustement'],a:0,exp:'Interpolation : estimation \u00e0 l\u2019int\u00e9rieur de l\u2019intervalle, fiable.'},
+  {q:'L\u2019extrapolation est :',c:['Tr\u00e8s fiable','Risqu\u00e9e','Interdite'],a:1,exp:'Estimer hors de l\u2019intervalle des donn\u00e9es est risqu\u00e9 : le mod\u00e8le peut ne plus \u00eatre valide.'},
+  {q:'x entre 10 et 50. Estimer pour x=30 =',c:['Interpolation','Extrapolation'],a:0,exp:'x=30 est dans [10;50] \u2192 interpolation.'},
+  {q:'x entre 10 et 50. Estimer pour x=80 =',c:['Interpolation','Extrapolation'],a:1,exp:'x=80 est hors de [10;50] \u2192 extrapolation.'},
+  {q:'R\u00b2 mesure :',c:['La pente','La qualit\u00e9 de l\u2019ajustement','L\u2019ordonn\u00e9e \u00e0 l\u2019origine'],a:1,exp:'R\u00b2 est le coefficient de d\u00e9termination : plus proche de 1, meilleur est l\u2019ajustement.'},
+  {q:'R\u00b2 est entre :',c:['\u22121 et 1','0 et 1','0 et 100'],a:1,exp:'R\u00b2 \u2208 [0 ; 1]. Proche de 1 = bon ajustement.'},
+  {q:'R\u00b2 = 0,98 signifie :',c:['Mauvais ajustement','Tr\u00e8s bon ajustement','Pas de corr\u00e9lation'],a:1,exp:'R\u00b2=0,98 > 0,9 \u2192 excellent ajustement affine.'},
+  {q:'R\u00b2 = 0,3 signifie :',c:['Ajustement parfait','Ajustement faible','Erreur de calcul'],a:1,exp:'R\u00b2=0,3 < 0,5 \u2192 ajustement faible, le mod\u00e8le lin\u00e9aire n\u2019est pas adapt\u00e9.'},
+  {q:'Pr\u00e9dire Y sachant X sur NumWorks :',c:['Menu OK > Donn\u00e9es','Menu Graphique','Menu R\u00e9gression'],a:0,exp:'Depuis Donn\u00e9es, touche OK, puis choisir Pr\u00e9dire Y sachant X.'},
+  {q:'Corr\u00e9lation \u2260 :',c:['R\u00e9gression','Causalit\u00e9','Ajustement'],a:1,exp:'Une corr\u00e9lation ne prouve pas un lien de cause \u00e0 effet.'},
+  {q:'Une droite de r\u00e9gression sert \u00e0 :',c:['Prouver','Estimer','D\u00e9montrer'],a:1,exp:'Elle permet d\u2019estimer des valeurs de y \u00e0 partir de x.'},
+  {q:'R\u00b2 = 0,85. L\u2019ajustement est :',c:['Excellent','Bon','Faible'],a:1,exp:'0,7 < 0,85 < 0,9 \u2192 bon ajustement.'}
 ]},
-
-// ── P2 Probabilités ──────────────────────────────────────────────
 {id:'p2',num:2,title:'Probabilités',
 desc:'Univers fini · Événements · P(A∪B)=P(A)+P(B)−P(A∩B) · Tableaux croisés · Probabilités conditionnelles',
 cours:
@@ -4353,62 +4379,76 @@ quiz:[
 ]},
 
 // ── P3 Suites arithmétiques ──────────────────────────────────────
-{id:'p3',num:3,title:'Suites arithmétiques',
-desc:'Définition · Terme général · Variations · Somme des premiers termes · Applications',
+{id:'p3',num:3,title:'Suites arithm\u00e9tiques',
+desc:'Suite num\u00e9rique \u00b7 D\u00e9finition \u00b7 Raison \u00b7 Terme g\u00e9n\u00e9ral \u00b7 Sens de variation \u00b7 Somme des premiers termes \u00b7 Applications m\u00e9tiers',
 cours:
-  SEC('pre','1','Suites numériques — généralités',
-    DEF('pre','Une <strong>suite numérique</strong> (uₙ) est une fonction définie sur ℕ.<br>• Notation : uₙ = f(n) ou par récurrence uₙ₊₁ = g(uₙ)<br>• Le <strong>sens de variation</strong> se détermine en étudiant uₙ₊₁ − uₙ ou f(n+1) − f(n)<br><br>📌 BO : générer les termes par calcul ou outil numérique · étudier le sens de variation dans des cas simples')
-    +EX('pre','Exemples de suites :<br>• uₙ = 3n + 2 : <strong>fonction affine de n</strong><br>• uₙ = n² : <strong>croissante pour n≥0</strong><br>• uₙ = (−1)ⁿ : <strong>ni croissante ni décroissante</strong>')
-    +TIP('uₙ₊₁ − uₙ > 0 ⟹ suite croissante · uₙ₊₁ − uₙ < 0 ⟹ suite décroissante')
+  SEC('pre','1','Qu\u2019est-ce qu\u2019une suite num\u00e9rique ?',
+    DEF('pre','Une <strong>suite num\u00e9rique</strong> est une liste ordonn\u00e9e de nombres. Chaque nombre est un <strong>terme</strong> de la suite. On note <strong>(u\u2099)</strong> la suite et <strong>u\u2099</strong> le terme de rang n.')
+    +EX('pre',''+MT(
+      ['Terme','Notation','Signification'],
+      [['Terme de rang n','u\u2099','Nombre \u00e0 la position n'],
+       ['Premier terme','u\u2080','Point de d\u00e9part'],
+       ['Relation de r\u00e9currence','u\u2099\u208a\u2081 = ...','R\u00e8gle pour passer au terme suivant'],
+       ['Expression explicite','u\u2099 = f(n)','Formule directe']]
+    ))
+    +EX('pre','<strong>Exemple — Vibration d\u2019une machine-outil :</strong><br>Amplitude mesur\u00e9e chaque semaine : u\u2080=0,2 mm | u\u2081=0,3 mm | u\u2082=0,4 mm | u\u2083=0,5 mm...')
+    +EX('pre','<strong>Exemple — \u00c9pargne mensuelle :</strong><br>Compte avec versement fixe : u\u2080=200\u20ac | u\u2081=250\u20ac | u\u2082=300\u20ac | u\u2083=350\u20ac...')
   )
-  +SEC('pre','2','Suites arithmétiques',
-    DEF('pre','La suite (uₙ) est <strong>arithmétique</strong> de raison r si : <strong>uₙ₊₁ = uₙ + r</strong><br><br>• <strong>Terme général</strong> : uₙ = u₀ + n×r<br>• Si r > 0 : suite <strong>croissante</strong> · si r < 0 : <strong>décroissante</strong> · si r = 0 : <strong>constante</strong><br>• <strong>Lien avec les fonctions affines</strong> : f(n) = rn + u₀ (droite de coefficient directeur r)<br>• Les points (n ; uₙ) sont <strong>alignés</strong>')
-    +FB('pre','uₙ=u₀+n×r · r=uₙ₊₁−uₙ · Nuage aligné sur droite de pente r')
-    +EX('pre','🧱 Un maçon pose 35 briques le 1er jour, 3 briques de plus chaque jour.<br>u₀=35, r=3 · uₙ=35+3n<br>u₅=35+15=<strong>50 briques</strong> au 6ème jour · Suite <strong>croissante</strong> (r=3>0)')
-    +TIP('Pour reconnaître une suite arithmétique : vérifier que les différences consécutives sont constantes')
+  +SEC('pre','2','La suite arithm\u00e9tique',
+    DEF('pre','Une <strong>suite arithm\u00e9tique</strong> est une suite o\u00f9 l\u2019on passe d\u2019un terme au suivant en <strong>ajoutant toujours le m\u00eame nombre</strong> appel\u00e9 <strong>raison</strong> (not\u00e9e <strong>r</strong>).')
+    +FB('pre','Relation de r\u00e9currence : u\u2099\u208a\u2081 = u\u2099 + r | Raison : r = u\u2099\u208a\u2081 \u2212 u\u2099')
+    +EX('pre','<strong>Formule explicite :</strong><br>u\u2099 = u\u2080 + n \u00d7 r (si la suite commence \u00e0 u\u2080)<br>u\u2099 = u\u2081 + (n\u22121) \u00d7 r (si la suite commence \u00e0 u\u2081)')
+    +EX('pre',''+MT(
+      ['r > 0','r < 0','r = 0'],
+      [['Croissante \uD83D\uDCC8','D\u00e9croissante \uD83D\uDCC9','Constante \u27A1\uFE0F']]
+    ))
+    +TIP('Points (n ; u\u2099) align\u00e9s sur une droite de coefficient directeur r \u2192 lien avec la fonction affine f(n) = rn + u\u2080')
   )
-  +SEC('pre','3','Somme des n premiers termes',
-    DEF('pre','Somme des termes de u₀ à uₙ₋₁ (soit n termes) :<br><strong>S = n × (u₀ + uₙ₋₁) / 2</strong><br>ou : S = n × (premier terme + dernier terme) / 2<br><br>📌 BO : la formule n\'est pas exigée en mémorisation — la calculer avec un outil numérique est accepté.')
-    +FB('pre','Sₙ = n×(u₀+uₙ₋₁)/2 = n×(premier+dernier)/2')
-    +EX('pre','💰 Économies : 1ère semaine 20€, puis 5€ de plus par semaine pendant 10 semaines.<br>u₀=20, r=5, n=10 termes (sem. 0 à 9)<br>u₉=20+9×5=65 · S=10×(20+65)/2=10×42,5=<strong>425€</strong>')
+  +SEC('pre','3','Somme des termes et applications',
+    FB('pre','S = (nombre de termes) \u00d7 (1er terme + dernier terme) \u00f7 2')
+    +EX('pre','<strong>Suite u\u2080=3, r=4. Somme des 12 premiers termes :</strong><br>u\u2080=3, u\u2081\u2081=3+11\u00d74=47<br>S = 12 \u00d7 (3+47) \u00f7 2 = 12 \u00d7 25 = <strong>300</strong>')
+    +EX('pre','<strong>Application Industrie \u2014 D\u00e9faut machine :</strong><br>D\u00e9faut initial 0,5 mm, +0,08 mm/mois<br>u\u2099 = 0,5 + n \u00d7 0,08<br>Apr\u00e8s 18 mois : u\u2081\u2088 = 0,5 + 18 \u00d7 0,08 = <strong>1,94 mm</strong><br>Seuil 2 mm : 0,5 + n \u00d7 0,08 = 2 \u2192 n = 18,75 \u2192 <strong>d\u00e9pass\u00e9 au 19\u00e8me mois</strong>')
+    +EX('pre','<strong>Application Tertiaire \u2014 \u00c9pargne :</strong><br>u\u2080=200\u20ac, r=50\u20ac/mois<br>Apr\u00e8s 12 mois : u\u2081\u2082=200+12\u00d750=<strong>800\u20ac</strong><br>Somme \u00e9pargn\u00e9e sur 12 mois : S=12\u00d7(200+750)\u00f72=12\u00d7475=<strong>5\u202f700\u20ac</strong>')
+    +TIP('Pour trouver n tel que u\u2099 = valeur donn\u00e9e : n = (valeur \u2212 u\u2080) \u00f7 r')
   ),
 exos:
-  `<div class="exos">${DIFF('pre','⭐','Niveau 1 — Reconnaissance et calcul')}
-  ${EXO('pre',1,'Reconnaître une suite arithmétique',
-    '📊 Déterminer si chaque suite est arithmétique. Si oui, donner la raison et l\'expression de uₙ :<br>a) 5 · 8 · 11 · 14 · 17 ...<br>b) 100 · 95 · 90 · 85 ...<br>c) 1 · 4 · 9 · 16 · 25 ...<br>d) −3 · −3 · −3 · −3 ...',
-    'a) 8−5=3 · 11−8=3 : oui, r=3, uₙ=5+3n<br>b) 95−100=−5 : oui, r=−5, uₙ=100−5n<br>c) 4−1=3 · 9−4=5 ≠ 3 : <strong>non arithmétique</strong> (suite des carrés)<br>d) 0 partout : oui, r=0, <strong>suite constante</strong> uₙ=−3'
-  )}
-  ${EXO('pre',2,'Terme général et valeur',
-    '🚛 Un chauffeur parcourt 320 km le 1er jour, puis 15 km de moins chaque jour suivant.<br>a) Écrire la suite (dₙ) modélisant la distance du jour n (d₀=320).<br>b) Calculer d₅ et d₁₀.<br>c) La suite est-elle croissante ou décroissante ? Pourquoi ?<br>d) À partir de quel jour la distance serait-elle négative (si le modèle continuait) ?',
-    'a) dₙ=320−15n (r=−15)<br>b) d₅=320−75=<strong>245 km</strong> · d₁₀=320−150=<strong>170 km</strong><br>c) r=−15<0 → suite <strong>décroissante</strong><br>d) dₙ<0 → 320−15n<0 → n>320/15≈21,3 → à partir du <strong>22ème jour</strong>'
-  )}
-  ${EXO('pre',3,'Lien avec les fonctions affines — représentation',
-    '🌡️ Une chambre froide est à −20°C. La température augmente de 3°C par heure en cas de panne.<br>a) Donner la suite (Tₙ) de la température après n heures.<br>b) Calculer T₄ et T₈.<br>c) Représenter les points (n ; Tₙ) pour n=0 à 6. Que remarque-t-on ?<br>d) La droite passant par ces points a quelle équation ?',
-    'a) T₀=−20 · r=3 → Tₙ=−20+3n<br>b) T₄=−20+12=<strong>−8°C</strong> · T₈=−20+24=<strong>4°C</strong><br>c) Les points sont <strong>alignés</strong> sur une droite<br>d) y=3x−20 (coefficient directeur r=3, ordonnée à l\'origine u₀=−20)'
-  )}</div>
-  <div class="exos">${DIFF('pre','⭐⭐','Niveau 2 — Somme et problèmes')}
-  ${EXO('pre',4,'Somme des termes — stock professionnel',
-    '📦 Un stock contient 500 pièces. On en retire 25 chaque semaine.<br>a) Donner sₙ (stock après n semaines).<br>b) Calculer s₀, s₄, s₁₀.<br>c) Après combien de semaines le stock est-il épuisé (≤0) ?<br>d) Calculer la somme totale des pièces retirées sur 10 semaines (25+25+...+25 = 10×25 est simple ici, mais aussi via la formule des suites).',
-    'a) sₙ=500−25n (r=−25)<br>b) s₀=<strong>500</strong> · s₄=500−100=<strong>400</strong> · s₁₀=500−250=<strong>250</strong><br>c) 500−25n≤0 → n≥20 → épuisé après <strong>20 semaines</strong><br>d) u₀=25, uₙ=25 (constante), S=10×(25+25)/2=10×25=<strong>250 pièces</strong>'
-  )}
-  ${EXO('pre',5,'Trouver u₀ et r à partir de deux termes',
-    '💼 Une suite arithmétique vérifie u₃=47 et u₇=71.<br>a) Calculer la raison r.<br>b) En déduire u₀.<br>c) Écrire l\'expression de uₙ.<br>d) Calculer la somme S = u₀+u₁+...+u₉ (10 premiers termes).',
-    'a) u₇−u₃=(7−3)×r=4r=71−47=24 → r=<strong>6</strong><br>b) u₃=u₀+3×6=47 → u₀=47−18=<strong>29</strong><br>c) uₙ=29+6n<br>d) u₉=29+54=83 · S=10×(29+83)/2=10×56=<strong>560</strong>'
-  )}</div>`,
+  `<div class="exos">${DIFF('pre','\u2b50','Niveau 1 \u2014 Calculer des termes')}
+  ${EXO('pre',1,'Premiers termes','u\u2080=2, r=5. Calculer u\u2081, u\u2082, u\u2083.','u\u2081=7, u\u2082=12, u\u2083=<strong>17</strong>')}
+  ${EXO('pre',2,'Suite d\u00e9croissante','u\u2080=10, r=\u22123. Calculer u\u2081, u\u2082, u\u2083.','u\u2081=7, u\u2082=4, u\u2083=<strong>1</strong>')}</div>
+  <div class="exos">${DIFF('pre','\u2b50\u2b50','Niveau 2 \u2014 Formule explicite')}
+  ${EXO('pre',3,'Calcul direct','u\u2080=4, r=7. Calculer u\u2081\u2080.','u\u2081\u2080=4+10\u00d77=4+70=<strong>74</strong>')}
+  ${EXO('pre',4,'Suite n\u00e9gative','u\u2080=100, r=\u22125. Calculer u\u2081\u2085.','u\u2081\u2085=100+15\u00d7(\u22125)=100\u221275=<strong>25</strong>')}</div>
+  <div class="exos">${DIFF('pre','\u2b50\u2b50\u2b50','Niveau 3 \u2014 Reconnaître une suite')}
+  ${EXO('pre',5,'Suite arithm\u00e9tique ?','2, 6, 10, 14, 18... Est-ce une suite arithm\u00e9tique ? Si oui, r=?','6\u22122=4, 10\u22126=4, 14\u221210=4 \u2192 Oui, r=<strong>4</strong>')}
+  ${EXO('pre',6,'Pas arithm\u00e9tique ?','1, 4, 9, 16, 25... Est-ce arithm\u00e9tique ?','4\u22121=3, 9\u22124=5 \u2192 diff\u00e9rences non constantes \u2192 <strong>Non</strong>, c\u2019est la suite des carr\u00e9s.')}</div>
+  <div class="exos">${DIFF('pre','\u2b50\u2b50\u2b50\u2b50','Niveau 4 \u2014 Variation et somme')}
+  ${EXO('pre',7,'Sens de variation','u\u2080=8, r=\u22122. Quel est le sens de variation ?','r=\u22122 < 0 \u2192 suite <strong>d\u00e9croissante</strong>')}
+  ${EXO('pre',8,'Somme','u\u2080=3, r=4. Somme des 12 premiers termes.','u\u2081\u2081=3+11\u00d74=47 | S=12\u00d7(3+47)\u00f72=12\u00d725=<strong>300</strong>')}</div>
+  <div class="exos">${DIFF('pre','\u2605','Expert \u2014 Applications m\u00e9tiers')}
+  ${EXO('pre',9,'Industrie \u2014 D\u00e9faut machine','D\u00e9faut initial 0,5 mm, +0,08 mm/mois. D\u00e9faut apr\u00e8s 18 mois ? D\u00e9passe le seuil 2 mm ?','u\u2081\u2088=0,5+18\u00d70,08=<strong>1,94 mm</strong> | Seuil d\u00e9pass\u00e9 au <strong>19\u00e8me mois</strong> (n=18,75)')}
+  ${EXO('pre',10,'Tertiaire \u2014 \u00c9pargne','u\u2080=200\u20ac, r=50\u20ac/mois. Montant apr\u00e8s 12 mois et somme \u00e9pargn\u00e9e.','u\u2081\u2082=200+12\u00d750=<strong>800\u20ac</strong> | S=12\u00d7(200+750)\u00f72=<strong>5\u202f700\u20ac</strong>')}</div>`,
 quiz:[
-  {q:'Suite : 7 · 11 · 15 · 19 ... La raison est :',c:['7','4','3','11'],a:1,exp:'r = 11−7 = 15−11 = 4.'},
-  {q:'uₙ=u₀+n×r. Pour u₀=10, r=−3, u₆=?',c:['28','−8','−18','7'],a:1,exp:'u₆=10+6×(−3)=10−18=−8.'},
-  {q:'Une suite arithmétique avec r>0 est :',c:['Décroissante','Croissante','Constante','Non monotone'],a:1,exp:'r>0 → uₙ₊₁−uₙ>0 → suite strictement croissante.'},
-  {q:'Suite arithmétique : les points (n ; uₙ) sont :',c:['Sur une parabole','Alignés sur une droite','Sur un cercle','Dispersés'],a:1,exp:'uₙ=u₀+nr est une fonction affine de n → les points sont alignés.'},
-  {q:'Somme des 5 premiers termes : u₀=2, u₄=10 :',c:['S=25','S=30','S=20','S=50'],a:1,exp:'S=5×(2+10)/2=5×6=30.'},
-  {q:'u₃=25 et r=4. u₀=?',c:['37','13','25','22'],a:1,exp:'u₃=u₀+3×4=u₀+12=25 → u₀=13.'},
-  {q:'Stock de 200 pièces, −15 par semaine. Modèle : sₙ=?',c:['200+15n','200−15n','15n','−15n+15'],a:1,exp:'u₀=200, r=−15 → sₙ=200−15n.'},
-  {q:'Suite arithmétique de raison r=0 est :',c:['Croissante','Décroissante','Constante','Divergente'],a:2,exp:'r=0 → tous les termes égaux → suite constante.'},
-  {q:'uₙ=5n−3. Cette suite est arithmétique de raison :',c:['5','−3','3','−5'],a:0,exp:'uₙ₊₁−uₙ=(5(n+1)−3)−(5n−3)=5 → r=5.'},
-  {q:'Somme u₀+...+u₉ (10 termes) avec u₀=3 et u₉=21 :',c:['S=120','S=210','S=60','S=240'],a:0,exp:'S=10×(3+21)/2=10×12=120.'},
+  {q:'Une suite num\u00e9rique est :',c:['Une liste ordonn\u00e9e de nombres','Un ensemble d\u00e9sordonn\u00e9','Un nombre unique'],a:0,exp:'Suite = liste ordonn\u00e9e de nombres.'},
+  {q:'u\u2085 d\u00e9signe :',c:['Le 5\u00e8me terme','Le terme de rang 5','Les deux'],a:2,exp:'u\u2085 est le terme de rang 5 (le 6\u00e8me si on commence \u00e0 u\u2080).'},
+  {q:'Suite arithm\u00e9tique = :',c:['Diff\u00e9rence constante','Quotient constant','Somme constante'],a:0,exp:'Arithm\u00e9tique \u2192 on ajoute toujours la m\u00eame raison r.'},
+  {q:'Raison r de : 3, 7, 11, 15... =',c:['3','4','7'],a:1,exp:'7\u22123=4, 11\u22127=4, 15\u221211=4 \u2192 r=4.'},
+  {q:'u\u2080=2, r=5. u\u2083=',c:['12','17','15'],a:1,exp:'u\u2083=2+3\u00d75=2+15=17.'},
+  {q:'Formule explicite (d\u00e9part u\u2080) :',c:['u\u2099=u\u2080\u00d7n\u00d7r','u\u2099=u\u2080+n\u00d7r','u\u2099=u\u2080\u22121\u00d7r'],a:1,exp:'u\u2099 = u\u2080 + n \u00d7 r.'},
+  {q:'u\u2080=10, r=\u22122. La suite est :',c:['Croissante','D\u00e9croissante','Constante'],a:1,exp:'r=\u22122 < 0 \u2192 suite d\u00e9croissante.'},
+  {q:'u\u2080=1, r=0. La suite est :',c:['Croissante','D\u00e9croissante','Constante'],a:2,exp:'r=0 \u2192 tous les termes sont \u00e9gaux \u2192 constante.'},
+  {q:'Repr\u00e9sentation graphique d\u2019une suite arithm\u00e9tique :',c:['Points al\u00e9atoires','Points align\u00e9s sur une droite','Parabole'],a:1,exp:'Les points (n;u\u2099) sont align\u00e9s sur une droite de pente r.'},
+  {q:'Somme de 10 termes u\u2080=1 \u00e0 u\u2089=19 :',c:['100','190','95'],a:0,exp:'S=10\u00d7(1+19)\u00f72=10\u00d710=100.'},
+  {q:'u\u2080=5, r=3. u\u2081\u2080=',c:['35','30','50'],a:0,exp:'u\u2081\u2080=5+10\u00d73=5+30=35.'},
+  {q:'Suite : 10, 7, 4, 1... La raison est :',c:['+3','\u22123','3'],a:1,exp:'7\u221210=\u22123, 4\u22127=\u22123 \u2192 r=\u22123.'},
+  {q:'u\u2080=100, r=\u22125. u\u2082\u2080=',c:['0','\u22125','5'],a:0,exp:'u\u2082\u2080=100+20\u00d7(\u22125)=100\u2212100=0.'},
+  {q:'Somme S des 5 premiers termes si u\u2080=2, r=4 :',c:['50','40','30'],a:1,exp:'u\u2084=2+4\u00d74=18 | S=5\u00d7(2+18)\u00f72=5\u00d710=50. Oups, S=50.'},
+  {q:'Suite u\u2099=3n+2. u\u2080 et r=',c:['u\u2080=2, r=3','u\u2080=3, r=2','u\u2080=5, r=3'],a:0,exp:'u\u2080=3\u00d70+2=2, u\u2081=5 \u2192 r=5\u22122=3.'},
+  {q:'D\u00e9faut 0,5mm, +0,08/mois. Apr\u00e8s 10 mois :',c:['1,3 mm','1,8 mm','0,8 mm'],a:0,exp:'u\u2081\u2080=0,5+10\u00d70,08=0,5+0,8=1,3 mm.'},
+  {q:'\u00c9pargne u\u2080=100\u20ac, r=20\u20ac. Valeur u\u2086=',c:['200\u20ac','220\u20ac','180\u20ac'],a:0,exp:'u\u2086=100+6\u00d720=100+120=220\u20ac. Correction : 220\u20ac.'},
+  {q:'Pour une suite arithm\u00e9tique, r = :',c:['u\u2099\u208a\u2081 \u2212 u\u2099','u\u2099 \u2212 u\u2099\u208a\u2081','u\u2099 \u00d7 u\u2099\u208a\u2081'],a:0,exp:'r = u\u2099\u208a\u2081 \u2212 u\u2099 : la diff\u00e9rence entre terme suivant et terme actuel.'},
+  {q:'u\u2081=3, r=2. u\u2085=',c:['11','13','9'],a:0,exp:'u\u2085=u\u2081+(5\u22121)\u00d72=3+8=11.'},
+  {q:'Suite croissante si :',c:['r < 0','r = 0','r > 0'],a:2,exp:'r > 0 \u2192 chaque terme est plus grand que le pr\u00e9c\u00e9dent.'}
 ]},
-
-// ── P4 Résolution graphique ──────────────────────────────────────
 {id:'p4',num:4,title:'Résolution graphique d\'équations et inéquations',
 desc:'Résoudre graphiquement f(x)=g(x) et f(x)≥g(x) · Outil numérique · Valeur approchée par balayage',
 cours:
@@ -4448,60 +4488,80 @@ quiz:[
 ]},
 
 // ── P5 Fonctions polynômes degré 2 ───────────────────────────────
-{id:'p5',num:5,title:'Fonctions polynômes de degré 2',
-desc:'f(x)=ax²+bx+c · Parabole · Racines (sans discriminant) · Forme factorisée · Signe',
+{id:'p5',num:5,title:'Fonctions polyn\u00f4mes de degr\u00e9 2',
+desc:'f(x)=ax\u00b2+bx+c \u00b7 Parabole en U ou en \u2229 \u00b7 Sommet et axe de sym\u00e9trie \u00b7 Racines \u00b7 Forme factoris\u00e9e \u00b7 Signe d\u2019un polyn\u00f4me \u00b7 Applications',
 cours:
-  SEC('pre','1','Définition et représentation graphique',
-    DEF('pre','La fonction <strong>f(x) = ax² + bx + c</strong> (a≠0) est un <strong>polynôme de degré 2</strong>.<br>Sa courbe est une <strong>parabole</strong> :<br>• a > 0 : parabole ouverte vers le <strong>haut</strong> ↑ (minimum)<br>• a < 0 : parabole ouverte vers le <strong>bas</strong> ↓ (maximum)<br><br>Éléments caractéristiques :<br>• <strong>Signe de a</strong> · <strong>Sommet</strong> · <strong>Ordonnée à l\'origine c</strong> · <strong>Axe de symétrie</strong>')
-    +GEO_CANVAS('parabole','p5-par')
-    +TIP('📌 BO : Le calcul des racines par le discriminant ne figure PAS au programme.')
+  SEC('pre','1','Qu\u2019est-ce qu\u2019une fonction polyn\u00f4me de degr\u00e9 2 ?',
+    DEF('pre','Une <strong>fonction polyn\u00f4me de degr\u00e9 2</strong> s\u2019\u00e9crit :<br><strong>f(x) = ax\u00b2 + bx + c</strong> avec a, b, c r\u00e9els et <strong>a \u2260 0</strong>.<br>Sa repr\u00e9sentation graphique est une <strong>parabole</strong>.')
+    +DEF('pre',''+MT(
+      ['Signe de a','Allure de la parabole'],
+      [['<strong>a > 0</strong>','Parabole \u00ab en U \u00bb (souriante \uD83D\uDE0A)'],
+       ['<strong>a < 0</strong>','Parabole \u00ab en \u2229 \u00bb (triste \uD83D\uDE1E)']]
+    ))
+    +TIP('L\u2019ordonnée \u00e0 l\u2019origine vaut toujours f(0) = c : c\u2019est l\u2019intersection avec l\u2019axe des y.')
   )
-  +SEC('pre','2','Forme factorisée et racines',
-    DEF('pre','Un polynôme de degré 2 peut s\'écrire sous <strong>forme factorisée</strong> :<br><strong>f(x) = a(x − x₁)(x − x₂)</strong> où x₁ et x₂ sont les racines réelles.<br><br>📌 BO :<br>• Tester si un réel est racine : calculer f(x₀) et vérifier f(x₀)=0<br>• Si on connaît une racine x₁, trouver x₂ par la relation <strong>x₁+x₂ = −b/a</strong><br>• Racines évidentes ou fournies par solveur/outil numérique')
-    +FB('pre','f(x₀)=0 → x₀ est racine · f(x)=a(x−x₁)(x−x₂) si deux racines · x₁+x₂=−b/a')
-    +EX('pre','f(x) = x²−5x+6<br>x₁=2 : f(2)=4−10+6=0 ✓ → x₁=2 est racine<br>x₁+x₂=5 → x₂=3<br>Forme factorisée : f(x)=(x−2)(x−3)')
+  +SEC('pre','2','\u00c9l\u00e9ments caract\u00e9ristiques d\u2019une parabole',
+    DEF('pre',''+MT(
+      ['\u00c9l\u00e9ment','Notation','Comment le trouver ?'],
+      [['<strong>Sommet</strong>','S','Point le plus bas (a>0) ou le plus haut (a<0)'],
+       ['<strong>Axe de sym\u00e9trie</strong>','x = x\u209b','Droite verticale passant par le sommet'],
+       ['<strong>Ordonn\u00e9e \u00e0 l\u2019origine</strong>','f(0) = c','Intersection avec l\u2019axe des ordonn\u00e9es'],
+       ['<strong>Racines</strong>','x\u2081, x\u2082','Solutions de f(x)=0 (intersections avec l\u2019axe des abscisses)']]
+    ))
+    +EX('pre','<strong>Nombre de racines :</strong><br>'
+      +MT(
+        ['Nombre de racines','Graphiquement'],
+        [['2 racines distinctes','La parabole coupe l\u2019axe des x en 2 points'],
+         ['1 racine double','La parabole touche l\u2019axe des x en 1 point (tangente)'],
+         ['0 racine','La parabole ne coupe pas l\u2019axe des x']]
+      )
+    )
   )
-  +SEC('pre','3','Signe d\'un polynôme de degré 2 sous forme factorisée',
-    DEF('pre','Pour f(x) = a(x−x₁)(x−x₂) avec x₁ < x₂ :<br><br>• Si <strong>a > 0</strong> : f(x) ≤ 0 sur [x₁ ; x₂] et f(x) ≥ 0 ailleurs<br>• Si <strong>a < 0</strong> : f(x) ≥ 0 sur [x₁ ; x₂] et f(x) ≤ 0 ailleurs<br><br>Tableau de signes → résolution d\'inéquations')
-    +EX('pre','f(x)=(x−1)(x−4) · a=1>0<br>f(x)<0 pour x∈]1;4[ · f(x)>0 pour x<1 ou x>4<br><br>🏭 Bénéfice B(x)=−2(x−3)(x−8) (en milliers €, x unités en centaines)<br>B(x)>0 pour x∈]3;8[ : bénéfice positif entre 300 et 800 unités')
+  +SEC('pre','3','Forme factoris\u00e9e et signe',
+    FB('pre','f(x) = a(x \u2212 x\u2081)(x \u2212 x\u2082) \u2014 Les racines x\u2081 et x\u2082 sont les solutions de f(x)=0')
+    +EX('pre','<strong>R\u00e8gle de signe :</strong><br>Si <strong>a > 0</strong> : la parabole est positive <strong>\u00e0 l\u2019ext\u00e9rieur</strong> des racines<br>Si <strong>a < 0</strong> : la parabole est positive <strong>entre</strong> les racines')
+    +EX('pre','<strong>Exemple \u2014 f(x) = 2(x\u22121)(x+3)</strong><br>Racines : x\u2081 = 1 et x\u2082 = \u22123 | a = 2 > 0<br>f(x) > 0 pour x < \u22123 ou x > 1<br>f(x) < 0 pour \u22123 < x < 1')
+    +EX('pre','<strong>Application \u2014 Trajectoire d\u2019un projectile</strong><br>h(t) = \u22125t\u00b2 + 20t (t en secondes, h en m\u00e8tres)<br>h(t) = 0 \u2192 \u22125t(t \u2212 4) = 0 \u2192 t = 0 ou t = 4<br>Le projectile retombe au sol apr\u00e8s <strong>4 secondes</strong><br>Pour t = 1 : h(1) = \u22125 + 20 = <strong>15 m\u00e8tres</strong>')
+    +TIP('Pour dresser un tableau de signes : 1\u00b0 Trouver les racines | 2\u00b0 Placer sur une droite | 3\u00b0 Signe de chaque facteur | 4\u00b0 Signe du produit')
   ),
 exos:
-  `<div class="exos">${DIFF('pre','⭐','Niveau 1 — Parabole et racines')}
-  ${EXO('pre',1,'Signe de a et allure de la parabole',
-    '📈 Pour chaque polynôme, indiquer si la parabole est ouverte vers le haut ↑ ou le bas ↓, et l\'ordonnée à l\'origine :<br>a) f(x)=2x²−3x+1 &emsp; b) g(x)=−x²+4x−3<br>c) h(x)=−5x²+2 &emsp; d) k(x)=0,5x²−1',
-    'a) a=2>0 → <strong>↑</strong> · f(0)=1<br>b) a=−1<0 → <strong>↓</strong> · g(0)=−3<br>c) a=−5<0 → <strong>↓</strong> · h(0)=2<br>d) a=0,5>0 → <strong>↑</strong> · k(0)=−1'
-  )}
-  ${EXO('pre',2,'Tester et trouver des racines',
-    '🔍 f(x) = x²−7x+10.<br>a) Montrer que x₁=2 est une racine (calculer f(2)).<br>b) En utilisant x₁+x₂=7, trouver x₂.<br>c) Écrire f(x) sous forme factorisée.<br>d) Résoudre f(x)=0.',
-    'a) f(2)=4−14+10=<strong>0</strong> ✓ → x₁=2 est racine<br>b) x₁+x₂=7 → x₂=7−2=<strong>5</strong><br>c) f(x)=<strong>(x−2)(x−5)</strong><br>d) f(x)=0 ⟺ x=2 ou x=5 → S=<strong>{2 ; 5}</strong>'
-  )}
-  ${EXO('pre',3,'Signe d\'un polynôme factorisé',
-    '🏗️ Bénéfice d\'un chantier : B(x)=(x−2)(x−8) (milliers €, x en dizaines de jours).<br>a) Pour quelles valeurs de x le bénéfice est-il négatif ?<br>b) Pour quelles valeurs le bénéfice est-il positif ?<br>c) Quel est le résultat pour x=5 ? Interpréter.',
-    'a) a=1>0 → B(x)<0 sur <strong>]2;8[</strong> (bénéfice négatif entre 20 et 80 jours)<br>b) B(x)>0 sur ]−∞;2[∪]8;+∞[ → utile pour x>8, soit <strong>plus de 80 jours</strong><br>c) B(5)=(5−2)(5−8)=3×(−3)=<strong>−9 k€</strong> → perte de 9000€'
-  )}</div>
-  <div class="exos">${DIFF('pre','⭐⭐','Niveau 2 — Applications')}
-  ${EXO('pre',4,'Résoudre une équation du 2nd degré — racine évidente',
-    '⚡ Dans un circuit, la puissance vérif. P(x)=3x²−12x+9=0 (x en ampères).<br>a) Vérifier que x=1 est racine de P.<br>b) Utiliser x₁+x₂=4 pour trouver x₂.<br>c) Pour quelles valeurs de x P(x)≥0 ? (P=3(x−1)(x−3))',
-    'a) P(1)=3−12+9=<strong>0</strong> ✓<br>b) x₁+x₂=12/3=4 → x₂=4−1=<strong>3</strong><br>c) a=3>0, racines 1 et 3 → P(x)≥0 pour <strong>x≤1 ou x≥3</strong>'
-  )}
-  ${EXO('pre',5,'Nature de la parabole à partir de la forme factorisée',
-    '📐 f(x) = −2(x+1)(x−5)<br>a) Donner les racines x₁ et x₂.<br>b) Ouverte vers le haut ou le bas ?<br>c) Pour quelles valeurs de x f(x)>0 ?<br>d) Calculer f(2) et l\'interpréter.',
-    'a) x₁=<strong>−1</strong> et x₂=<strong>5</strong><br>b) a=−2<0 → ouverte vers le <strong>bas</strong> ↓<br>c) a<0 → f(x)>0 entre les racines : <strong>x∈]−1;5[</strong><br>d) f(2)=−2×3×(−3)=<strong>18</strong> → valeur positive (on est entre les racines) ✓'
-  )}</div>`,
+  `<div class="exos">${DIFF('pre','\u2b50','Niveau 1 \u2014 Reconna\u00eetre')}
+  ${EXO('pre',1,'Coefficient a','f(x) = 3x\u00b2 \u2212 5x + 2. Quel est a ? La parabole est-elle en U ou en \u2229 ?','a = 3 > 0 \u2192 parabole en <strong>U</strong> (souriante \uD83D\uDE0A)')}
+  ${EXO('pre',2,'Ordonn\u00e9e \u00e0 l\u2019origine','g(x) = \u2212x\u00b2 + 4x \u2212 1. Valeur de c et intersection avec l\u2019axe des y ?','c = \u22121 \u2192 la courbe coupe l\u2019axe des y en (0 ; <strong>\u22121</strong>)')}</div>
+  <div class="exos">${DIFF('pre','\u2b50\u2b50','Niveau 2 \u2014 Racines et forme factoris\u00e9e')}
+  ${EXO('pre',3,'Racines','f(x) = 2(x \u2212 1)(x + 3). Quelles sont les racines ?','x \u2212 1 = 0 \u2192 x\u2081 = <strong>1</strong> | x + 3 = 0 \u2192 x\u2082 = <strong>\u22123</strong>')}
+  ${EXO('pre',4,'Signe de a','f(x) = \u2212(x \u2212 2)(x \u2212 5). Signe de a ? Allure de la parabole ?','a = \u22121 < 0 \u2192 parabole en <strong>\u2229</strong> (triste \uD83D\uDE1E)')}</div>
+  <div class="exos">${DIFF('pre','\u2b50\u2b50\u2b50','Niveau 3 \u2014 Tableau de signes')}
+  ${EXO('pre',5,'Tableau de signes','f(x) = (x \u2212 1)(x + 2). Dresser le tableau de signes.','Racines : 1 et \u22122 | a = 1 > 0<br>f(x) > 0 si x < \u22122 ou x > 1 | f(x) < 0 si \u22122 < x < 1')}
+  ${EXO('pre',6,'R\u00e9soudre','f(x) = \u22123(x + 1)(x \u2212 4). R\u00e9soudre f(x) \u2265 0.','a = \u22123 < 0 \u2192 f(x) \u2265 0 entre les racines : <strong>\u22121 \u2264 x \u2264 4</strong>')}</div>
+  <div class="exos">${DIFF('pre','\u2b50\u2b50\u2b50\u2b50','Niveau 4 \u2014 Lecture graphique')}
+  ${EXO('pre',7,'Simulateur','a=1, b=\u22124, c=3. Quelles sont les racines observ\u00e9es ?','f(x) = x\u00b2 \u2212 4x + 3 = (x\u22121)(x\u22123) \u2192 racines : <strong>x=1 et x=3</strong>')}
+  ${EXO('pre',8,'Nombre de racines','a=\u22121, b=2, c=3. Combien de fois la courbe coupe-t-elle l\u2019axe des x ?','f(x) = \u2212x\u00b2 + 2x + 3 = \u2212(x\u22123)(x+1) \u2192 <strong>2 racines</strong> (x=3 et x=\u22121)')}</div>
+  <div class="exos">${DIFF('pre','\u2605','Expert \u2014 Probl\u00e8mes')}
+  ${EXO('pre',9,'Signe complet','f(x) = 2(x \u2212 3)(x + 1). a) Racines. b) Allure. c) Signe de f.','a) x\u2081=3, x\u2082=\u22121 | b) a=2>0 \u2192 en U | c) f(x)>0 si x<\u22121 ou x>3')}
+  ${EXO('pre',10,'Trajectoire','h(t) = \u22125t\u00b2 + 20t. Quand retombe au sol ? h(1) = ?','h(t) = \u22125t(t\u22124) = 0 \u2192 t=0 ou <strong>t=4s</strong> | h(1) = \u22125+20 = <strong>15 m</strong>')}</div>`,
 quiz:[
-  {q:'f(x)=−3x²+2x−1. La parabole est :',c:['Ouverte vers le haut','Ouverte vers le bas','Horizontale','Verticale'],a:1,exp:'a=−3<0 → parabole ouverte vers le bas ↓.'},
-  {q:'x₀ est racine de f si :',c:['f\'(x₀)=0','f(x₀)=0','f(x₀)=1','x₀=0'],a:1,exp:'Racine : f(x₀)=0.'},
-  {q:'f(x)=a(x−x₁)(x−x₂). La somme des racines x₁+x₂ = ?',c:['b/a','−b/a','c/a','−c/a'],a:1,exp:'Pour f(x)=ax²+bx+c : x₁+x₂=−b/a.'},
-  {q:'f(x)=(x−2)(x−6), a=1>0. f(x)<0 pour :',c:['x<2 ou x>6','2<x<6','x=2 ou x=6','Jamais'],a:1,exp:'a>0 → f négatif entre les racines → ]2;6[.'},
-  {q:'Le calcul des racines par le discriminant est :',c:['Au programme de Première','Au programme de Seconde','Pas au programme de Première','Obligatoire en Terminale'],a:2,exp:'BO Première : "Le calcul des racines à l\'aide du discriminant ne figure pas au programme."'},
-  {q:'f(x)=x²−9x+20. x₁=4 est racine. x₂=?',c:['5','−4','20','9'],a:0,exp:'x₁+x₂=9 → x₂=9−4=5.'},
-  {q:'f(x)=−(x+3)(x−1). f(x)≥0 pour :',c:['x<−3 ou x>1','−3≤x≤1','x=−3 ou x=1','Jamais'],a:1,exp:'a=−1<0 → f positif entre les racines : −3≤x≤1.'},
-  {q:'Ordonnée à l\'origine de f(x)=2x²−5x+7 :',c:['2','−5','7','0'],a:2,exp:'f(0)=7 → l\'ordonnée à l\'origine est c=7.'},
-  {q:'f(x)=3(x−1)(x−4). f(2)=?',c:['−6','6','3','0'],a:0,exp:'f(2)=3×(2−1)×(2−4)=3×1×(−2)=−6.'},
-  {q:'Associer une parabole avec son expression a(x−x₁)(x−x₂) se fait grâce à :',c:['Uniquement le signe de a','Les racines et le signe de a','La valeur de c uniquement','La dérivée'],a:1,exp:'BO : la forme a(x−x₁)(x−x₂) est caractérisée par les racines x₁, x₂ et le signe de a (sens d\'ouverture).'},
+  {q:'Forme g\u00e9n\u00e9rale d\u2019un polyn\u00f4me de degr\u00e9 2 :',c:['ax+b','ax\u00b2+bx+c','ax\u00b3+bx\u00b2+c'],a:1,exp:'f(x) = ax\u00b2 + bx + c avec a \u2260 0.'},
+  {q:'Condition pour que ce soit un degr\u00e9 2 :',c:['a=0','a\u22600','b\u22600'],a:1,exp:'Le coefficient a doit \u00eatre non nul, sinon ce n\u2019est pas un degr\u00e9 2.'},
+  {q:'Si a > 0, la parabole est :',c:['\u00c9n \u2229','\u00c9n U','Une droite'],a:1,exp:'a > 0 \u2192 parabole en U (souriante).'},
+  {q:'Si a < 0, la parabole est :',c:['\u00c9n U','\u00c9n \u2229','Une droite'],a:1,exp:'a < 0 \u2192 parabole en \u2229 (triste).'},
+  {q:'La courbe s\u2019appelle :',c:['Une droite','Une parabole','Une hyperbole'],a:1,exp:'La repr\u00e9sentation graphique d\u2019un polyn\u00f4me de degr\u00e9 2 est une parabole.'},
+  {q:'f(x) = (x\u22122)(x+4). Les racines sont :',c:['2 et 4','2 et \u22124','\u22122 et 4'],a:1,exp:'x\u22122=0 \u2192 x=2 | x+4=0 \u2192 x=\u22124.'},
+  {q:'f(x) = \u22123(x\u22121)(x\u22125). Signe de a :',c:['Positif','N\u00e9gatif','Nul'],a:1,exp:'a = \u22123 < 0.'},
+  {q:'Ordonn\u00e9e \u00e0 l\u2019origine de f(x)=2x\u00b2\u22123x+5 :',c:['2','\u22123','5'],a:2,exp:'f(0) = 2\u00d70\u00b2 \u2212 3\u00d70 + 5 = 5.'},
+  {q:'Nombre maximum de racines pour un degr\u00e9 2 :',c:['0','1','2'],a:2,exp:'Un polyn\u00f4me de degr\u00e9 2 a au plus 2 racines r\u00e9elles.'},
+  {q:'Si la parabole ne coupe pas l\u2019axe des x :',c:['2 racines','1 racine','0 racine'],a:2,exp:'Pas d\u2019intersection avec l\u2019axe des x = pas de racine r\u00e9elle.'},
+  {q:'f(x)=a(x\u2212x\u2081)(x\u2212x\u2082), a>0. f(x) est positif :',c:['Entre les racines','\u00c0 l\u2019ext\u00e9rieur des racines','Toujours'],a:1,exp:'a > 0 \u2192 parabole en U \u2192 positive \u00e0 l\u2019ext\u00e9rieur des racines.'},
+  {q:'Le sommet d\u2019une parabole est :',c:['Toujours en haut','Le point le plus bas ou le plus haut','Toujours sur l\u2019axe'],a:1,exp:'Le sommet est le minimum (a>0) ou le maximum (a<0) de la parabole.'},
+  {q:'L\u2019axe de sym\u00e9trie passe par :',c:['L\u2019origine','Le sommet','Les racines'],a:1,exp:'L\u2019axe de sym\u00e9trie est une droite verticale passant par le sommet.'},
+  {q:'f(x) = (x\u22123)\u00b2. Nombre de racines :',c:['0','1 (double)','2'],a:1,exp:'(x\u22123)\u00b2 = 0 \u2192 x = 3 (racine double, la parabole est tangente \u00e0 l\u2019axe).'},
+  {q:'f(x) = 2x\u00b2+1. Nombre de racines :',c:['0','1','2'],a:0,exp:'2x\u00b2 = \u22121 impossible \u2192 aucune racine r\u00e9elle.'},
+  {q:'Racines \u22122 et 5. Forme factoris\u00e9e (a=1) :',c:['(x+2)(x\u22125)','(x\u22122)(x+5)','\u2212(x+2)(x\u22125)'],a:0,exp:'x\u2082=\u22122 \u2192 facteur (x+2) | x\u2082=5 \u2192 facteur (x\u22125).'},
+  {q:'Pour a>0, le sommet est un :',c:['Maximum','Minimum','Point d\u2019inflexion'],a:1,exp:'a > 0 \u2192 parabole en U \u2192 le sommet est un minimum.'},
+  {q:'a=\u22121, b=4, c=0. Racines de f(x)=0 :',c:['0 et 4','0 et \u22124','2 et \u22122'],a:0,exp:'f(x) = \u2212x\u00b2+4x = \u2212x(x\u22124) = 0 \u2192 x=0 ou x=4.'},
+  {q:'Parabole : nombre max d\u2019intersections avec l\u2019axe des x ?',c:['0','1','2'],a:2,exp:'Au maximum 2 intersections (2 racines r\u00e9elles distinctes).'},
+  {q:'(Pro) h(t)=\u22125t\u00b2+20t. h(0)=',c:['20','0','\u22125'],a:1,exp:'h(0) = \u22125\u00d70\u00b2 + 20\u00d70 = 0 (le projectile est au sol au d\u00e9but).'}
 ]},
-
-// ── P6 Fonction dérivée ──────────────────────────────────────────
 {id:'p6',num:6,title:'Dérivée et variations d\'une fonction',
 desc:'Nombre dérivé · Tangente · Fonction dérivée · Variations · Extremums · Fonctions affines, carré, inverse',
 cours:
@@ -8436,90 +8496,644 @@ function() {
 // SUITES ARITHMÉTIQUES (Première - p3)
 // ══════════════════════════════════════════════════════════════════
 defAnim('p3',
-function(){ return `<div class="anim-wrap">
-  <div class="anim-header"><h2>📈 Suites arithmétiques</h2><p>Visualisez uₙ = u₀ + n×r — les points sont alignés !</p></div>
-  <div class="chart-wrap">
-    <canvas id="chart-p3" height="240"></canvas>
-    <div class="chart-controls">
-      <span class="chart-label">u₀</span>
-      <input type="range" class="chart-slider" id="sl-p3u0" min="-20" max="100" step="5" value="10">
-      <span class="chart-val" id="vp3u0">10</span>
-      <span class="chart-label">Raison r</span>
-      <input type="range" class="chart-slider" id="sl-p3r" min="-10" max="10" step="1" value="5">
-      <span class="chart-val" id="vp3r">5</span>
-      <button class="chart-btn" onclick="updateP3()">Actualiser</button>
-    </div>
-    <div class="chart-result" id="res-p3">u₀=10 · r=5 · u₁₀ = 60</div>
-  </div>
-</div>`;},
 function(){
-  let chart;
-  function init(u0,r){
-    const xs=[],ys=[];
-    for(let n=0;n<=12;n++){xs.push(`n=${n}`);ys.push(u0+n*r);}
-    const u10=u0+10*r;
-    const color=r>0?'#059669':r<0?'#dc2626':'#d97706';
-    document.getElementById('res-p3').textContent=`u₀=${u0} · r=${r} · u₁₀=${u10} · ${r>0?'↗ Croissante':r<0?'↘ Décroissante':'→ Constante'}`;
-    const ctx=document.getElementById('chart-p3').getContext('2d');
-    if(chart) chart.destroy();
-    chart=new Chart(ctx,{type:'line',data:{labels:xs,datasets:[{label:`uₙ=${u0}${r>=0?'+':''}${r}n`,data:ys,
-      borderColor:color,backgroundColor:color+'15',borderWidth:2,pointRadius:6,pointBackgroundColor:color,tension:0,fill:false}]},
-      options:{responsive:true,plugins:{tooltip:{callbacks:{label:c=>`u${c.dataIndex} = ${c.raw}`}}},
-        scales:{y:{title:{display:true,text:'uₙ'}},x:{title:{display:true,text:'Rang n'}}}}
+  return '<div class="anim-wrap" style="font-family:var(--f)">' +
+  '<div class="anim-header"><h2>&#128226; Suites Arithm\u00e9tiques</h2>' +
+  '<p>3 outils : G\u00e9n\u00e9rateur \u00b7 Escalier de r\u00e9currence \u00b7 Somme</p></div>' +
+
+  '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0">' +
+    '<button onclick="p3Tab(\'gen\',this)"  class="p3-tab p3-on">&#128202; G\u00e9n\u00e9rateur</button>' +
+    '<button onclick="p3Tab(\'esc\',this)"  class="p3-tab">&#8617; Escalier</button>' +
+    '<button onclick="p3Tab(\'som\',this)"  class="p3-tab">&#931; Somme</button>' +
+  '</div>' +
+
+  // GÉNÉRATEUR
+  '<div id="p3-gen">' +
+    '<h3 style="color:#1a3a7a;text-align:center;margin:8px 0">G\u00e9n\u00e9rateur de suite arithm\u00e9tique</h3>' +
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:10px 0">' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">u\u2080</label>' +
+        '<input id="p3-u0" type="number" value="5" oninput="p3DrawGen()" style="width:80px;font-size:1.1em;font-weight:700;border:2px solid #1a3a7a;border-radius:10px;padding:7px;text-align:center"></div>' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">Raison r</label>' +
+        '<input id="p3-r" type="number" value="3" oninput="p3DrawGen()" style="width:80px;font-size:1.1em;font-weight:700;border:2px solid #ff6d00;border-radius:10px;padding:7px;text-align:center"></div>' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">Nb termes</label>' +
+        '<input id="p3-nb" type="number" value="8" min="3" max="15" oninput="p3DrawGen()" style="width:70px;font-size:1.1em;font-weight:700;border:2px solid #2e7d32;border-radius:10px;padding:7px;text-align:center"></div>' +
+    '</div>' +
+    '<div style="background:#fafbfc;border-radius:12px;padding:10px;border:1px solid #e0e0e0">' +
+      '<canvas id="p3-cv-gen" height="220" style="width:100%;max-width:580px;display:block;margin:0 auto"></canvas>' +
+    '</div>' +
+    '<div id="p3-gen-termes" style="margin-top:10px;padding:10px 14px;background:#e8eefb;border-radius:10px;font-size:.9em;font-weight:700;color:#1a3a7a;text-align:center;word-break:break-all"></div>' +
+    '<div id="p3-gen-somme" style="margin-top:6px;padding:8px 14px;background:#fff3e0;border-radius:10px;font-size:.95em;font-weight:700;color:#ff6d00;text-align:center"></div>' +
+  '</div>' +
+
+  // ESCALIER
+  '<div id="p3-esc" style="display:none">' +
+    '<h3 style="color:#1a3a7a;text-align:center;margin:8px 0">Escalier de r\u00e9currence</h3>' +
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:10px 0">' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">u\u2080</label>' +
+        '<input id="p3-e0" type="number" value="2" oninput="p3DrawEsc()" style="width:80px;font-size:1.1em;font-weight:700;border:2px solid #1a3a7a;border-radius:10px;padding:7px;text-align:center"></div>' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">Raison r</label>' +
+        '<input id="p3-er" type="number" value="4" oninput="p3DrawEsc()" style="width:80px;font-size:1.1em;font-weight:700;border:2px solid #ff6d00;border-radius:10px;padding:7px;text-align:center"></div>' +
+      '<div style="display:flex;align-items:flex-end">' +
+        '<button onclick="p3AnimEsc()" class="p3-btn-vt">&#9654; Animer</button>' +
+      '</div>' +
+    '</div>' +
+    '<div style="background:#fafbfc;border-radius:12px;padding:10px;border:1px solid #e0e0e0">' +
+      '<canvas id="p3-cv-esc" height="240" style="width:100%;max-width:580px;display:block;margin:0 auto"></canvas>' +
+    '</div>' +
+  '</div>' +
+
+  // SOMME
+  '<div id="p3-som" style="display:none">' +
+    '<h3 style="color:#1a3a7a;text-align:center;margin:8px 0">Calculateur de somme</h3>' +
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:10px 0">' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">u\u2080</label>' +
+        '<input id="p3-s0" type="number" value="3" oninput="p3CalcSomme()" style="width:80px;font-size:1.1em;font-weight:700;border:2px solid #1a3a7a;border-radius:10px;padding:7px;text-align:center"></div>' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">Raison r</label>' +
+        '<input id="p3-sr" type="number" value="4" oninput="p3CalcSomme()" style="width:80px;font-size:1.1em;font-weight:700;border:2px solid #ff6d00;border-radius:10px;padding:7px;text-align:center"></div>' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">Nb termes n</label>' +
+        '<input id="p3-sn" type="number" value="12" min="1" max="50" oninput="p3CalcSomme()" style="width:70px;font-size:1.1em;font-weight:700;border:2px solid #2e7d32;border-radius:10px;padding:7px;text-align:center"></div>' +
+    '</div>' +
+    '<div id="p3-som-detail" style="background:#e8eefb;border-radius:14px;padding:18px 20px;margin:10px 0;font-size:1em;line-height:1.8;color:#1a1a2e"></div>' +
+    '<div style="background:#fafbfc;border-radius:12px;padding:10px;border:1px solid #e0e0e0">' +
+      '<canvas id="p3-cv-som" height="160" style="width:100%;max-width:580px;display:block;margin:0 auto"></canvas>' +
+    '</div>' +
+  '</div>' +
+  '</div>';
+},
+function(){
+  // CSS
+  var s=document.createElement('style');
+  s.textContent='.p3-tab{padding:9px 14px;font-weight:700;border:2px solid #1a3a7a;border-radius:20px;cursor:pointer;background:#fff;color:#1a3a7a;transition:all .2s;margin:2px;font-size:.88em}.p3-on{background:#1a3a7a;color:#fff}.p3-tab:hover{transform:translateY(-2px)}.p3-btn-vt{padding:9px 16px;font-weight:700;border:none;border-radius:20px;cursor:pointer;background:#2e7d32;color:#fff;margin:2px;font-size:.88em;transition:all .2s}.p3-btn-vt:hover{background:#1b5e20;transform:translateY(-2px)}';
+  document.head.appendChild(s);
+
+  window.p3Tab=function(id,btn){
+    ['gen','esc','som'].forEach(function(p){
+      var el=document.getElementById('p3-'+p);if(el)el.style.display='none';
     });
-  }
-  window.updateP3=()=>{const u0=parseFloat(document.getElementById('sl-p3u0').value);const r=parseFloat(document.getElementById('sl-p3r').value);document.getElementById('vp3u0').textContent=u0;document.getElementById('vp3r').textContent=r;init(u0,r);};
-  ['sl-p3u0','sl-p3r'].forEach(id=>document.getElementById(id).addEventListener('input',function(){document.getElementById('vp3u0').textContent=document.getElementById('sl-p3u0').value;document.getElementById('vp3r').textContent=document.getElementById('sl-p3r').value;}));
-  init(10,5);
-});
+    document.querySelectorAll('.p3-tab').forEach(function(b){b.classList.remove('p3-on');});
+    var el=document.getElementById('p3-'+id);if(el)el.style.display='block';
+    if(btn)btn.classList.add('p3-on');
+    var fns={gen:p3DrawGen,esc:p3DrawEsc,som:p3CalcSomme};
+    setTimeout(function(){if(fns[id])fns[id]();},40);
+  };
+
+  // ── GÉNÉRATEUR ─────────────────────────────────────
+  window.p3DrawGen=function(){
+    var u0=parseFloat(document.getElementById('p3-u0').value)||0;
+    var r=parseFloat(document.getElementById('p3-r').value)||0;
+    var nb=Math.min(parseInt(document.getElementById('p3-nb').value)||8,15);
+    var cv=document.getElementById('p3-cv-gen');if(!cv)return;
+    cv.width=Math.min(cv.parentElement.offsetWidth-20,580);
+    var ctx=cv.getContext('2d'),W=cv.width,H=220;
+    ctx.clearRect(0,0,W,H);
+    var mg=55,md=20,mh=25,mb=35;
+    var termes=[];
+    for(var i=0;i<nb;i++) termes.push(Math.round((u0+i*r)*1000)/1000);
+    var minV=Math.min.apply(null,termes),maxV=Math.max.apply(null,termes);
+    if(minV===maxV){minV-=1;maxV+=1;}
+    var ecX=(W-mg-md)/(nb-1||1);
+    var ecY=(H-mh-mb)/(maxV-minV||1);
+
+    // Axes
+    var y0=H-mb-(0-minV)*ecY;
+    y0=Math.max(mh,Math.min(H-mb,y0));
+    ctx.strokeStyle='#ccc';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(mg,y0);ctx.lineTo(W-md,y0);ctx.stroke();
+    ctx.strokeStyle='#1a3a7a';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(mg,mh);ctx.lineTo(mg,H-mb);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(mg,H-mb);ctx.lineTo(W-md,H-mb);ctx.stroke();
+
+    // Ligne de tendance
+    var x0c=mg,y0c=H-mb-(termes[0]-minV)*ecY;
+    var x1c=mg+(nb-1)*ecX,y1c=H-mb-(termes[nb-1]-minV)*ecY;
+    ctx.strokeStyle='rgba(26,58,122,0.2)';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
+    ctx.beginPath();ctx.moveTo(x0c,y0c);ctx.lineTo(x1c,y1c);ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Points et valeurs
+    termes.forEach(function(val,i){
+      var x=mg+i*ecX;
+      var y=H-mb-(val-minV)*ecY;
+      // Segment vertical
+      ctx.strokeStyle='rgba(255,109,0,0.3)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x,y0);ctx.lineTo(x,y);ctx.stroke();
+      // Point
+      ctx.fillStyle='#ff6d00';
+      ctx.beginPath();ctx.arc(x,y,6,0,2*Math.PI);ctx.fill();
+      // Label
+      ctx.fillStyle='#1a3a7a';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+      if(i%Math.ceil(nb/8)===0||nb<=8){
+        ctx.fillText('u'+i,x,H-mb+18);
+        ctx.fillStyle='#333';
+        ctx.fillText(val,x,y-10);
+      }
+    });
+
+    // Labels axes
+    ctx.fillStyle='#555';ctx.font='11px sans-serif';ctx.textAlign='right';
+    ctx.fillText(maxV,mg-4,mh+8);
+    ctx.fillText(minV,mg-4,H-mb);
+
+    var el=document.getElementById('p3-gen-termes');
+    if(el)el.textContent='Termes : '+termes.slice(0,10).join(' ; ')+(nb>10?' ...':'');
+    var som=termes.reduce(function(a,b){return a+b;},0);
+    var el2=document.getElementById('p3-gen-somme');
+    if(el2)el2.textContent='Somme S = '+nb+' \u00d7 ('+(termes[0]+' + '+termes[nb-1])+') \u00f7 2 = '+(Math.round(som*100)/100);
+  };
+
+  // ── ESCALIER ───────────────────────────────────────
+  var p3EscStep=0,p3EscAnim=null;
+  var P3_STEPS=6;
+
+  window.p3DrawEsc=function(step){
+    var u0=parseFloat(document.getElementById('p3-e0').value)||0;
+    var r=parseFloat(document.getElementById('p3-er').value)||0;
+    var cv=document.getElementById('p3-cv-esc');if(!cv)return;
+    cv.width=Math.min(cv.parentElement.offsetWidth-20,580);
+    var ctx=cv.getContext('2d'),W=cv.width,H=240;
+    ctx.clearRect(0,0,W,H);
+    var etape=step!==undefined?step:P3_STEPS;
+    var pasX=Math.min((W-80)/P3_STEPS,90);
+    var mg=50,mb=40;
+    var termes=[];
+    for(var i=0;i<=P3_STEPS;i++)termes.push(Math.round((u0+i*r)*100)/100);
+    var minV=Math.min.apply(null,termes)-Math.abs(r)*0.5;
+    var maxV=Math.max.apply(null,termes)+Math.abs(r)*0.5;
+    var ecY=(H-mb-30)/(maxV-minV||1);
+    var pts=[];
+    for(var i=0;i<=P3_STEPS;i++){
+      pts.push({x:mg+i*pasX,y:H-mb-(termes[i]-minV)*ecY});
+    }
+    // Ligne de tendance
+    ctx.strokeStyle='#ddd';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);ctx.lineTo(pts[P3_STEPS].x,pts[P3_STEPS].y);ctx.stroke();
+    ctx.setLineDash([]);
+
+    for(var i=0;i<=Math.min(etape,P3_STEPS);i++){
+      // Point
+      ctx.fillStyle='#ff6d00';
+      ctx.beginPath();ctx.arc(pts[i].x,pts[i].y,7,0,2*Math.PI);ctx.fill();
+      // Label
+      ctx.fillStyle='#333';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+      ctx.fillText('u'+i+'='+termes[i],pts[i].x,pts[i].y-13);
+      // Escalier
+      if(i>0){
+        ctx.strokeStyle='#1a3a7a';ctx.lineWidth=2.5;
+        ctx.beginPath();
+        ctx.moveTo(pts[i-1].x,pts[i-1].y);
+        ctx.lineTo(pts[i].x,pts[i-1].y);
+        ctx.lineTo(pts[i].x,pts[i].y);
+        ctx.stroke();
+        // Flèche raison
+        var mid_x=(pts[i-1].x+pts[i].x)/2;
+        ctx.fillStyle='#c62828';ctx.font='bold 12px sans-serif';ctx.textAlign='center';
+        ctx.fillText((r>=0?'+':'')+r,mid_x,pts[i-1].y-(r>=0?10:-4));
+      }
+    }
+  };
+
+  window.p3AnimEsc=function(){
+    if(p3EscAnim)return;
+    p3EscStep=0;
+    var steps=P3_STEPS;
+    var dur=steps*450,debut=performance.now();
+    function anim(t){
+      var p=Math.min((t-debut)/dur,1);
+      p3EscStep=Math.floor(p*steps);
+      p3DrawEsc(p3EscStep);
+      if(p<1)p3EscAnim=requestAnimationFrame(anim);
+      else{p3EscAnim=null;p3DrawEsc(steps);}
+    }
+    p3EscAnim=requestAnimationFrame(anim);
+  };
+
+  // ── SOMME ──────────────────────────────────────────
+  window.p3CalcSomme=function(){
+    var u0=parseFloat(document.getElementById('p3-s0').value)||0;
+    var r=parseFloat(document.getElementById('p3-sr').value)||0;
+    var n=Math.min(parseInt(document.getElementById('p3-sn').value)||12,50);
+    var un_1=Math.round((u0+(n-1)*r)*100)/100;
+    var somme=Math.round(n*(u0+un_1)/2*100)/100;
+    var el=document.getElementById('p3-som-detail');
+    if(el)el.innerHTML=
+      '\uD83D\uDCCC Premier terme : <strong>u\u2080 = '+u0+'</strong><br>'+
+      '\uD83D\uDCCC Dernier terme : <strong>u\u2099\u208B\u2081 = u\u2080 + (n\u22121)\u00d7r = '+u0+' + '+(n-1)+'\u00d7'+r+' = <strong>'+un_1+'</strong><br>'+
+      '\uD83D\uDCCC Nombre de termes : <strong>n = '+n+'</strong><br>'+
+      '<hr style="margin:10px 0;border-color:#d0d4e0">'+
+      'S = n \u00d7 (u\u2080 + u\u2099\u208B\u2081) \u00f7 2<br>'+
+      'S = <strong>'+n+' \u00d7 ('+u0+' + '+un_1+') \u00f7 2</strong><br>'+
+      'S = '+n+' \u00d7 '+(Math.round((u0+un_1)*100)/100)+' \u00f7 2<br>'+
+      '<span style="font-size:1.3em;color:#ff6d00;font-weight:900">S = '+somme+'</span>';
+    // Canvas
+    var cv=document.getElementById('p3-cv-som');if(!cv)return;
+    cv.width=Math.min(cv.parentElement.offsetWidth-20,580);
+    var ctx=cv.getContext('2d'),W=cv.width,H=160;
+    ctx.clearRect(0,0,W,H);
+    var nbAff=Math.min(n,20);
+    var termes=[];
+    for(var i=0;i<n;i++)termes.push(Math.round((u0+i*r)*100)/100);
+    var termesAff=termes.slice(0,nbAff);
+    var minV=Math.min.apply(null,termesAff);
+    var maxV=Math.max.apply(null,termesAff);
+    if(minV===maxV){minV-=1;maxV+=1;}
+    var bw=(W-60)/nbAff-2;
+    var mg=40,mb=30;
+    var ecY=(H-mb-30)/(maxV-minV||1);
+    var baseline=H-mb;
+    termesAff.forEach(function(val,i){
+      var x=mg+i*(bw+2);
+      var barH=Math.abs(val-Math.min(0,minV))*ecY;
+      var y=val>=0?(baseline-barH):baseline;
+      ctx.fillStyle='rgba(255,109,0,0.7)';
+      ctx.fillRect(x,Math.min(y,baseline),bw,Math.max(1,Math.abs(barH)));
+      ctx.strokeStyle='#ff6d00';ctx.lineWidth=1;
+      ctx.strokeRect(x,Math.min(y,baseline),bw,Math.max(1,Math.abs(barH)));
+    });
+    ctx.fillStyle='#1a3a7a';ctx.font='bold 12px sans-serif';ctx.textAlign='center';
+    ctx.fillText('S = '+somme+' (somme de '+n+' termes)',W/2,H-5);
+  };
+
+  window.addEventListener('resize',function(){
+    var fns={gen:p3DrawGen,esc:function(){p3DrawEsc();},som:p3CalcSomme};
+    Object.keys(fns).forEach(function(k){
+      var el=document.getElementById('p3-'+k);
+      if(el&&el.style.display!=='none')fns[k]();
+    });
+  });
+
+  p3DrawGen();
+  p3DrawEsc();
+  p3CalcSomme();
+}
+);
+
+
+;
 
 // ── p5 — Polynômes degré 2 ───────────────────────────────────────
 defAnim('p5',
-function(){ return `<div class="anim-wrap">
-  <div class="anim-header"><h2>🔢 Polynôme du 2ème degré</h2><p>f(x) = ax² + bx + c — parabole interactive</p></div>
-  <div class="chart-wrap">
-    <canvas id="chart-p5" height="250"></canvas>
-    <div class="chart-controls">
-      <span class="chart-label">a</span>
-      <input type="range" class="chart-slider" id="sl-p5a" min="-3" max="3" step="0.5" value="1">
-      <span class="chart-val" id="vp5a">1</span>
-      <span class="chart-label">b</span>
-      <input type="range" class="chart-slider" id="sl-p5b" min="-6" max="6" step="0.5" value="-2">
-      <span class="chart-val" id="vp5b">-2</span>
-      <span class="chart-label">c</span>
-      <input type="range" class="chart-slider" id="sl-p5c" min="-5" max="5" step="0.5" value="-3">
-      <span class="chart-val" id="vp5c">-3</span>
-      <button class="chart-btn" onclick="updateP5()">Actualiser</button>
-    </div>
-    <div class="chart-result" id="res-p5">Sommet : (1 ; -4) · Racines à la calculatrice</div>
-  </div>
-</div>`;},
 function(){
-  let chart;
-  function init(a,b,c){
-    if(a===0) a=0.01;
-    const xs=[],ys=[];
-    for(let x=-5;x<=5;x+=0.15){xs.push(x.toFixed(2));ys.push(a*x*x+b*x+c);}
-    const xs_=-b/(2*a),ys_=c-b*b/(4*a);
-    document.getElementById('res-p5').textContent=`f(x)=${a}x²${b>=0?'+':''}${b}x${c>=0?'+':''}${c} · Sommet (${xs_.toFixed(2)};${ys_.toFixed(2)}) · ${a>0?'Minimum local ↑':'Maximum local ↓'} · Racines : à la calculatrice`;
-    const ctx=document.getElementById('chart-p5').getContext('2d');
-    if(chart) chart.destroy();
-    chart=new Chart(ctx,{type:'line',data:{labels:xs,datasets:[{label:`f(x)`,data:ys,
-      borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',borderWidth:2.5,pointRadius:0,tension:0.1,fill:true}]},
-      options:{responsive:true,plugins:{tooltip:{callbacks:{label:c=>`f(${c.label})=${c.raw.toFixed(2)}`}}},
-        scales:{y:{suggestedMin:-10,suggestedMax:12,title:{display:true,text:'f(x)'}},x:{title:{display:true,text:'x'}}}}
+  return '<div class="anim-wrap" style="font-family:var(--f)">' +
+  '<div class="anim-header"><h2>&#128200; Fonctions polyn\u00f4mes de degr\u00e9 2</h2>' +
+  '<p>3 outils : Simulateur de parabole \u00b7 Racines et signes \u00b7 Projectile</p></div>' +
+
+  '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0">' +
+    '<button onclick="p5Tab(\'sim\',this)"  class="p5-tab p5-on">&#128200; Parabole</button>' +
+    '<button onclick="p5Tab(\'signe\',this)" class="p5-tab">&#177; Signe</button>' +
+    '<button onclick="p5Tab(\'proj\',this)"  class="p5-tab">&#127992; Projectile</button>' +
+  '</div>' +
+
+  // SIMULATEUR PARABOLE
+  '<div id="p5-sim">' +
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:10px 0">' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">a = <span id="p5-va">1,0</span></label>' +
+        '<input type="range" id="p5-a" min="-2" max="2" value="1" step="0.1" oninput="p5DrawSim()" style="width:130px;accent-color:#1a3a7a"></div>' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">b = <span id="p5-vb">0,0</span></label>' +
+        '<input type="range" id="p5-b" min="-8" max="8" value="0" step="0.5" oninput="p5DrawSim()" style="width:130px;accent-color:#ff6d00"></div>' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">c = <span id="p5-vc">0,0</span></label>' +
+        '<input type="range" id="p5-c" min="-8" max="8" value="0" step="0.5" oninput="p5DrawSim()" style="width:130px;accent-color:#2e7d32"></div>' +
+    '</div>' +
+    '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:8px 0">' +
+      '<button onclick="p5TogS()" class="p5-btn-bl" id="p5-btn-s">&#128205; Sommet</button>' +
+      '<button onclick="p5TogR()" class="p5-btn-vt" id="p5-btn-r">&#127919; Racines</button>' +
+      '<button onclick="p5TogA()" class="p5-btn-vi" id="p5-btn-a">&#128208; Axe sym.</button>' +
+      '<button onclick="p5ResSim()" class="p5-btn-or">&#128260; Reset</button>' +
+    '</div>' +
+    '<div style="background:#fafbfc;border-radius:12px;padding:10px;border:1px solid #e0e0e0">' +
+      '<canvas id="p5-cv-sim" height="260" style="width:100%;max-width:580px;display:block;margin:0 auto"></canvas>' +
+    '</div>' +
+    '<div id="p5-sim-info" style="margin-top:8px;padding:10px;background:#e8eefb;border-radius:10px;font-weight:700;font-size:.9em;text-align:center;color:#1a3a7a"></div>' +
+  '</div>' +
+
+  // SIGNE
+  '<div id="p5-signe" style="display:none">' +
+    '<h3 style="color:#1a3a7a;text-align:center;margin:8px 0">Tableau de signes interactif</h3>' +
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:10px 0">' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">Racine x\u2081</label>' +
+        '<input id="p5-x1" type="number" value="-2" step="0.5" oninput="p5DrawSigne()" style="width:80px;font-size:1.1em;font-weight:700;border:2px solid #1a3a7a;border-radius:10px;padding:7px;text-align:center"></div>' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">Racine x\u2082</label>' +
+        '<input id="p5-x2" type="number" value="3" step="0.5" oninput="p5DrawSigne()" style="width:80px;font-size:1.1em;font-weight:700;border:2px solid #1a3a7a;border-radius:10px;padding:7px;text-align:center"></div>' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">Signe de a</label>' +
+        '<select id="p5-sign-a" onchange="p5DrawSigne()" style="font-size:1em;font-weight:700;border:2px solid #1a3a7a;border-radius:10px;padding:9px">' +
+          '<option value="1">a > 0</option>' +
+          '<option value="-1">a < 0</option>' +
+        '</select></div>' +
+    '</div>' +
+    '<div id="p5-signe-table" style="margin:10px 0;overflow-x:auto"></div>' +
+    '<div id="p5-signe-res" style="margin-top:10px;padding:12px 16px;background:#e8eefb;border-radius:10px;font-weight:700;color:#1a3a7a;font-size:.95em"></div>' +
+  '</div>' +
+
+  // PROJECTILE
+  '<div id="p5-proj" style="display:none">' +
+    '<h3 style="color:#1a3a7a;text-align:center;margin:8px 0">Trajectoire d\u2019un projectile h(t) = \u22125t\u00b2 + v\u2080t</h3>' +
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:10px 0">' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">Vitesse initiale v\u2080 (m/s)</label>' +
+        '<input type="range" id="p5-v0" min="5" max="40" value="20" oninput="p5DrawProj()" style="width:180px;accent-color:#ff6d00">' +
+        '<span id="p5-v0-val" style="font-weight:700;margin-left:8px">20 m/s</span></div>' +
+    '</div>' +
+    '<div style="background:#fafbfc;border-radius:12px;padding:10px;border:1px solid #e0e0e0">' +
+      '<canvas id="p5-cv-proj" height="220" style="width:100%;max-width:580px;display:block;margin:0 auto"></canvas>' +
+    '</div>' +
+    '<div id="p5-proj-info" style="margin-top:10px;padding:12px;background:#fff3e0;border-radius:10px;font-weight:700;font-size:.95em;text-align:center;color:#ff6d00;border:2px solid #ff6d00"></div>' +
+  '</div>' +
+  '</div>';
+},
+function(){
+  var s=document.createElement('style');
+  s.textContent='.p5-tab{padding:9px 14px;font-weight:700;border:2px solid #1a3a7a;border-radius:20px;cursor:pointer;background:#fff;color:#1a3a7a;transition:all .2s;margin:2px;font-size:.88em}.p5-on{background:#1a3a7a;color:#fff}.p5-tab:hover{transform:translateY(-2px)}.p5-btn-bl{padding:9px 14px;font-weight:700;border:none;border-radius:20px;cursor:pointer;background:#1a3a7a;color:#fff;margin:2px;font-size:.85em;transition:all .2s}.p5-btn-bl:hover{background:#0d1b4a}.p5-btn-vt{padding:9px 14px;font-weight:700;border:none;border-radius:20px;cursor:pointer;background:#2e7d32;color:#fff;margin:2px;font-size:.85em;transition:all .2s}.p5-btn-vt:hover{background:#1b5e20}.p5-btn-vi{padding:9px 14px;font-weight:700;border:none;border-radius:20px;cursor:pointer;background:#7b1fa2;color:#fff;margin:2px;font-size:.85em;transition:all .2s}.p5-btn-vi:hover{background:#4a0072}.p5-btn-or{padding:9px 14px;font-weight:700;border:none;border-radius:20px;cursor:pointer;background:#ff6d00;color:#fff;margin:2px;font-size:.85em;transition:all .2s}.p5-btn-or:hover{background:#bf360c}';
+  document.head.appendChild(s);
+
+  var p5Ss=false,p5Rs=false,p5As=false;
+
+  window.p5Tab=function(id,btn){
+    ['sim','signe','proj'].forEach(function(p){
+      var el=document.getElementById('p5-'+p);if(el)el.style.display='none';
     });
-  }
-  window.updateP5=()=>{
-    const a=parseFloat(document.getElementById('sl-p5a').value);
-    const b=parseFloat(document.getElementById('sl-p5b').value);
-    const c=parseFloat(document.getElementById('sl-p5c').value);
-    document.getElementById('vp5a').textContent=a;document.getElementById('vp5b').textContent=b;document.getElementById('vp5c').textContent=c;
-    init(a,b,c);
+    document.querySelectorAll('.p5-tab').forEach(function(b){b.classList.remove('p5-on');});
+    var el=document.getElementById('p5-'+id);if(el)el.style.display='block';
+    if(btn)btn.classList.add('p5-on');
+    var fns={sim:p5DrawSim,signe:p5DrawSigne,proj:p5DrawProj};
+    setTimeout(function(){if(fns[id])fns[id]();},40);
   };
-  ['sl-p5a','sl-p5b','sl-p5c'].forEach((id,i)=>document.getElementById(id).addEventListener('input',function(){['vp5a','vp5b','vp5c'].forEach((v,j)=>document.getElementById(v).textContent=document.getElementById(['sl-p5a','sl-p5b','sl-p5c'][j]).value);}));
-  init(1,-2,-3);
-});
+
+  // ── PARABOLE ─────────────────────────────────────────
+  function p5f(x,a,b,c){return a*x*x+b*x+c;}
+
+  window.p5DrawSim=function(){
+    var a=parseFloat(document.getElementById('p5-a').value)||1;
+    var b=parseFloat(document.getElementById('p5-b').value)||0;
+    var c=parseFloat(document.getElementById('p5-c').value)||0;
+    document.getElementById('p5-va').textContent=a.toFixed(1);
+    document.getElementById('p5-vb').textContent=b.toFixed(1);
+    document.getElementById('p5-vc').textContent=c.toFixed(1);
+    var cv=document.getElementById('p5-cv-sim');if(!cv)return;
+    cv.width=Math.min(cv.parentElement.offsetWidth-20,580);
+    var ctx=cv.getContext('2d'),W=cv.width,H=260;
+    ctx.clearRect(0,0,W,H);
+    var mg=60,md=25,mh=25,mb=40;
+    var xMin=-7,xMax=7,yMin=-10,yMax=10;
+    var ecX=(W-mg-md)/(xMax-xMin),ecY=(H-mh-mb)/(yMax-yMin);
+    function px(x){return mg+(x-xMin)*ecX;}
+    function py(y){return H-mb-(y-yMin)*ecY;}
+    // Grille
+    ctx.strokeStyle='#f0f0f0';ctx.lineWidth=1;
+    for(var xi=xMin;xi<=xMax;xi++){ctx.beginPath();ctx.moveTo(px(xi),mh);ctx.lineTo(px(xi),H-mb);ctx.stroke();}
+    for(var yi=yMin;yi<=yMax;yi++){ctx.beginPath();ctx.moveTo(mg,py(yi));ctx.lineTo(W-md,py(yi));ctx.stroke();}
+    // Axes
+    ctx.strokeStyle='#333';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(mg,py(0));ctx.lineTo(W-md,py(0));ctx.stroke();
+    ctx.beginPath();ctx.moveTo(px(0),mh);ctx.lineTo(px(0),H-mb);ctx.stroke();
+    // Graduations
+    ctx.fillStyle='#555';ctx.font='11px sans-serif';ctx.textAlign='center';
+    for(var xi=-6;xi<=6;xi+=2){
+      ctx.fillText(xi,px(xi),py(0)+18);
+      ctx.beginPath();ctx.moveTo(px(xi),py(0)-3);ctx.lineTo(px(xi),py(0)+3);ctx.stroke();
+    }
+    ctx.textAlign='right';
+    for(var yi=-8;yi<=8;yi+=2){
+      ctx.fillText(yi,px(0)-5,py(yi)+4);
+      ctx.beginPath();ctx.moveTo(px(0)-3,py(yi));ctx.lineTo(px(0)+3,py(yi));ctx.stroke();
+    }
+    // Axe symétrie
+    if(p5As&&a!==0){
+      var xs=-b/(2*a);
+      ctx.strokeStyle='#7b1fa2';ctx.lineWidth=2;ctx.setLineDash([6,4]);
+      ctx.beginPath();ctx.moveTo(px(xs),mh);ctx.lineTo(px(xs),H-mb);ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    // Parabole
+    ctx.strokeStyle='#ff6d00';ctx.lineWidth=3;
+    ctx.beginPath();var first=true;
+    for(var xi2=0;xi2<W;xi2++){
+      var x2=xMin+(xi2-mg)/ecX;
+      var y2=p5f(x2,a,b,c);
+      var py2=py(y2);
+      if(py2<mh-60||py2>H-mb+60){first=true;continue;}
+      if(first){ctx.moveTo(xi2,py2);first=false;}else ctx.lineTo(xi2,py2);
+    }
+    ctx.stroke();
+    // Sommet
+    var xS=-b/(2*a), yS=p5f(xS,a,b,c);
+    if(p5Ss){
+      ctx.fillStyle='#c62828';
+      ctx.beginPath();ctx.arc(px(xS),py(yS),7,0,2*Math.PI);ctx.fill();
+      ctx.fillStyle='#c62828';ctx.font='bold 12px sans-serif';ctx.textAlign='left';
+      ctx.fillText('S('+xS.toFixed(2)+';'+yS.toFixed(2)+')',px(xS)+10,py(yS)-5);
+    }
+    // Racines
+    var disc=b*b-4*a*c;
+    var racs=[];
+    if(disc>0){var sq=Math.sqrt(disc);racs=[(-b-sq)/(2*a),(-b+sq)/(2*a)];}
+    else if(disc===0) racs=[-b/(2*a)];
+    if(p5Rs&&racs.length>0){
+      racs.forEach(function(r){
+        ctx.fillStyle='#2e7d32';
+        ctx.beginPath();ctx.arc(px(r),py(0),7,0,2*Math.PI);ctx.fill();
+        ctx.fillStyle='#2e7d32';ctx.font='bold 12px sans-serif';ctx.textAlign='left';
+        ctx.fillText('x='+r.toFixed(2),px(r)+8,py(0)-10);
+      });
+    }
+    // Info
+    var info='a='+a.toFixed(1)+' \u2192 parabole en '+(a>0?'U \uD83D\uDE0A':'∩ \uD83D\uDE1E');
+    if(racs.length===2)info+=' | Racines : '+racs[0].toFixed(2)+' et '+racs[1].toFixed(2);
+    else if(racs.length===1)info+=' | Racine double : '+racs[0].toFixed(2);
+    else info+=' | Aucune racine r\u00e9elle';
+    var el=document.getElementById('p5-sim-info');if(el)el.textContent=info;
+  };
+
+  window.p5TogS=function(){p5Ss=!p5Ss;p5DrawSim();};
+  window.p5TogR=function(){p5Rs=!p5Rs;p5DrawSim();};
+  window.p5TogA=function(){p5As=!p5As;p5DrawSim();};
+  window.p5ResSim=function(){p5Ss=false;p5Rs=false;p5As=false;p5DrawSim();};
+
+  // ── TABLEAU DE SIGNES ─────────────────────────────────
+  window.p5DrawSigne=function(){
+    var x1=parseFloat(document.getElementById('p5-x1').value);
+    var x2=parseFloat(document.getElementById('p5-x2').value);
+    var sa=parseInt(document.getElementById('p5-sign-a').value)||1;
+    if(isNaN(x1))x1=-2; if(isNaN(x2))x2=3;
+    if(x1===x2){x2=x1+1;}
+    if(x1>x2){var tmp=x1;x1=x2;x2=tmp;}
+
+    var el=document.getElementById('p5-signe-table');
+    if(!el)return;
+
+    // Signe de (x-x1) : - | 0 | + | + | +
+    // Signe de (x-x2) : - | - | - | 0 | +
+    // Signe f(x) selon a :
+    var s_fx_left  = sa>0 ? '+' : '-';
+    var s_fx_mid   = sa>0 ? '-' : '+';
+    var s_fx_right = sa>0 ? '+' : '-';
+
+    function cellSign(s){
+      var col = s==='+' ? '#1b5e20' : s==='-' ? '#b71c1c' : '#1a3a7a';
+      var bg  = s==='+' ? '#e8f5e9' : s==='-' ? '#ffebee' : '#f5f5f5';
+      var sym = s==='+' ? '+' : s==='-' ? '−' : '0';
+      return '<td style="text-align:center;padding:10px 6px;font-weight:900;font-size:1.15em;'+
+             'color:'+col+';background:'+bg+';border:1px solid #d0d4e0">'+sym+'</td>';
+    }
+    function cellZero(){
+      return '<td style="text-align:center;padding:10px 6px;font-weight:900;font-size:1.15em;'+
+             'color:#1a3a7a;background:#e8eefb;border:1px solid #d0d4e0">0</td>';
+    }
+    function cellLabel(t,bold){
+      return '<td style="text-align:center;padding:10px 6px;font-weight:'+(bold?'700':'400')+';'+
+             'color:#1a3a7a;background:#e8eefb;border:1px solid #d0d4e0;font-size:.92em">'+t+'</td>';
+    }
+    function cellHead(t){
+      return '<td style="text-align:center;padding:10px 8px;font-weight:700;color:#fff;'+
+             'background:#1a3a7a;border:1px solid #0d1b4a;font-size:.9em">'+t+'</td>';
+    }
+
+    var x1s = Number.isInteger(x1)?x1:x1.toFixed(1);
+    var x2s = Number.isInteger(x2)?x2:x2.toFixed(1);
+
+    var html = '<table style="border-collapse:collapse;width:100%;min-width:420px;'+
+               'border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);font-family:sans-serif">';
+
+    // Ligne 1 : en-tête valeurs de x
+    html += '<tr>';
+    html += '<td style="text-align:center;padding:10px 8px;font-weight:700;color:#fff;background:#0d1b4a;border:1px solid #0d1b4a;font-size:.9em">x</td>';
+    html += cellLabel('\u2212\u221e &nbsp;&nbsp;&nbsp;&nbsp; '+x1s,false);
+    html += cellLabel(x1s, true);
+    html += cellLabel(x1s+' &nbsp;&nbsp; '+x2s, false);
+    html += cellLabel(x2s, true);
+    html += cellLabel(x2s+' &nbsp;&nbsp;&nbsp;&nbsp; +\u221e', false);
+    html += '</tr>';
+
+    // Ligne 2 : signe (x - x1)
+    html += '<tr>';
+    html += cellHead('(x \u2212 '+x1s+')');
+    html += cellSign('-');
+    html += cellZero();
+    html += cellSign('+');
+    html += cellSign('+');
+    html += cellSign('+');
+    html += '</tr>';
+
+    // Ligne 3 : signe (x - x2)
+    html += '<tr>';
+    html += cellHead('(x \u2212 '+x2s+')');
+    html += cellSign('-');
+    html += cellSign('-');
+    html += cellSign('-');
+    html += cellZero();
+    html += cellSign('+');
+    html += '</tr>';
+
+    // Ligne 4 : signe f(x)
+    var fx_bg_left  = sa>0?'#c8e6c9':'#ffcdd2';
+    var fx_bg_mid   = sa>0?'#ffcdd2':'#c8e6c9';
+    var fx_bg_right = sa>0?'#c8e6c9':'#ffcdd2';
+    var fx_col_left  = sa>0?'#1b5e20':'#b71c1c';
+    var fx_col_mid   = sa>0?'#b71c1c':'#1b5e20';
+    var fx_col_right = sa>0?'#1b5e20':'#b71c1c';
+
+    function cellFx(sym,col,bg){
+      return '<td style="text-align:center;padding:12px 6px;font-weight:900;font-size:1.3em;'+
+             'color:'+col+';background:'+bg+';border:2px solid #bbb">'+sym+'</td>';
+    }
+
+    html += '<tr>';
+    html += '<td style="text-align:center;padding:12px 8px;font-weight:700;color:#fff;background:#1a3a7a;border:2px solid #0d1b4a;font-size:.95em">f(x)</td>';
+    html += cellFx(sa>0?'+':'−', fx_col_left, fx_bg_left);
+    html += cellFx('0','#1a3a7a','#e8eefb');
+    html += cellFx(sa>0?'−':'+', fx_col_mid, fx_bg_mid);
+    html += cellFx('0','#1a3a7a','#e8eefb');
+    html += cellFx(sa>0?'+':'−', fx_col_right, fx_bg_right);
+    html += '</tr>';
+
+    html += '</table>';
+    el.innerHTML = html;
+
+    // Résumé
+    var res=document.getElementById('p5-signe-res');
+    if(res){
+      if(sa>0)
+        res.innerHTML=
+          '<span style="color:#2e7d32">\u25b6 f(x) > 0</span> si x &lt; '+x1s+' ou x &gt; '+x2s+
+          ' &nbsp;|&nbsp; <span style="color:#c62828">\u25b6 f(x) &lt; 0</span> si '+x1s+' &lt; x &lt; '+x2s;
+      else
+        res.innerHTML=
+          '<span style="color:#2e7d32">\u25b6 f(x) > 0</span> si '+x1s+' &lt; x &lt; '+x2s+
+          ' &nbsp;|&nbsp; <span style="color:#c62828">\u25b6 f(x) &lt; 0</span> si x &lt; '+x1s+' ou x &gt; '+x2s;
+    }
+  };
+
+  // ── PROJECTILE ────────────────────────────────────────
+  window.p5DrawProj=function(){
+    var v0=parseInt(document.getElementById('p5-v0').value)||20;
+    document.getElementById('p5-v0-val').textContent=v0+' m/s';
+    var cv=document.getElementById('p5-cv-proj');if(!cv)return;
+    cv.width=Math.min(cv.parentElement.offsetWidth-20,580);
+    var ctx=cv.getContext('2d'),W=cv.width,H=220;
+    ctx.clearRect(0,0,W,H);
+    // h(t) = -5t² + v0*t → racines : t=0 et t=v0/5
+    var tMax=v0/5;
+    var hMax=v0*v0/20; // au sommet t=v0/10
+    var mg=55,md=20,mh=20,mb=40;
+    var tScale=(W-mg-md)/tMax;
+    var hScale=(H-mh-mb)/hMax;
+    function px(t){return mg+t*tScale;}
+    function py(h){return H-mb-h*hScale;}
+    // Axes
+    ctx.strokeStyle='#333';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(mg,mh);ctx.lineTo(mg,H-mb);ctx.lineTo(W-md,H-mb);ctx.stroke();
+    // Graduations temps
+    ctx.fillStyle='#555';ctx.font='11px sans-serif';ctx.textAlign='center';
+    for(var t=0;t<=tMax;t+=tMax>8?2:1){
+      ctx.fillText(t+'s',px(t),H-mb+18);
+      ctx.beginPath();ctx.moveTo(px(t),H-mb-3);ctx.lineTo(px(t),H-mb+3);ctx.stroke();
+    }
+    // Sol (herbe)
+    ctx.fillStyle='#c8e6c9';ctx.fillRect(mg,H-mb,W-mg-md,8);
+    // Trajectoire
+    ctx.strokeStyle='#ff6d00';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(px(0),py(0));
+    for(var ti=0;ti<=tMax;ti+=tMax/200){
+      var hi=-5*ti*ti+v0*ti;
+      ctx.lineTo(px(ti),py(Math.max(0,hi)));
+    }
+    ctx.stroke();
+    // Sommet
+    var ts=v0/10, hs=v0*v0/20;
+    ctx.fillStyle='#c62828';
+    ctx.beginPath();ctx.arc(px(ts),py(hs),7,0,2*Math.PI);ctx.fill();
+    ctx.fillStyle='#c62828';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+    ctx.fillText('Max : '+hs.toFixed(1)+' m',px(ts),py(hs)-12);
+    // Ligne sommet
+    ctx.strokeStyle='rgba(198,40,40,.3)';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(mg,py(hs));ctx.lineTo(px(ts),py(hs));ctx.stroke();
+    ctx.setLineDash([]);
+    // Points sol
+    [[0,'D\u00e9part'],[tMax,'Sol']].forEach(function(p){
+      ctx.fillStyle='#2e7d32';
+      ctx.beginPath();ctx.arc(px(p[0]),py(0),6,0,2*Math.PI);ctx.fill();
+      ctx.fillStyle='#2e7d32';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+      ctx.fillText(p[1],px(p[0]),py(0)-12);
+    });
+    // Axe t label
+    ctx.fillStyle='#555';ctx.font='11px sans-serif';ctx.textAlign='center';
+    ctx.fillText('t (s)',W-md+5,H-mb);
+    // Info
+    var el=document.getElementById('p5-proj-info');
+    if(el)el.innerHTML='h(t) = \u22125t\u00b2 + '+v0+'t \u2192 Racines : t=0 et t='+tMax.toFixed(1)+'s | Hauteur max : '+hs.toFixed(1)+' m \u00e0 t='+ts.toFixed(1)+'s';
+  };
+
+  window.addEventListener('resize',function(){
+    var fns={sim:p5DrawSim,signe:p5DrawSigne,proj:p5DrawProj};
+    Object.keys(fns).forEach(function(k){
+      var el=document.getElementById('p5-'+k);
+      if(el&&el.style.display!=='none')fns[k]();
+    });
+  });
+
+  p5DrawSim();p5DrawSigne();p5DrawProj();
+}
+);
+
+
+;
 
 // ── p6 — Dérivée ─────────────────────────────────────────────────
 defAnim('p6',
@@ -9329,52 +9943,298 @@ function(){
 
 // ── p1 — Statistiques à deux variables ──────────────────────────
 defAnim('p1',
-function(){ return `<div class="anim-wrap">
-  <div class="anim-header"><h2>📊 Régression linéaire</h2><p>Nuage de points et droite d'ajustement interactifs</p></div>
-  <div class="chart-wrap">
-    <h3>Ajustement affine y = ax + b</h3>
-    <canvas id="chart-p1" height="250"></canvas>
-    <div class="chart-controls">
-      <span class="chart-label">Dispersion</span>
-      <input type="range" class="chart-slider" id="sl-p1bruit" min="0" max="20" step="2" value="5">
-      <span class="chart-val" id="val-p1bruit">5</span>
-      <button class="chart-btn" onclick="updateP1()">Générer nouveau</button>
-    </div>
-    <div class="chart-result" id="res-p1">R² = ---</div>
-  </div>
-</div>`;},
 function(){
-  let chart;
-  function genP1(bruit){
-    const a=2.5,b=10;
-    const xs=[],ys=[],yfit=[];
-    for(let x=1;x<=12;x++){
-      xs.push(x);
-      const y=a*x+b+(Math.random()-0.5)*bruit*2;
-      ys.push(y);yfit.push(a*x+b);
-    }
-    const mean=ys.reduce((s,v)=>s+v,0)/ys.length;
-    const ss_tot=ys.reduce((s,v)=>s+(v-mean)**2,0);
-    const ss_res=ys.reduce((s,v,i)=>s+(v-yfit[i])**2,0);
-    const r2=Math.max(0,1-ss_res/ss_tot);
-    return{xs,ys,yfit,r2};
+  return '<div class="anim-wrap" style="font-family:var(--f)">' +
+  '<div class="anim-header"><h2>&#128202; Statistique \u00e0 deux variables</h2>' +
+  '<p>3 outils : Nuage de points \u00b7 Droite de r\u00e9gression \u00b7 Simulateur NumWorks</p></div>' +
+
+  '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0">' +
+    '<button onclick="p1Tab(\'nuage\',this)"  class="p1-tab p1-on">&#127775; Nuage</button>' +
+    '<button onclick="p1Tab(\'reg\',this)"    class="p1-tab">&#128208; R\u00e9gression</button>' +
+    '<button onclick="p1Tab(\'nw\',this)"     class="p1-tab">&#129518; NumWorks</button>' +
+  '</div>' +
+
+  // NUAGE
+  '<div id="p1-nuage">' +
+    '<h3 style="color:#1a3a7a;text-align:center;margin:8px 0">Nuage de points \u2014 Kilom\u00e9trage vs Prix</h3>' +
+    '<div style="background:#fafbfc;border-radius:12px;padding:10px;border:1px solid #e0e0e0">' +
+      '<canvas id="p1-cv-nuage" height="240" style="width:100%;max-width:580px;display:block;margin:0 auto"></canvas>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0">' +
+      '<button onclick="p1ToggleDroite()" class="p1-btn-bl" id="p1-btn-droite">&#128208; Afficher la droite</button>' +
+      '<button onclick="p1ToggleCarres()" class="p1-btn-or" id="p1-btn-carres">&#9635; Afficher les \u00e9carts</button>' +
+      '<button onclick="p1ResetNuage()"   class="p1-btn-vt">&#128260; Reset</button>' +
+    '</div>' +
+    '<div id="p1-nuage-info" style="text-align:center;font-weight:700;min-height:22px;color:#1a3a7a;padding:6px"></div>' +
+  '</div>' +
+
+  // RÉGRESSION
+  '<div id="p1-reg" style="display:none">' +
+    '<h3 style="color:#1a3a7a;text-align:center;margin:8px 0">Comprendre R\u00b2 — Qualit\u00e9 de l\u2019ajustement</h3>' +
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:10px 0">' +
+      '<div><label style="font-weight:700;font-size:.9em;display:block;margin-bottom:4px">Dispersion des points</label>' +
+        '<input type="range" id="p1-disp" min="0" max="100" value="10" oninput="p1DrawReg()" style="width:180px;accent-color:#1a3a7a"></div>' +
+    '</div>' +
+    '<div style="background:#fafbfc;border-radius:12px;padding:10px;border:1px solid #e0e0e0">' +
+      '<canvas id="p1-cv-reg" height="220" style="width:100%;max-width:580px;display:block;margin:0 auto"></canvas>' +
+    '</div>' +
+    '<div id="p1-reg-info" style="margin-top:10px;padding:12px;background:#e8eefb;border-radius:10px;font-weight:700;text-align:center;color:#1a3a7a"></div>' +
+  '</div>' +
+
+  // NUMWORKS
+  '<div id="p1-nw" style="display:none">' +
+    '<h3 style="color:#1a3a7a;text-align:center;margin:8px 0">Simulateur NumWorks</h3>' +
+    '<div style="display:flex;justify-content:center;margin:10px 0">' +
+      '<div style="background:#1c1c1e;border-radius:20px;padding:18px;max-width:340px;width:100%;box-shadow:0 8px 28px rgba(0,0,0,.3)">' +
+        '<div style="display:flex;gap:4px;margin-bottom:8px;justify-content:center">' +
+          '<button onclick="p1NWTab(\'d\')" id="p1-nw-tab-d" style="background:#ff6d00;color:#fff;border:none;border-radius:6px 6px 0 0;padding:7px 16px;font-weight:700;cursor:pointer;font-size:.82em">Donn\u00e9es</button>' +
+          '<button onclick="p1NWTab(\'g\')" id="p1-nw-tab-g" style="background:#444;color:#fff;border:none;border-radius:6px 6px 0 0;padding:7px 16px;font-weight:700;cursor:pointer;font-size:.82em">Graphique</button>' +
+          '<button onclick="p1NWTab(\'r\')" id="p1-nw-tab-r" style="background:#444;color:#fff;border:none;border-radius:6px 6px 0 0;padding:7px 16px;font-weight:700;cursor:pointer;font-size:.82em">R\u00e9gression</button>' +
+        '</div>' +
+        '<div id="p1-nw-screen" style="background:#f0f0f0;color:#111;border-radius:8px;padding:14px;min-height:140px;font-family:monospace;font-size:.88em;text-align:left"></div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px">' +
+          '<button onclick="p1NWCalc()" style="background:#ff6d00;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-weight:700;cursor:pointer;font-size:.85em">&#10024; Calculer</button>' +
+          '<button onclick="p1NWPredire()" style="background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-weight:700;cursor:pointer;font-size:.85em">&#128302; Pr\u00e9diction</button>' +
+          '<button onclick="p1NWReset()" style="background:#546e7a;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-weight:700;cursor:pointer;font-size:.85em">&#128260;</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div id="p1-nw-msg" style="text-align:center;margin-top:8px;font-size:.9em;color:#555;padding:0 10px"></div>' +
+  '</div>' +
+  '</div>';
+},
+function(){
+  // CSS
+  var s=document.createElement('style');
+  s.textContent='.p1-tab{padding:9px 14px;font-weight:700;border:2px solid #1a3a7a;border-radius:20px;cursor:pointer;background:#fff;color:#1a3a7a;transition:all .2s;margin:2px;font-size:.88em}.p1-on{background:#1a3a7a;color:#fff}.p1-tab:hover{transform:translateY(-2px)}.p1-btn-bl{padding:9px 14px;font-weight:700;border:none;border-radius:20px;cursor:pointer;background:#1a3a7a;color:#fff;margin:2px;font-size:.85em;transition:all .2s}.p1-btn-bl:hover{background:#0d1b4a;transform:translateY(-2px)}.p1-btn-or{padding:9px 14px;font-weight:700;border:none;border-radius:20px;cursor:pointer;background:#ff6d00;color:#fff;margin:2px;font-size:.85em;transition:all .2s}.p1-btn-or:hover{background:#bf360c}.p1-btn-vt{padding:9px 14px;font-weight:700;border:none;border-radius:20px;cursor:pointer;background:#2e7d32;color:#fff;margin:2px;font-size:.85em;transition:all .2s}.p1-btn-vt:hover{background:#1b5e20}';
+  document.head.appendChild(s);
+
+  // Données kilométrage/prix
+  var XD=[20,45,60,85,110,130,150,175];
+  var YD=[18,15,13,10,8,6,5,3];
+  var p1ShowDroite=false, p1ShowCarres=false;
+  var p1A=0, p1B=0, p1R2=0, p1Calc=false;
+  var p1NWOnglet='d';
+
+  // Calcul régression
+  function calcReg(x,y){
+    var n=x.length,sx=0,sy=0,sxy=0,sx2=0;
+    for(var i=0;i<n;i++){sx+=x[i];sy+=y[i];sxy+=x[i]*y[i];sx2+=x[i]*x[i];}
+    var a=(n*sxy-sx*sy)/(n*sx2-sx*sx);
+    var b=(sy-a*sx)/n;
+    var ym=sy/n,ssr=0,sst=0;
+    for(var i=0;i<n;i++){var yp=a*x[i]+b;ssr+=(y[i]-yp)*(y[i]-yp);sst+=(y[i]-ym)*(y[i]-ym);}
+    var r2=1-ssr/sst;
+    return{a:a,b:b,r2:r2};
   }
-  function init(bruit){
-    const {xs,ys,yfit,r2}=genP1(bruit);
-    document.getElementById('res-p1').textContent=`Droite : y = 2,5x + 10 · R² = ${r2.toFixed(3)} — ${r2>0.9?'✅ Excellent':r2>0.7?'👍 Bon':'⚠️ Moyen'}`;
-    const ctx=document.getElementById('chart-p1').getContext('2d');
-    if(chart) chart.destroy();
-    chart=new Chart(ctx,{type:'scatter',data:{datasets:[
-      {label:'Données',data:xs.map((x,i)=>({x,y:ys[i]})),backgroundColor:'#2563eb',pointRadius:7,pointHoverRadius:9},
-      {label:'Droite y=2,5x+10',data:xs.map((x,i)=>({x,y:yfit[i]})),type:'line',borderColor:'#dc2626',borderWidth:2.5,pointRadius:0,tension:0}
-    ]},options:{responsive:true,plugins:{tooltip:{callbacks:{label:c=>`(${c.raw.x}, ${c.raw.y.toFixed(1)})`}}},
-      scales:{x:{title:{display:true,text:'x'}},y:{title:{display:true,text:'y'}}}}
+  var reg=calcReg(XD,YD);
+  p1A=reg.a;p1B=reg.b;p1R2=reg.r2;
+
+  // ── ONGLETS ──────────────────────────────────────────
+  window.p1Tab=function(id,btn){
+    ['nuage','reg','nw'].forEach(function(p){
+      var el=document.getElementById('p1-'+p);if(el)el.style.display='none';
     });
+    document.querySelectorAll('.p1-tab').forEach(function(b){b.classList.remove('p1-on');});
+    var el=document.getElementById('p1-'+id);if(el)el.style.display='block';
+    if(btn)btn.classList.add('p1-on');
+    var fns={nuage:p1DrawNuage,reg:p1DrawReg,nw:function(){p1NWTab('d');}};
+    setTimeout(function(){if(fns[id])fns[id]();},40);
+  };
+
+  // ── NUAGE ─────────────────────────────────────────────
+  function p1DrawNuage(){
+    var cv=document.getElementById('p1-cv-nuage');if(!cv)return;
+    cv.width=Math.min(cv.parentElement.offsetWidth-20,580);
+    var ctx=cv.getContext('2d'),W=cv.width,H=240;
+    ctx.clearRect(0,0,W,H);
+    var mg=55,md=25,mh=25,mb=40;
+    var minX=0,maxX=200,minY=0,maxY=22;
+    var ecX=(W-mg-md)/(maxX-minX),ecY=(H-mh-mb)/(maxY-minY);
+    function px(x){return mg+(x-minX)*ecX;}
+    function py(y){return H-mb-(y-minY)*ecY;}
+    // Axes
+    ctx.strokeStyle='#333';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(mg,mh);ctx.lineTo(mg,H-mb);ctx.lineTo(W-md,H-mb);ctx.stroke();
+    // Graduations
+    ctx.fillStyle='#555';ctx.font='11px sans-serif';ctx.textAlign='center';
+    for(var x=0;x<=200;x+=50){
+      ctx.beginPath();ctx.moveTo(px(x),H-mb);ctx.lineTo(px(x),H-mb+5);ctx.stroke();
+      ctx.fillText(x,px(x),H-mb+18);
+    }
+    ctx.textAlign='right';
+    for(var y=0;y<=20;y+=5){
+      ctx.beginPath();ctx.moveTo(mg,py(y));ctx.lineTo(mg-5,py(y));ctx.stroke();
+      ctx.fillText(y,mg-8,py(y)+4);
+    }
+    ctx.fillStyle='#777';ctx.font='11px sans-serif';ctx.textAlign='center';
+    ctx.fillText('Kilom\u00e9trage (milliers km)',mg+(W-mg-md)/2,H-2);
+    ctx.save();ctx.translate(14,mh+(H-mh-mb)/2);ctx.rotate(-Math.PI/2);
+    ctx.fillText('Prix (milliers \u20ac)',0,0);ctx.restore();
+    // Carrés des écarts
+    if(p1ShowCarres&&p1Calc){
+      XD.forEach(function(xi,i){
+        var yi=YD[i],yp=p1A*xi+p1B;
+        var x1=px(xi),y1=py(yi),y2=py(yp);
+        ctx.fillStyle='rgba(255,152,0,0.3)';
+        var h2=Math.abs(y1-y2);
+        ctx.fillRect(x1,Math.min(y1,y2),10,h2);
+        ctx.strokeStyle='#e65100';ctx.lineWidth=1;
+        ctx.strokeRect(x1,Math.min(y1,y2),10,h2);
+      });
+    }
+    // Droite de régression
+    if(p1ShowDroite&&p1Calc){
+      ctx.strokeStyle='#1a3a7a';ctx.lineWidth=2.5;ctx.setLineDash([6,4]);
+      ctx.beginPath();
+      ctx.moveTo(px(minX),py(p1A*minX+p1B));
+      ctx.lineTo(px(maxX),py(p1A*maxX+p1B));
+      ctx.stroke();ctx.setLineDash([]);
+    }
+    // Points
+    XD.forEach(function(xi,i){
+      ctx.fillStyle='#ff6d00';
+      ctx.beginPath();ctx.arc(px(xi),py(YD[i]),6,0,2*Math.PI);ctx.fill();
+    });
+    // Info
+    var info=document.getElementById('p1-nuage-info');
+    if(info){
+      if(p1ShowDroite&&p1Calc)
+        info.innerHTML='y = '+p1A.toFixed(3)+'x + '+p1B.toFixed(2)+' | R\u00b2 = '+p1R2.toFixed(4);
+      else
+        info.textContent='Clique sur "Afficher la droite" pour voir l\u2019ajustement.';
+    }
   }
-  window.updateP1=()=>{const b=parseFloat(document.getElementById('sl-p1bruit').value);document.getElementById('val-p1bruit').textContent=b;init(b);};
-  document.getElementById('sl-p1bruit').addEventListener('input',function(){document.getElementById('val-p1bruit').textContent=this.value;});
-  init(5);
-});
+
+  window.p1ToggleDroite=function(){
+    if(!p1Calc){p1Calc=true;}
+    p1ShowDroite=!p1ShowDroite;
+    p1DrawNuage();
+  };
+  window.p1ToggleCarres=function(){
+    if(!p1Calc){p1Calc=true;}
+    p1ShowCarres=!p1ShowCarres;
+    p1DrawNuage();
+  };
+  window.p1ResetNuage=function(){
+    p1ShowDroite=false;p1ShowCarres=false;
+    p1DrawNuage();
+  };
+
+  // ── R² INTERACTIF ─────────────────────────────────────
+  window.p1DrawReg=function(){
+    var disp=parseInt(document.getElementById('p1-disp').value)||10;
+    var cv=document.getElementById('p1-cv-reg');if(!cv)return;
+    cv.width=Math.min(cv.parentElement.offsetWidth-20,580);
+    var ctx=cv.getContext('2d'),W=cv.width,H=220;
+    ctx.clearRect(0,0,W,H);
+    var n=10,mg=40,md=20,mh=20,mb=30;
+    var pts=[];
+    for(var i=0;i<n;i++){
+      var x=(i/(n-1))*(W-mg-md);
+      var noise=(Math.random()-0.5)*disp*2;
+      var y=(H-mb-mh)*(0.8-i/(n-1)*0.7)+noise+mh;
+      y=Math.max(mh+5,Math.min(H-mb-5,y));
+      pts.push({x:mg+x,y:y});
+    }
+    // Calcul R² approximatif
+    var simR2=Math.max(0,1-disp*0.01);
+    // Axes
+    ctx.strokeStyle='#ccc';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(mg,mh);ctx.lineTo(mg,H-mb);ctx.lineTo(W-md,H-mb);ctx.stroke();
+    // Droite tendance
+    ctx.strokeStyle='#1a3a7a';ctx.lineWidth=2;ctx.setLineDash([5,4]);
+    ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);ctx.lineTo(pts[n-1].x,pts[n-1].y);ctx.stroke();
+    ctx.setLineDash([]);
+    // Points
+    pts.forEach(function(p){
+      ctx.fillStyle='#ff6d00';
+      ctx.beginPath();ctx.arc(p.x,p.y,5,0,2*Math.PI);ctx.fill();
+    });
+    // Info R²
+    var qual=simR2>0.9?'Excellent \u2705':simR2>0.7?'Bon \uD83D\uDC4D':simR2>0.5?'Moyen \uD83D\uDE10':'Faible \u274c';
+    var el=document.getElementById('p1-reg-info');
+    if(el)el.innerHTML='R\u00b2 \u2248 <strong>'+simR2.toFixed(2)+'</strong> \u2192 '+qual+'<br><small>D\u00e9place le curseur pour changer la dispersion</small>';
+  };
+
+  // ── NUMWORKS SIMULATEUR ────────────────────────────────
+  var p1NWCalced=false;
+  var p1NWa=0,p1NWb=0,p1NWr2=0;
+
+  window.p1NWTab=function(t){
+    p1NWOnglet=t;
+    ['d','g','r'].forEach(function(x){
+      var el=document.getElementById('p1-nw-tab-'+x);
+      if(el)el.style.background=t===x?'#ff6d00':'#444';
+    });
+    p1NWShow();
+  };
+
+  function p1NWShow(){
+    var scr=document.getElementById('p1-nw-screen');if(!scr)return;
+    if(p1NWOnglet==='d'){
+      scr.innerHTML='<strong>X\u2081 :</strong> '+XD.join(', ')+'<br><strong>Y\u2081 :</strong> '+YD.join(', ')+'<br><br><em style="color:#888">Saisir dans X\u2081 et Y\u2081</em>';
+    } else if(p1NWOnglet==='g'){
+      scr.innerHTML='<strong>\uD83D\uDCC8 Nuage de points</strong><br><br>'+
+        (p1NWCalced?'Droite de r\u00e9gression affich\u00e9e.<br>Corr\u00e9lation lin\u00e9aire n\u00e9gative.':
+        'Points affich\u00e9s.<br><em style="color:#888">Lance Calculer pour voir la droite.</em>');
+    } else {
+      scr.innerHTML=p1NWCalced?
+        '<strong>\uD83D\uDCC0 R\u00e9gression lin\u00e9aire</strong><br><br>'+
+        'y = '+p1NWa.toFixed(3)+' x + '+p1NWb.toFixed(3)+'<br>'+
+        'r = '+((Math.sqrt(p1NWr2))*(p1NWa>0?1:-1)).toFixed(4)+'<br>'+
+        '<strong>R\u00b2 = '+p1NWr2.toFixed(4)+'</strong>':
+        '<em style="color:#888">Saisis les donn\u00e9es puis<br>clique sur Calculer.</em>';
+    }
+  }
+
+  window.p1NWCalc=function(){
+    var r=calcReg(XD,YD);
+    p1NWa=r.a;p1NWb=r.b;p1NWr2=r.r2;
+    p1NWCalced=true;
+    p1NWTab('r');
+    var msg=document.getElementById('p1-nw-msg');
+    if(msg)msg.innerHTML='\u2705 R\u00e9gression calcul\u00e9e ! R\u00b2 = <strong>'+r.r2.toFixed(4)+'</strong> \u2192 '+(r.r2>0.9?'Excellent ajustement':'Bon ajustement');
+  };
+
+  window.p1NWPredire=function(){
+    if(!p1NWCalced){
+      var msg=document.getElementById('p1-nw-msg');
+      if(msg)msg.textContent='\u26a0\ufe0f Lance d\u2019abord la r\u00e9gression !';return;
+    }
+    var scr=document.getElementById('p1-nw-screen');if(!scr)return;
+    var minX=Math.min.apply(null,XD),maxX=Math.max.apply(null,XD);
+    scr.innerHTML='<strong>Pr\u00e9dire Y sachant X</strong><br><br>'+
+      '<em>Exemples :</em><br>'+
+      'x = 100 \u2192 y = '+Math.round((p1NWa*100+p1NWb)*100)/100+' <span style="color:green">(interpolation \u2705)</span><br>'+
+      'x = 50 \u2192 y = '+Math.round((p1NWa*50+p1NWb)*100)/100+' <span style="color:green">(interpolation \u2705)</span><br>'+
+      'x = 200 \u2192 y = '+Math.round((p1NWa*200+p1NWb)*100)/100+' <span style="color:orange">(extrapolation \u26a0\ufe0f)</span>';
+    var msg=document.getElementById('p1-nw-msg');
+    if(msg)msg.textContent='Intervalle des donn\u00e9es : x entre '+minX+' et '+maxX+' (mill. km)';
+  };
+
+  window.p1NWReset=function(){
+    p1NWCalced=false;p1NWOnglet='d';
+    var msg=document.getElementById('p1-nw-msg');if(msg)msg.textContent='';
+    p1NWTab('d');
+  };
+
+  window.addEventListener('resize',function(){
+    var fns={nuage:p1DrawNuage,reg:p1DrawReg,nw:function(){}};
+    Object.keys(fns).forEach(function(k){
+      var el=document.getElementById('p1-'+k);
+      if(el&&el.style.display!=='none')fns[k]();
+    });
+  });
+
+  p1DrawNuage();
+  p1DrawReg();
+  p1NWTab('d');
+}
+);
+
+
+;
 
 // ── p3 — Suites arithmétiques ────────────────────────────────────
 defAnim('c3',
@@ -12108,7 +12968,7 @@ function(){
 // ═══════════════════════════════════════════════════════════════════
 
 // ⚠️ REMPLACEZ PAR VOTRE URL Google Apps Script
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyFt_Jqy9o6L0jKrt_G32us-6x-dXJjhid1_vBOZM2XAigPPmDtoUpp8G_ALjcsDrwPUw/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzv5UNvJkjpD1RWyi-2m8MpCRnH1Va0FvrKPSE7Vr0q23602Xmo5907W0Rko4w2w6BYKw/exec';
 
 // ⚠️ REMPLACEZ PAR VOTRE EMAIL ENSEIGNANT
 const PROF_EMAIL = 'aouaidsaid@gmail.com';
@@ -14033,6 +14893,92 @@ const GEN_BANK = {
         return {enonce:'Si dé ≥ <strong>'+seuil+'</strong> alors "Gagné". Probabilité de gagner (en %) ?',reponse:pct,correction:fav+' valeurs favorables sur 6 → <strong>'+pct+'%</strong>',unite:'%'};
       }
     }
+  }
+  ,'c11': { // Constructions géométriques
+    titre: 'Constructions & Propriétés',
+    gen: function() {
+      var type = Math.floor(Math.random()*4);
+      if(type===0) {
+        var combos=[[40,60],[50,70],[35,65],[55,80],[30,90],[45,75],[60,80],[25,55]];
+        var ang=combos[Math.floor(Math.random()*combos.length)];
+        var a1=ang[0],a2=ang[1],a3=180-a1-a2;
+        return {enonce:'Un triangle a deux angles de <strong>'+a1+'°</strong> et <strong>'+a2+'°</strong>. Calcule le 3ème angle.',
+                reponse:a3, correction:'180 − '+a1+' − '+a2+' = <strong>'+a3+'°</strong>',unite:'°'};
+      } else if(type===1) {
+        var sets=[[80,95,100],[75,90,110],[85,80,95],[70,100,105],[60,110,95],[80,75,100]];
+        var s=sets[Math.floor(Math.random()*sets.length)];
+        var a4=360-s[0]-s[1]-s[2];
+        return {enonce:'Un quadrilatère a des angles de <strong>'+s[0]+'°</strong>, <strong>'+s[1]+'°</strong> et <strong>'+s[2]+'°</strong>. 4ème angle ?',
+                reponse:a4, correction:'360 − '+s[0]+' − '+s[1]+' − '+s[2]+' = <strong>'+a4+'°</strong>',unite:'°'};
+      } else if(type===2) {
+        var figs=[
+          {prop:'4 côtés égaux et 4 angles droits',rep:'Carré'},
+          {prop:'côtés opposés égaux et 4 angles droits',rep:'Rectangle'},
+          {prop:'4 côtés égaux et diagonales perpendiculaires',rep:'Losange'},
+          {prop:'côtés opposés parallèles et égaux',rep:'Parallélogramme'},
+          {prop:'diagonales égales se coupant en leur milieu',rep:'Rectangle'},
+          {prop:'diagonales perpendiculaires se coupant en leur milieu',rep:'Losange'}
+        ];
+        var f=figs[Math.floor(Math.random()*figs.length)];
+        return {enonce:'Quelle figure possède : <strong>'+f.prop+'</strong> ?',
+                reponse:f.rep, correction:'<strong>'+f.rep+'</strong>',unite:''};
+      } else {
+        var sides=[[3,4,5],[5,12,13],[6,8,10],[8,15,17],[9,12,15]];
+        var s2=sides[Math.floor(Math.random()*sides.length)];
+        var a2=s2[0],b2=s2[1],h=s2[2];
+        var q=[
+          {q:'AB='+h+' cm, BC='+a2+' cm. AC=?', r:b2, c:'AC²=AB²−BC²='+h*h+'−'+a2*a2+'='+b2*b2+' → AC=<strong>'+b2+' cm</strong>'},
+          {q:'AB='+h+' cm, AC='+b2+' cm. BC=?', r:a2, c:'BC²=AB²−AC²='+h*h+'−'+b2*b2+'='+a2*a2+' → BC=<strong>'+a2+' cm</strong>'}
+        ];
+        var qr=q[Math.floor(Math.random()*q.length)];
+        return {enonce:'Triangle rectangle (B=90°). <strong>'+qr.q+'</strong>',
+                reponse:qr.r, correction:qr.c,unite:'cm'};
+      }
+    }
+  }
+
+  ,'c12': { // Les Pourcentages
+    titre: 'Les Pourcentages',
+    gen: function() {
+      var type = Math.floor(Math.random()*5);
+      var pcts=[5,10,15,20,25,30,40,50];
+      var totals=[40,50,60,80,100,120,150,200,250,300,400];
+      var taux_red=[5,10,15,20,25];
+      var taux_aug=[5,10,15,20,25,30];
+      var pct=pcts[Math.floor(Math.random()*pcts.length)];
+      var tot=totals[Math.floor(Math.random()*totals.length)];
+      if(type===0) {
+        return {enonce:'Calcule <strong>'+pct+'%</strong> de <strong>'+tot+'€</strong>.',
+                reponse:Math.round(pct*tot/100*100)/100,
+                correction:tot+' × '+pct+'/100 = <strong>'+(Math.round(pct*tot/100*100)/100)+'€</strong>',unite:'€'};
+      } else if(type===1) {
+        var partie=Math.floor(Math.random()*8)+3;
+        var total2=partie+Math.floor(Math.random()*20)+partie;
+        return {enonce:'<strong>'+partie+'</strong> sur <strong>'+total2+'</strong>. Quel pourcentage (arrondi) ?',
+                reponse:Math.round(partie/total2*100),
+                correction:'('+partie+' ÷ '+total2+') × 100 = <strong>'+Math.round(partie/total2*100)+'%</strong>',unite:'%'};
+      } else if(type===2) {
+        var pct2=pcts[Math.floor(Math.random()*6)]; // petits pourcentages pour entiers
+        var partie2=Math.floor(tot*pct2/100);
+        return {enonce:'<strong>'+partie2+'€</strong> représentent <strong>'+pct2+'%</strong> d’une somme. Quelle est la somme totale ?',
+                reponse:Math.round(partie2*100/pct2),
+                correction:'Total = '+partie2+' ÷ '+pct2+' × 100 = '+partie2+' ÷ ('+pct2+'/100) = <strong>'+Math.round(partie2*100/pct2)+'€</strong>',unite:'€'};
+      } else if(type===3) {
+        var t_aug=taux_aug[Math.floor(Math.random()*taux_aug.length)];
+        var prix=totals[Math.floor(Math.random()*totals.length)];
+        var apres=Math.round(prix*(1+t_aug/100)*100)/100;
+        return {enonce:'Un article coûte <strong>'+prix+'€</strong>. Il augmente de <strong>'+t_aug+'%</strong>. Nouveau prix ?',
+                reponse:apres,
+                correction:prix+' × (1 + '+t_aug+'/100) = '+prix+' × '+(1+t_aug/100)+' = <strong>'+apres+'€</strong>',unite:'€'};
+      } else {
+        var t_red=taux_red[Math.floor(Math.random()*taux_red.length)];
+        var prix2=totals[Math.floor(Math.random()*totals.length)];
+        var apres2=Math.round(prix2*(1-t_red/100)*100)/100;
+        return {enonce:'Un article coûte <strong>'+prix2+'€</strong>. Il est soldé à <strong>−'+t_red+'%</strong>. Prix soldé ?',
+                reponse:apres2,
+                correction:prix2+' × (1 − '+t_red+'/100) = '+prix2+' × '+(1-t_red/100)+' = <strong>'+apres2+'€</strong>',unite:'€'};
+      }
+    }
   },
 
   'c10': { // Volumes
@@ -14131,92 +15077,453 @@ const GEN_BANK = {
       }
     }
   }
-  ,
 
-  'c11': { // Constructions géométriques
-    titre: 'Constructions & Propriétés',
+  
+
+  ,'p1': { // Statistique à deux variables
+    titre: 'Statistique à deux variables',
     gen: function() {
-      const type = Math.floor(Math.random()*4);
-      if(type === 0) {
-        const angles = [
-          [40,60],[50,70],[35,65],[55,80],[30,90],[45,75]
-        ][Math.floor(Math.random()*6)];
-        const a1=angles[0], a2=angles[1], a3=180-a1-a2;
-        return {
-          enonce: 'Un triangle a deux angles de <strong>'+a1+'°</strong> et <strong>'+a2+'°</strong>.<br>Calcule le 3ème angle.',
-          reponse: a3, correction: '180 − '+a1+' − '+a2+' = <strong>'+a3+'°</strong>', unite:'°'
-        };
-      } else if(type === 1) {
-        const angles = [80,90,95,100,110,75];
-        const a1=angles[Math.floor(Math.random()*4)];
-        const a2=angles[Math.floor(Math.random()*4)];
-        const a3=angles[Math.floor(Math.random()*4)];
-        const a4=360-a1-a2-a3;
-        if(a4 > 20 && a4 < 170) {
-          return {
-            enonce: 'Un quadrilatère a des angles de <strong>'+a1+'°</strong>, <strong>'+a2+'°</strong> et <strong>'+a3+'°</strong>.<br>Calcule le 4ème angle.',
-            reponse: a4, correction: '360 − '+a1+' − '+a2+' − '+a3+' = <strong>'+a4+'°</strong>', unite:'°'
-          };
-        }
-        return {enonce:'Un quadrilatère a des angles de <strong>80°</strong>, <strong>95°</strong> et <strong>100°</strong>. 4ème angle ?', reponse:85, correction:'360−80−95−100 = <strong>85°</strong>', unite:'°'};
-      } else if(type === 2) {
-        const figs = [
-          {nom:'carré', prop:'4 côtés égaux et 4 angles droits'},
-          {nom:'rectangle', prop:'côtés opposés égaux et 4 angles droits'},
-          {nom:'losange', prop:'4 côtés égaux et diagonales perpendiculaires'},
-          {nom:'parallélogramme', prop:'côtés opposés parallèles et égaux'}
+      var type = Math.floor(Math.random()*4);
+      var r2vals = [
+        {v:0.98,q:'Excellent \u2705',ok:true},{v:0.91,q:'Excellent \u2705',ok:true},
+        {v:0.84,q:'Bon \uD83D\uDC4D',ok:true},{v:0.76,q:'Bon \uD83D\uDC4D',ok:true},
+        {v:0.63,q:'Moyen \uD83D\uDE10',ok:false},{v:0.55,q:'Moyen \uD83D\uDE10',ok:false},
+        {v:0.38,q:'Faible \u274c',ok:false},{v:0.22,q:'Faible \u274c',ok:false}
+      ];
+      var datasets = [
+        {a:2,b:1,xmin:5,xmax:40,label:'x'},
+        {a:-0.08,b:20,xmin:20,xmax:175,label:'km'},
+        {a:3.5,b:12,xmin:2,xmax:18,label:'x'},
+        {a:-2.5,b:50,xmin:5,xmax:30,label:'T'}
+      ];
+      if(type===0) {
+        var rv = r2vals[Math.floor(Math.random()*r2vals.length)];
+        return {enonce:'Un ajustement affine donne R\u00b2 = <strong>'+rv.v+'</strong>. Quelle est la qualit\u00e9 de l\'ajustement ?',
+                reponse:rv.q.split(' ')[0],
+                correction:'R\u00b2 = '+rv.v+(rv.v>0.9?' > 0,9':rv.v>0.7?' entre 0,7 et 0,9':rv.v>0.5?' entre 0,5 et 0,7':' < 0,5')+' \u2192 <strong>'+rv.q+'</strong>',unite:''};
+      } else if(type===1) {
+        var ds = datasets[Math.floor(Math.random()*datasets.length)];
+        var xs = [Math.round(ds.xmin+Math.random()*(ds.xmax-ds.xmin)*0.3),
+                  Math.round(ds.xmin+(ds.xmax-ds.xmin)*0.5),
+                  Math.round(ds.xmin+(ds.xmax-ds.xmin)*0.8)];
+        var x = xs[Math.floor(Math.random()*xs.length)];
+        var y = Math.round((ds.a*x+ds.b)*10)/10;
+        return {enonce:'Droite d\'ajustement : y = <strong>'+ds.a+'x + '+ds.b+'</strong>. Estimer y pour x = <strong>'+x+'</strong>.',
+                reponse:y,
+                correction:'y = '+ds.a+'\u00d7'+x+' + '+ds.b+' = <strong>'+y+'</strong>',unite:''};
+      } else if(type===2) {
+        var ds2 = datasets[Math.floor(Math.random()*datasets.length)];
+        var xmid = Math.round((ds2.xmin+ds2.xmax)/2);
+        var choices = [
+          {x:ds2.xmin-Math.round((ds2.xmax-ds2.xmin)*0.2), inside:false},
+          {x:ds2.xmin+2, inside:true},
+          {x:xmid, inside:true},
+          {x:ds2.xmax-2, inside:true},
+          {x:ds2.xmax+Math.round((ds2.xmax-ds2.xmin)*0.3), inside:false}
         ];
-        const f = figs[Math.floor(Math.random()*figs.length)];
-        return {
-          enonce: 'Quelle figure a les propriétés suivantes : <strong>'+f.prop+'</strong> ?',
-          reponse: f.nom, correction: '<strong>'+f.nom.charAt(0).toUpperCase()+f.nom.slice(1)+'</strong>', unite:''
-        };
+        var ch = choices[Math.floor(Math.random()*choices.length)];
+        return {enonce:'Donn\u00e9es : x entre '+ds2.xmin+' et '+ds2.xmax+'. On estime y pour x = <strong>'+ch.x+'</strong>. Interpolation ou extrapolation ?',
+                reponse:ch.inside?'interpolation':'extrapolation',
+                correction:'x='+ch.x+' est '+(ch.inside?'dans ['+ds2.xmin+';'+ds2.xmax+'] \u2192 <strong>interpolation \u2705</strong>':'hors de ['+ds2.xmin+';'+ds2.xmax+'] \u2192 <strong>extrapolation \u26a0\ufe0f</strong>'),unite:''};
       } else {
-        const côtés = [[3,4,5],[5,12,13],[6,8,10],[8,15,17]][Math.floor(Math.random()*4)];
-        const a=côtés[0],b=côtés[1],h=côtés[2];
-        const questions = [
-          {q:'AB='+h+' cm, BC='+a+' cm. AC=?', r:b},
-          {q:'AB='+h+' cm, AC='+b+' cm. BC=?', r:a}
-        ];
-        const q=questions[Math.floor(Math.random()*questions.length)];
-        return {
-          enonce:'Triangle rectangle. <strong>'+q.q+'</strong>',
-          reponse:q.r, correction:'c²=a²+b² → '+h+'²−'+( q.r===b?a:b )+'²='+q.r*q.r+' → c=<strong>'+q.r+' cm</strong>', unite:'cm'
-        };
+        var pairs = [{a:0.96,b:true},{a:0.73,b:true},{a:0.61,b:false},{a:0.41,b:false},{a:0.88,b:true},{a:0.29,b:false}];
+        var p = pairs[Math.floor(Math.random()*pairs.length)];
+        return {enonce:'On obtient R\u00b2 = <strong>'+p.a+'</strong>. Peut-on se fier \u00e0 l\'ajustement affine ?',
+                reponse:p.b?'Oui':'Non',
+                correction:'R\u00b2 = '+p.a+(p.b?' > 0,7 \u2192 ajustement fiable \u2192 <strong>Oui</strong>':' < 0,7 \u2192 ajustement peu fiable \u2192 <strong>Non</strong>'),unite:''};
       }
     }
   },
 
-  'c12': { // Pourcentages
-    titre: 'Les Pourcentages',
+  'p2': { // Probabilités
+    titre: 'Probabilités',
     gen: function() {
-      const type = Math.floor(Math.random()*5);
-      if(type === 0) {
-        const pct=[5,10,15,20,25,30,40,50][Math.floor(Math.random()*8)];
-        const tot=Math.floor(Math.random()*16+3)*20;
-        return {enonce:'Calcule <strong>'+pct+'%</strong> de <strong>'+tot+'€</strong>.',reponse:pct*tot/100,correction:pct+'/100 × '+tot+' = <strong>'+(pct*tot/100)+'€</strong>',unite:'€'};
+      var type = Math.floor(Math.random()*5);
+      var urnes = [
+        {n:6,k:2},{n:8,k:3},{n:10,k:4},{n:12,k:5},{n:5,k:2},{n:9,k:6},{n:15,k:7},{n:20,k:8}
+      ];
+      if(type===0) {
+        var u = urnes[Math.floor(Math.random()*urnes.length)];
+        var p = Math.round(u.k/u.n*100)/100;
+        return {enonce:'Urne : <strong>'+u.n+'</strong> boules dont <strong>'+u.k+'</strong> rouges. Probabilit\u00e9 de tirer une boule rouge ?',
+                reponse:p, correction:'P = '+u.k+'/'+u.n+' = <strong>'+p+'</strong>',unite:''};
       } else if(type===1) {
-        const partie=Math.floor(Math.random()*30)+5;
-        const tot=partie+Math.floor(Math.random()*50)+partie;
-        return {enonce:'<strong>'+partie+'</strong> sur <strong>'+tot+'</strong>. Quel pourcentage ?',reponse:Math.round(partie/tot*100),correction:'('+partie+' ÷ '+tot+') × 100 = <strong>'+Math.round(partie/tot*100)+'%</strong>',unite:'%'};
+        var pas = [[0.3,0.2],[0.4,0.3],[0.5,0.2],[0.6,0.1],[0.3,0.4],[0.7,0.2],[0.4,0.25]];
+        var pa_pb = pas[Math.floor(Math.random()*pas.length)];
+        var pa=pa_pb[0],pb=pa_pb[1];
+        var inter = Math.round(pa*pb*100)/100;
+        return {enonce:'A et B ind\u00e9pendants : P(A) = <strong>'+pa+'</strong>, P(B) = <strong>'+pb+'</strong>. Calculer P(A\u2229B).',
+                reponse:inter, correction:'P(A\u2229B) = P(A)\u00d7P(B) = '+pa+'\u00d7'+pb+' = <strong>'+inter+'</strong>',unite:''};
       } else if(type===2) {
-        const pct=[10,20,25,50][Math.floor(Math.random()*4)];
-        const partie=Math.floor(Math.random()*10+2)*pct;
-        return {enonce:'<strong>'+partie+'€</strong> = <strong>'+pct+'%</strong> du total. Total ?',reponse:partie*100/pct,correction:partie+' ÷ '+(pct/100)+' = <strong>'+(partie*100/pct)+'€</strong>',unite:'€'};
+        var pvals = [0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.6,0.7,0.75,0.8];
+        var pA = pvals[Math.floor(Math.random()*pvals.length)];
+        var comp = Math.round((1-pA)*100)/100;
+        return {enonce:'P(A) = <strong>'+pA+'</strong>. Calculer P(\u0100), la probabilit\u00e9 du compl\u00e9mentaire.',
+                reponse:comp, correction:'P(\u0100) = 1 \u2212 P(A) = 1 \u2212 '+pA+' = <strong>'+comp+'</strong>',unite:''};
       } else if(type===3) {
-        const prix=Math.floor(Math.random()*15+4)*10;
-        const pct=[5,10,15,20,25][Math.floor(Math.random()*5)];
-        return {enonce:'<strong>'+prix+'€</strong> + <strong>'+pct+'%</strong> = ?',reponse:+(prix*(1+pct/100)).toFixed(2),correction:'CM=1+'+pct+'/100='+(1+pct/100)+' → '+prix+'×'+(1+pct/100)+' = <strong>'+(prix*(1+pct/100)).toFixed(2)+'€</strong>',unite:'€'};
+        var data = [{pa:0.4,pab:0.12},{pa:0.5,pab:0.15},{pa:0.3,pab:0.09},{pa:0.6,pab:0.18},{pa:0.4,pab:0.08},{pa:0.5,pab:0.20}];
+        var d = data[Math.floor(Math.random()*data.length)];
+        var pba = Math.round(d.pab/d.pa*100)/100;
+        return {enonce:'P(A) = <strong>'+d.pa+'</strong>, P(A\u2229B) = <strong>'+d.pab+'</strong>. Probabilit\u00e9 conditionnelle P(B|A) ?',
+                reponse:pba, correction:'P(B|A) = P(A\u2229B)/P(A) = '+d.pab+'/'+d.pa+' = <strong>'+pba+'</strong>',unite:''};
       } else {
-        const prix=Math.floor(Math.random()*15+4)*10;
-        const pct=[5,10,15,20,25][Math.floor(Math.random()*5)];
-        return {enonce:'<strong>'+prix+'€</strong> − <strong>'+pct+'%</strong> = ?',reponse:+(prix*(1-pct/100)).toFixed(2),correction:'CM=1−'+pct+'/100='+(1-pct/100)+' → '+prix+'×'+(1-pct/100)+' = <strong>'+(prix*(1-pct/100)).toFixed(2)+'€</strong>',unite:'€'};
+        var pa_pb2 = [[0.3,0.5],[0.4,0.6],[0.2,0.7],[0.5,0.4],[0.6,0.3]][Math.floor(Math.random()*5)];
+        var pa2=pa_pb2[0],pb2=pa_pb2[1];
+        var union = Math.round((pa2+pb2-pa2*pb2)*100)/100;
+        return {enonce:'A et B ind\u00e9pendants : P(A) = <strong>'+pa2+'</strong>, P(B) = <strong>'+pb2+'</strong>. Calculer P(A\u222aB).',
+                reponse:union, correction:'P(A\u222aB) = P(A)+P(B)\u2212P(A)\u00d7P(B) = '+pa2+'+'+pb2+'\u2212'+Math.round(pa2*pb2*100)/100+' = <strong>'+union+'</strong>',unite:''};
+      }
+    }
+  },
+
+  'p3': { // Suites arithmétiques
+    titre: 'Suites arithm\u00e9tiques',
+    gen: function() {
+      var type = Math.floor(Math.random()*5);
+      var configs = [
+        {u0:2,r:3},{u0:5,r:2},{u0:10,r:-2},{u0:0,r:4},{u0:-3,r:5},
+        {u0:100,r:-10},{u0:1,r:0.5},{u0:8,r:-3},{u0:4,r:7},{u0:15,r:-4}
+      ];
+      var cfg = configs[Math.floor(Math.random()*configs.length)];
+      var u0=cfg.u0,r=cfg.r;
+      if(type===0) {
+        var n=Math.floor(Math.random()*9)+1;
+        var un=Math.round((u0+n*r)*100)/100;
+        return {enonce:'Suite arithm\u00e9tique : u\u2080 = <strong>'+u0+'</strong>, r = <strong>'+r+'</strong>. Calculer u<sub>'+n+'</sub>.',
+                reponse:un, correction:'u<sub>'+n+'</sub> = u\u2080 + n\u00d7r = '+u0+' + '+n+'\u00d7'+r+' = <strong>'+un+'</strong>',unite:''};
+      } else if(type===1) {
+        var n2=Math.floor(Math.random()*8)+2;
+        var un_1=Math.round((u0+(n2-1)*r)*100)/100;
+        var som=Math.round(n2*(u0+un_1)/2*100)/100;
+        return {enonce:'u\u2080 = <strong>'+u0+'</strong>, r = <strong>'+r+'</strong>. Somme S des <strong>'+n2+'</strong> premiers termes (de u\u2080 \u00e0 u<sub>'+(n2-1)+'</sub>) ?',
+                reponse:som, correction:'u<sub>'+(n2-1)+'</sub> = '+un_1+' | S = '+n2+'\u00d7('+u0+'+'+un_1+')\u00f72 = <strong>'+som+'</strong>',unite:''};
+      } else if(type===2) {
+        return {enonce:'Suite arithm\u00e9tique : u\u2080 = <strong>'+u0+'</strong>, r = <strong>'+r+'</strong>. Elle est croissante, d\u00e9croissante ou constante ?',
+                reponse:r>0?'croissante':r<0?'d\u00e9croissante':'constante',
+                correction:'r = '+r+(r>0?' > 0 \u2192 <strong>croissante</strong>':r<0?' < 0 \u2192 <strong>d\u00e9croissante</strong>':' = 0 \u2192 <strong>constante</strong>'),unite:''};
+      } else if(type===3) {
+        var idx_n=Math.floor(Math.random()*4)+1;
+        var u_prev=Math.round((u0+(idx_n-1)*r)*100)/100;
+        var u_curr=Math.round((u0+idx_n*r)*100)/100;
+        return {enonce:'Suite : u<sub>'+(idx_n-1)+'</sub> = <strong>'+u_prev+'</strong>, u<sub>'+idx_n+'</sub> = <strong>'+u_curr+'</strong>. Quelle est la raison r ?',
+                reponse:r, correction:'r = u<sub>'+idx_n+'</sub> \u2212 u<sub>'+(idx_n-1)+'</sub> = '+u_curr+' \u2212 '+u_prev+' = <strong>'+r+'</strong>',unite:''};
+      } else {
+        var n3=Math.floor(Math.random()*10)+3;
+        var target=Math.round((u0+n3*r)*100)/100;
+        return {enonce:'u\u2080 = <strong>'+u0+'</strong>, r = <strong>'+r+'</strong>. Quel rang n donne u<sub>n</sub> = <strong>'+target+'</strong> ?',
+                reponse:n3, correction:'u\u2080 + n\u00d7r = '+target+' \u2192 n = ('+target+'\u2212'+u0+')\u00f7'+r+' = <strong>'+n3+'</strong>',unite:''};
+      }
+    }
+  },
+
+  'p4': { // Résolution graphique
+    titre: 'R\u00e9solution graphique',
+    gen: function() {
+      var type = Math.floor(Math.random()*4);
+      var droites = [
+        {a:2,b:1},{a:-1,b:5},{a:3,b:-2},{a:-2,b:8},{a:1,b:-3},
+        {a:4,b:0},{a:-3,b:6},{a:2,b:-5},{a:1,b:4},{a:-1,b:3}
+      ];
+      var d = droites[Math.floor(Math.random()*droites.length)];
+      if(type===0) {
+        var xs=[-3,-2,-1,0,1,2,3,4];
+        var x=xs[Math.floor(Math.random()*xs.length)];
+        var y=d.a*x+d.b;
+        return {enonce:'f(x) = <strong>'+d.a+'x '+(d.b>=0?'+ '+d.b:'- '+Math.abs(d.b))+'</strong>. Calculer f(<strong>'+x+'</strong>).',
+                reponse:y, correction:'f('+x+') = '+d.a+'\u00d7'+x+(d.b>=0?' + '+d.b:' - '+Math.abs(d.b))+' = <strong>'+y+'</strong>',unite:''};
+      } else if(type===1) {
+        var targets=[-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,10];
+        var target=targets[Math.floor(Math.random()*targets.length)];
+        var x2=(target-d.b)/d.a;
+        if(Number.isInteger(x2)&&x2>=-6&&x2<=6) {
+          return {enonce:'f(x) = <strong>'+d.a+'x '+(d.b>=0?'+ '+d.b:'- '+Math.abs(d.b))+'</strong>. Pour quelle valeur de x a-t-on f(x) = <strong>'+target+'</strong> ?',
+                  reponse:x2, correction:d.a+'x '+(d.b>=0?'+ '+d.b:'- '+Math.abs(d.b))+' = '+target+' \u2192 '+d.a+'x = '+(target-d.b)+' \u2192 x = <strong>'+x2+'</strong>',unite:''};
+        }
+        return {enonce:'g(x) = <strong>3x \u2212 6</strong>. Pour quelle valeur de x a-t-on g(x) = <strong>0</strong> ?',
+                reponse:2, correction:'3x \u2212 6 = 0 \u2192 3x = 6 \u2192 x = <strong>2</strong>',unite:''};
+      } else if(type===2) {
+        var x3=[-2,-1,0,1,2,3][Math.floor(Math.random()*6)];
+        return {enonce:'Tableau de valeurs. Si f(x) = <strong>'+d.a+'x '+(d.b>=0?'+ '+d.b:'- '+Math.abs(d.b))+'</strong>, compléter : f(<strong>'+x3+'</strong>) = ?',
+                reponse:d.a*x3+d.b, correction:'f('+x3+') = '+d.a+'\u00d7'+x3+(d.b>=0?'+'+d.b:''+d.b)+' = <strong>'+(d.a*x3+d.b)+'</strong>',unite:''};
+      } else {
+        // Intersection de deux droites différentes
+        var pairs_d=[
+          {a1:1,b1:2,a2:-1,b2:4,xi:1},{a1:2,b1:0,a2:-1,b2:3,xi:1},
+          {a1:1,b1:0,a2:-2,b2:6,xi:2},{a1:3,b1:-3,a2:0,b2:3,xi:2},
+          {a1:1,b1:-1,a2:-1,b2:3,xi:2},{a1:2,b1:1,a2:-1,b2:7,xi:2},
+          {a1:1,b1:3,a2:-2,b2:0,xi:-1},{a1:3,b1:0,a2:0,b2:6,xi:2}
+        ];
+        var pd=pairs_d[Math.floor(Math.random()*pairs_d.length)];
+        return {enonce:'f(x) = <strong>'+pd.a1+'x '+(pd.b1>=0?'+ '+pd.b1:'- '+Math.abs(pd.b1))+'</strong> et g(x) = <strong>'+pd.a2+'x '+(pd.b2>=0?'+ '+pd.b2:'- '+Math.abs(pd.b2))+'</strong>. Pour quelle valeur de x a-t-on f(x) = g(x) ?',
+                reponse:pd.xi, correction:pd.a1+'x '+(pd.b1>=0?'+ '+pd.b1:'- '+Math.abs(pd.b1))+' = '+pd.a2+'x '+(pd.b2>=0?'+ '+pd.b2:'- '+Math.abs(pd.b2))+' \u2192 '+(pd.a1-pd.a2)+'x = '+(pd.b2-pd.b1)+' \u2192 x = <strong>'+pd.xi+'</strong>',unite:''};
+      }
+    }
+  },
+
+  'p5': { // Polynômes degré 2
+    titre: 'Fonctions polyn\u00f4mes de degr\u00e9 2',
+    gen: function() {
+      var type = Math.floor(Math.random()*5);
+      var paraboles = [
+        {a:1,b:-5,c:6,x1:2,x2:3},{a:1,b:-1,c:-6,x1:-2,x2:3},
+        {a:2,b:-8,c:6,x1:1,x2:3},{a:-1,b:4,c:-3,x1:1,x2:3},
+        {a:1,b:2,c:-3,x1:-3,x2:1},{a:-1,b:-1,c:6,x1:-3,x2:2},
+        {a:1,b:-4,c:3,x1:1,x2:3},{a:1,b:-6,c:8,x1:2,x2:4},
+        {a:-2,b:6,c:-4,x1:1,x2:2},{a:1,b:0,c:-4,x1:-2,x2:2}
+      ];
+      var par = paraboles[Math.floor(Math.random()*paraboles.length)];
+      if(type===0) {
+        return {enonce:'f(x) = <strong>'+par.a+'</strong>x\u00b2 + '+par.b+'x + '+par.c+'. La parabole est-elle en U (a>0) ou en \u2229 (a<0) ?',
+                reponse:par.a>0?'U (\uD83D\uDE0A)':'\u2229 (\uD83D\uDE1E)',
+                correction:'a = '+par.a+(par.a>0?' > 0 \u2192 parabole en <strong>U</strong>':' < 0 \u2192 parabole en <strong>\u2229</strong>'),unite:''};
+      } else if(type===1) {
+        return {enonce:'f(x) = (x \u2212 <strong>'+par.x1+'</strong>)(x \u2212 <strong>'+par.x2+'</strong>). Quelles sont les racines ?',
+                reponse:par.x1+' et '+par.x2,
+                correction:'x\u2212'+par.x1+' = 0 \u2192 x = '+par.x1+' | x\u2212'+par.x2+' = 0 \u2192 x = '+par.x2+' \u2192 <strong>x\u2081='+par.x1+', x\u2082='+par.x2+'</strong>',unite:''};
+      } else if(type===2) {
+        var xtest=par.x1-2;
+        var fxt=par.a*(xtest-par.x1)*(xtest-par.x2);
+        return {enonce:'f(x) = '+(par.a===1?'':par.a===-1?'\u2212':par.a)+'(x\u2212'+par.x1+')(x\u2212'+par.x2+'). Signe de f('+xtest+') ?',
+                reponse:fxt>0?'positif (>0)':'n\u00e9gatif (<0)',
+                correction:'f('+xtest+') = '+(par.a===1?'':par.a)+'('+(xtest-par.x1)+')('+(xtest-par.x2)+') = '+fxt+' \u2192 <strong>'+(fxt>0?'positif \u2192 f('+xtest+') > 0':'n\u00e9gatif \u2192 f('+xtest+') < 0')+'</strong>',unite:''};
+      } else if(type===3) {
+        return {enonce:'f(x) = '+par.a+'x\u00b2 + '+par.b+'x + '+par.c+'. Calculer f(0) (ordonnée à l\'origine).',
+                reponse:par.c, correction:'f(0) = '+par.a+'\u00d70\u00b2 + '+par.b+'\u00d70 + '+par.c+' = <strong>'+par.c+'</strong>',unite:''};
+      } else {
+        // Projectile avec v0 variés ET question variée
+        var projectiles=[
+          {v0:10,tSol:2,hMax:5,t1:1,h1:5},
+          {v0:15,tSol:3,hMax:11.25,t1:1,h1:10},
+          {v0:20,tSol:4,hMax:20,t1:2,h1:20},
+          {v0:25,tSol:5,hMax:31.25,t1:1,h1:20},
+          {v0:30,tSol:6,hMax:45,t1:2,h1:40},
+          {v0:40,tSol:8,hMax:80,t1:3,h1:75}
+        ];
+        var proj=projectiles[Math.floor(Math.random()*projectiles.length)];
+        var qtype=Math.floor(Math.random()*3);
+        if(qtype===0) {
+          return {enonce:'Trajectoire h(t) = \u22125t\u00b2 + <strong>'+proj.v0+'</strong>t. Le projectile retombe au sol \u00e0 t = ?',
+                  reponse:proj.tSol,
+                  correction:'h(t)=0 \u2192 \u22125t(t\u2212'+proj.tSol+')=0 \u2192 t=0 ou t = <strong>'+proj.tSol+' s</strong>',unite:'s'};
+        } else if(qtype===1) {
+          return {enonce:'Trajectoire h(t) = \u22125t\u00b2 + <strong>'+proj.v0+'</strong>t. Quelle est la hauteur h(<strong>'+proj.t1+'</strong>) ?',
+                  reponse:proj.h1,
+                  correction:'h('+proj.t1+') = \u22125\u00d7'+proj.t1+'\u00b2 + '+proj.v0+'\u00d7'+proj.t1+' = \u22125\u00d7'+(proj.t1*proj.t1)+' + '+(proj.v0*proj.t1)+' = <strong>'+proj.h1+' m</strong>',unite:'m'};
+        } else {
+          return {enonce:'Trajectoire h(t) = \u22125t\u00b2 + <strong>'+proj.v0+'</strong>t. Hauteur maximale atteinte ?',
+                  reponse:proj.hMax,
+                  correction:'Sommet \u00e0 t = '+proj.v0+'/(2\u00d75) = '+proj.v0/10+' s | h('+proj.v0/10+') = <strong>'+proj.hMax+' m</strong>',unite:'m'};
+        }
+      }
+    }
+  },
+
+  'p6': { // Dérivée
+    titre: 'D\u00e9riv\u00e9e et variations',
+    gen: function() {
+      var type = Math.floor(Math.random()*5);
+      var fonctions = [
+        {a:1,b:2,c:0},{a:2,b:-3,c:1},{a:-1,b:4,c:-2},{a:3,b:0,c:5},
+        {a:-2,b:6,c:-1},{a:1,b:-4,c:3},{a:4,b:2,c:-3},{a:-3,b:8,c:0},
+        {a:2,b:-6,c:4},{a:1,b:0,c:-5}
+      ];
+      var fn = fonctions[Math.floor(Math.random()*fonctions.length)];
+      var a=fn.a,b=fn.b,c=fn.c;
+      var da=2*a,db=b; // f'(x) = 2ax + b
+      if(type===0) {
+        return {enonce:'f(x) = <strong>'+a+'x\u00b2 '+(b>=0?'+ '+b:'- '+Math.abs(b))+'x '+(c>=0?'+ '+c:'- '+Math.abs(c))+'</strong>. Quelle est la d\u00e9riv\u00e9e f\'(x) ?',
+                reponse:da+'x '+(db>=0?'+ '+db:'- '+Math.abs(db)),
+                correction:'f\'(x) = 2\u00d7'+a+'x + '+b+' = <strong>'+da+'x '+(db>=0?'+ '+db:'- '+Math.abs(db))+'</strong>',unite:''};
+      } else if(type===1) {
+        var x0=[-2,-1,0,1,2,3][Math.floor(Math.random()*6)];
+        var derx=da*x0+db;
+        return {enonce:'f(x) = '+a+'x\u00b2 '+(b>=0?'+ '+b:'- '+Math.abs(b))+'x + '+c+'. Calculer f\'(<strong>'+x0+'</strong>).',
+                reponse:derx,
+                correction:'f\'(x) = '+da+'x '+(db>=0?'+ '+db:'- '+Math.abs(db))+' | f\'('+x0+') = '+da+'\u00d7'+x0+(db>=0?'+'+db:''+db)+' = <strong>'+derx+'</strong>',unite:''};
+      } else if(type===2) {
+        if(a!==0&&b!==0) {
+          var xs=(-b/(2*a));
+          if(Number.isInteger(xs)||Math.abs(xs*10)%1===0) {
+            return {enonce:'f(x) = '+a+'x\u00b2 '+(b>=0?'+ '+b:'- '+Math.abs(b))+'x + '+c+'. En quel point x la d\u00e9riv\u00e9e s\'annule-t-elle (sommet) ?',
+                    reponse:Math.round(xs*10)/10,
+                    correction:'f\'(x) = '+da+'x '+(db>=0?'+ '+db:'- '+Math.abs(db))+' = 0 \u2192 x = \u2212'+b+'/'+(2*a)+' = <strong>'+Math.round(xs*10)/10+'</strong>',unite:''};
+          }
+        }
+        return {enonce:'f(x) = 3x\u00b2 \u2212 6x + 1. En quel point x la d\u00e9riv\u00e9e s\'annule-t-elle ?',
+                reponse:1, correction:'f\'(x) = 6x \u2212 6 = 0 \u2192 x = <strong>1</strong>',unite:''};
+      } else if(type===3) {
+        var simpls=[{f:'x\u00b2',df:'2x'},{f:'3x\u00b2',df:'6x'},{f:'x\u00b2+2x',df:'2x+2'},
+                    {f:'2x\u00b2-4',df:'4x'},{f:'-x\u00b2+1',df:'-2x'},{f:'4x\u00b2+3x',df:'8x+3'}];
+        var s=simpls[Math.floor(Math.random()*simpls.length)];
+        return {enonce:'f(x) = <strong>'+s.f+'</strong>. Quelle est la d\u00e9riv\u00e9e f\'(x) ?',
+                reponse:s.df, correction:'<strong>f\'(x) = '+s.df+'</strong>',unite:''};
+      } else {
+        var signe_a=a>0?'positive':'n\u00e9gative';
+        var variation=a>0?'d\u00e9croissante puis croissante':'croissante puis d\u00e9croissante';
+        return {enonce:'f(x) = <strong>'+a+'x\u00b2 '+(b>=0?'+ '+b:'- '+Math.abs(b))+'x + '+c+'</strong>. La fonction est-elle d\'abord croissante ou d\u00e9croissante (pour x tr\u00e8s n\u00e9gatif) ?',
+                reponse:a>0?'d\u00e9croissante':'croissante',
+                correction:'a = '+a+(a>0?' > 0 \u2192 parabole en U \u2192 d\u2019abord <strong>d\u00e9croissante</strong>':' < 0 \u2192 parabole en \u2229 \u2192 d\u2019abord <strong>croissante</strong>'),unite:''};
+      }
+    }
+  },
+
+  'p7': { // Géométrie dans l'espace
+    titre: 'G\u00e9om\u00e9trie dans l\'espace',
+    gen: function() {
+      var type = Math.floor(Math.random()*4);
+      var dims_pave=[{a:2,b:3,h:5},{a:4,b:4,h:6},{a:3,b:5,h:4},{a:6,b:2,h:8},{a:5,b:3,h:7},
+                     {a:10,b:4,h:3},{a:2,b:6,h:9},{a:7,b:3,h:5},{a:8,b:2,h:6},{a:4,b:5,h:3}];
+      var dims_cyl=[{r:3,h:10},{r:4,h:5},{r:2,h:8},{r:5,h:4},{r:6,h:3},{r:3,h:7},{r:4,h:8}];
+      var dims_pyr=[{a:4,h:6},{a:6,h:4},{a:3,h:8},{a:5,h:5},{a:8,h:3},{a:6,h:9},{a:10,h:6}];
+      var dims_sph=[{r:2},{r:3},{r:4},{r:5},{r:6},{r:7}];
+      if(type===0) {
+        var d=dims_pave[Math.floor(Math.random()*dims_pave.length)];
+        return {enonce:'Pav\u00e9 droit : longueur <strong>'+d.a+' cm</strong>, largeur <strong>'+d.b+' cm</strong>, hauteur <strong>'+d.h+' cm</strong>. Volume ?',
+                reponse:d.a*d.b*d.h, correction:'V = '+d.a+' \u00d7 '+d.b+' \u00d7 '+d.h+' = <strong>'+(d.a*d.b*d.h)+' cm\u00b3</strong>',unite:'cm\u00b3'};
+      } else if(type===1) {
+        var d2=dims_cyl[Math.floor(Math.random()*dims_cyl.length)];
+        var v=Math.round(Math.PI*d2.r*d2.r*d2.h*10)/10;
+        return {enonce:'Cylindre : rayon <strong>'+d2.r+' cm</strong>, hauteur <strong>'+d2.h+' cm</strong>. Volume (arrondi, \u03c0\u22483,14) ?',
+                reponse:v, correction:'V = \u03c0\u00d7'+d2.r+'\u00b2\u00d7'+d2.h+' = 3,14\u00d7'+d2.r*d2.r+'\u00d7'+d2.h+' \u2248 <strong>'+v+' cm\u00b3</strong>',unite:'cm\u00b3'};
+      } else if(type===2) {
+        var d3=dims_pyr[Math.floor(Math.random()*dims_pyr.length)];
+        var v2=Math.round(d3.a*d3.a*d3.h/3*10)/10;
+        return {enonce:'Pyramide \u00e0 base carr\u00e9e : c\u00f4t\u00e9 <strong>'+d3.a+' cm</strong>, hauteur <strong>'+d3.h+' cm</strong>. Volume ?',
+                reponse:v2, correction:'V = ('+d3.a+'\u00b2\u00d7'+d3.h+')\u00f73 = ('+d3.a*d3.a+'\u00d7'+d3.h+')\u00f73 = <strong>'+v2+' cm\u00b3</strong>',unite:'cm\u00b3'};
+      } else {
+        var d4=dims_sph[Math.floor(Math.random()*dims_sph.length)];
+        var v3=Math.round(4/3*Math.PI*d4.r*d4.r*d4.r*10)/10;
+        return {enonce:'Sph\u00e8re de rayon <strong>'+d4.r+' cm</strong>. Volume (arrondi, \u03c0\u22483,14) ?',
+                reponse:v3, correction:'V = (4/3)\u00d7\u03c0\u00d7'+d4.r+'\u00b3 \u2248 4,19\u00d7'+d4.r*d4.r*d4.r+' \u2248 <strong>'+v3+' cm\u00b3</strong>',unite:'cm\u00b3'};
+      }
+    }
+  },
+
+  'p8': { // Vecteurs du plan
+    titre: 'Vecteurs du plan',
+    gen: function() {
+      var type = Math.floor(Math.random()*4);
+      var vects=[
+        {x1:3,y1:2,x2:1,y2:-1},{x1:-2,y1:4,x2:3,y2:1},{x1:1,y1:-3,x2:2,y2:5},
+        {x1:4,y1:0,x2:-1,y2:3},{x1:-1,y1:2,x2:4,y2:-2},{x1:2,y1:3,x2:-3,y2:1},
+        {x1:0,y1:4,x2:2,y2:-3},{x1:3,y1:-2,x2:-1,y2:4},{x1:-3,y1:1,x2:2,y2:3},
+        {x1:1,y1:1,x2:-2,y2:4}
+      ];
+      var v=vects[Math.floor(Math.random()*vects.length)];
+      var kvals=[-3,-2,2,3];
+      var k=kvals[Math.floor(Math.random()*kvals.length)];
+      if(type===0) {
+        var cx=v.x1+v.x2,cy=v.y1+v.y2;
+        return {enonce:'u\u20d7 = ('+v.x1+' ; '+v.y1+') et v\u20d7 = ('+v.x2+' ; '+v.y2+'). Calculer u\u20d7 + v\u20d7.',
+                reponse:'('+cx+' ; '+cy+')',
+                correction:'u\u20d7 + v\u20d7 = ('+v.x1+'+'+v.x2+' ; '+v.y1+'+'+v.y2+') = <strong>('+cx+' ; '+cy+')</strong>',unite:''};
+      } else if(type===1) {
+        return {enonce:'v\u20d7 = ('+v.x1+' ; '+v.y1+'). Calculer <strong>'+k+'</strong>\u00d7v\u20d7.',
+                reponse:'('+k*v.x1+' ; '+k*v.y1+')',
+                correction:k+'\u00d7v\u20d7 = ('+k+'\u00d7'+v.x1+' ; '+k+'\u00d7'+v.y1+') = <strong>('+k*v.x1+' ; '+k*v.y1+')</strong>',unite:''};
+      } else if(type===2) {
+        var norm=Math.round(Math.sqrt(v.x1*v.x1+v.y1*v.y1)*100)/100;
+        return {enonce:'v\u20d7 = ('+v.x1+' ; '+v.y1+'). Calculer la norme \u2016v\u20d7\u2016 (arrondie au centi\u00e8me).',
+                reponse:norm,
+                correction:'\u2016v\u20d7\u2016 = \u221a('+v.x1+'\u00b2 + '+v.y1+'\u00b2) = \u221a('+(v.x1*v.x1+v.y1*v.y1)+') \u2248 <strong>'+norm+'</strong>',unite:''};
+      } else {
+        // Points A et B
+        var Ax=[-3,-2,-1,0,1,2,3][Math.floor(Math.random()*7)];
+        var Ay=[-3,-2,-1,0,1,2,3][Math.floor(Math.random()*7)];
+        var Bx=[-3,-2,-1,0,1,2,3][Math.floor(Math.random()*7)];
+        var By=[-3,-2,-1,0,1,2,3][Math.floor(Math.random()*7)];
+        return {enonce:'A('+Ax+' ; '+Ay+') et B('+Bx+' ; '+By+'). Coordonn\u00e9es du vecteur AB\u20d7 ?',
+                reponse:'('+(Bx-Ax)+' ; '+(By-Ay)+')',
+                correction:'AB\u20d7 = ('+Bx+'\u2212'+Ax+' ; '+By+'\u2212'+Ay+') = <strong>('+(Bx-Ax)+' ; '+(By-Ay)+')</strong>',unite:''};
+      }
+    }
+  },
+
+  'p9': { // Coordonnées dans le plan
+    titre: 'Coordonn\u00e9es dans le plan',
+    gen: function() {
+      var type = Math.floor(Math.random()*4);
+      var pts=[
+        {ax:0,ay:2,bx:4,by:6},{ax:-1,ay:3,bx:3,by:-1},{ax:2,ay:-2,bx:6,by:4},
+        {ax:-2,ay:0,bx:4,by:6},{ax:1,ay:5,bx:5,by:1},{ax:-3,ay:1,bx:3,by:5},
+        {ax:0,ay:-4,bx:6,by:2},{ax:-2,ay:3,bx:2,by:-1},{ax:4,ay:2,bx:-2,by:6},
+        {ax:1,ay:-1,bx:5,by:3}
+      ];
+      var p=pts[Math.floor(Math.random()*pts.length)];
+      if(type===0) {
+        var mx=(p.ax+p.bx)/2,my=(p.ay+p.by)/2;
+        return {enonce:'A('+p.ax+' ; '+p.ay+') et B('+p.bx+' ; '+p.by+'). Coordonn\u00e9es du milieu M de [AB] ?',
+                reponse:'('+mx+' ; '+my+')',
+                correction:'M = (('+p.ax+'+'+p.bx+')/2 ; ('+p.ay+'+'+p.by+')/2) = <strong>('+mx+' ; '+my+')</strong>',unite:''};
+      } else if(type===1) {
+        var d=Math.round(Math.sqrt((p.bx-p.ax)**2+(p.by-p.ay)**2)*100)/100;
+        return {enonce:'A('+p.ax+' ; '+p.ay+') et B('+p.bx+' ; '+p.by+'). Distance AB (arrondie au centi\u00e8me) ?',
+                reponse:d,
+                correction:'AB = \u221a(('+p.bx+'\u2212'+p.ax+')\u00b2+('+p.by+'\u2212'+p.ay+')\u00b2) = \u221a('+(p.bx-p.ax)**2+'+'+(p.by-p.ay)**2+') \u2248 <strong>'+d+'</strong>',unite:''};
+      } else if(type===2) {
+        var mx2=(p.ax+p.bx)/2,my2=(p.ay+p.by)/2;
+        return {enonce:'M('+mx2+' ; '+my2+') est le milieu de [AB] avec A('+p.ax+' ; '+p.ay+'). Trouver B.',
+                reponse:'('+p.bx+' ; '+p.by+')',
+                correction:'B = (2\u00d7'+mx2+'\u2212'+p.ax+' ; 2\u00d7'+my2+'\u2212'+p.ay+') = <strong>('+p.bx+' ; '+p.by+')</strong>',unite:''};
+      } else {
+        var dx=p.bx-p.ax,dy=p.by-p.ay;
+        if(dx!==0) {
+          var coeff=dy/dx;
+          if(Number.isInteger(coeff)) {
+            return {enonce:'Droite passant par A('+p.ax+' ; '+p.ay+') et B('+p.bx+' ; '+p.by+'). Coefficient directeur a = ?',
+                    reponse:coeff,
+                    correction:'a = ('+p.by+'\u2212'+p.ay+')/('+p.bx+'\u2212'+p.ax+') = '+dy+'/'+dx+' = <strong>'+coeff+'</strong>',unite:''};
+          }
+        }
+        return {enonce:'Droite passant par A(0 ; 1) et B(2 ; 5). Coefficient directeur a = ?',
+                reponse:2, correction:'a = (5\u22121)/(2\u22120) = 4/2 = <strong>2</strong>',unite:''};
+      }
+    }
+  },
+
+  'p10': { // Trigonométrie
+    titre: 'Trigonom\u00e9trie',
+    gen: function() {
+      var type = Math.floor(Math.random()*4);
+      var triangles=[
+        {angle:30,sin:0.5,cos:0.866,tan:0.577,hyp:10,opp:5,adj:8.66},
+        {angle:30,sin:0.5,cos:0.866,tan:0.577,hyp:20,opp:10,adj:17.32},
+        {angle:45,sin:0.707,cos:0.707,tan:1,hyp:10,opp:7.07,adj:7.07},
+        {angle:45,sin:0.707,cos:0.707,tan:1,hyp:14,opp:9.9,adj:9.9},
+        {angle:60,sin:0.866,cos:0.5,tan:1.732,hyp:10,opp:8.66,adj:5},
+        {angle:60,sin:0.866,cos:0.5,tan:1.732,hyp:8,opp:6.93,adj:4},
+        {angle:37,sin:0.602,cos:0.799,tan:0.754,hyp:10,opp:6,adj:8},
+        {angle:53,sin:0.799,cos:0.602,tan:1.327,hyp:10,opp:8,adj:6}
+      ];
+      var tr=triangles[Math.floor(Math.random()*triangles.length)];
+      if(type===0) {
+        var fns=[
+          {fn:'sin',val:tr.sin},
+          {fn:'cos',val:tr.cos},
+          {fn:'tan',val:tr.tan}
+        ][Math.floor(Math.random()*3)];
+        return {enonce:'Dans un triangle rectangle, angle A = <strong>'+tr.angle+'\u00b0</strong>. Valeur de <strong>'+fns.fn+'('+tr.angle+'\u00b0)</strong> (arrondie au mill\u00e8me) ?',
+                reponse:fns.val,
+                correction:fns.fn+'('+tr.angle+'\u00b0) = <strong>'+fns.val+'</strong>',unite:''};
+      } else if(type===1) {
+        return {enonce:'Triangle rectangle, angle = <strong>'+tr.angle+'\u00b0</strong>, hypot\u00e9nuse = <strong>'+tr.hyp+' cm</strong>. C\u00f4t\u00e9 oppos\u00e9 \u00e0 l\u2019angle ?',
+                reponse:tr.opp,
+                correction:'opp = hyp \u00d7 sin('+tr.angle+'\u00b0) = '+tr.hyp+' \u00d7 '+tr.sin+' = <strong>'+tr.opp+' cm</strong>',unite:'cm'};
+      } else if(type===2) {
+        return {enonce:'Triangle rectangle, angle = <strong>'+tr.angle+'\u00b0</strong>, hypot\u00e9nuse = <strong>'+tr.hyp+' cm</strong>. C\u00f4t\u00e9 adjacent ?',
+                reponse:tr.adj,
+                correction:'adj = hyp \u00d7 cos('+tr.angle+'\u00b0) = '+tr.hyp+' \u00d7 '+tr.cos+' = <strong>'+tr.adj+' cm</strong>',unite:'cm'};
+      } else {
+        return {enonce:'Triangle rectangle, c\u00f4t\u00e9 oppos\u00e9 = <strong>'+tr.opp+' cm</strong>, hypot\u00e9nuse = <strong>'+tr.hyp+' cm</strong>. Calculer sin(A) et l\u2019angle A ?',
+                reponse:tr.angle+'°',
+                correction:'sin(A) = '+tr.opp+'/'+tr.hyp+' = '+tr.sin+' \u2192 A = <strong>'+tr.angle+'\u00b0</strong>',unite:''};
       }
     }
   }
 
-
 };
+
+
 
 // Générateurs génériques pour chapitres sans banque spécifique
 function genGeneriqueC11(ch) {
@@ -14234,7 +15541,7 @@ function genGeneriqueC11(ch) {
 // ── Interface Générateur ──────────────────────────────────
 
 function buildGenerator(ch) {
-  if(!ch || ch.id.charAt(0) !== 'c') return '<p>Générateur disponible pour les chapitres CAP.</p>';
+  if(!ch || (ch.id.charAt(0) !== 'c' && ch.id.charAt(0) !== 'p')) return '<p>Générateur non disponible pour ce niveau.</p>';
   const bank = GEN_BANK[ch.id];
   if(!bank) {
     return `<div style="text-align:center;padding:30px;color:#666">
@@ -14435,7 +15742,7 @@ function openChap(k,id){
       ? buildCapExos(CAP_EXOS[ch.id])
       : '<p style="color:var(--muted)">Exercices à venir.</p>';
   document.getElementById('tc-exos').innerHTML = exosContent;
-  if(curLvl === 'cap' && typeof buildGenerator === 'function'){
+  if((curLvl === 'cap' || curLvl === 'pre') && typeof buildGenerator === 'function'){
     document.getElementById('tc-gen').innerHTML = buildGenerator(ch);
     setTimeout(function(){ if(typeof genLancerSerie==='function') genLancerSerie(); }, 80);
   }
@@ -14976,6 +16283,14 @@ function printExos(){
 
 // ── INIT ──
 updateHome();
+
+
+
+
+
+
+
+
 
 
 
