@@ -1346,9 +1346,23 @@ button, .bk, .qbtn, .fnb, .fnb {
     <!-- Espace Professeur desactive temporairement a la demande de l'enseignant.
          Le code, les comptes et les donnees sont conserves : il suffit de repasser
          MP_ESPACE_PROF a true (voir plus bas) pour le reafficher. -->
-    <button class="bbtn" id="prof-btn" onclick="openProfSpace()" title="Espace Professeur" style="display:none;background:var(--secl);border-color:var(--sec);color:var(--secd)">
+    <button class="bbtn" id="prof-btn" onclick="openProfSpace()" title="Espace Professeur" style="background:var(--secl);border-color:var(--sec);color:var(--secd)">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6a5 5 0 0 1 10 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 7h4M14 5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       Espace Prof
+    </button>
+    <button class="bbtn" id="devoirs-btn" onclick="ouvrirDevoirs()" title="Devoirs">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0">
+        <path d="M3.5 2h9v12h-9z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M6 5.5h4M6 8h4M6 10.5h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span>Devoirs</span>
+    </button>
+    <button class="bbtn" id="shorts-btn" onclick="ouvrirShorts()" title="Shorts">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0">
+        <rect x="4" y="1.5" width="8" height="13" rx="2.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M7 6.2v3.6l3-1.8z" fill="currentColor"/>
+      </svg>
+      <span>Shorts</span>
     </button>
     <button class="bbtn" id="tbtn" onclick="toggleTheme()" title="Mode clair / sombre">
     <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style="display:block">
@@ -1441,6 +1455,2156 @@ button, .bk, .qbtn, .fnb, .fnb {
     </div>
   </div>
 </div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE LEÇON ANIMÉE — bloc autonome, supprimable d'un seul tenant.
+     Une leçon = des données dans LECONS. Le lecteur ci-dessous est
+     commun à tous les chapitres.
+     ═══════════════════════════════════════════════════════════════ -->
+<style>
+#lc-ov { position:fixed; inset:0; z-index:10003; background:rgba(8,15,30,.88);
+  display:flex; align-items:center; justify-content:center; padding:12px }
+.lc-box { position:relative; background:var(--surf); border:2px solid var(--border); border-radius:20px;
+  width:100%; max-width:760px; max-height:94vh; display:flex; flex-direction:column;
+  overflow:hidden; box-shadow:0 18px 56px rgba(0,0,0,.4) }
+.lc-head { padding:14px 16px 10px; border-bottom:1px solid var(--border);
+  display:flex; align-items:flex-start; gap:12px }
+.lc-head h3 { margin:0; font-size:1.02rem; font-weight:900; line-height:1.3 }
+.lc-head p { margin:3px 0 0; font-size:.76rem; color:var(--muted); font-weight:700 }
+.lc-x { margin-left:auto; flex-shrink:0; width:34px; height:34px; border-radius:50%;
+  border:1.5px solid var(--border); background:var(--surf); color:var(--muted);
+  font-size:1.25rem; line-height:1; cursor:pointer; font-family:var(--f) }
+.lc-x:hover { background:var(--border) }
+
+.lc-prog { display:flex; gap:3px; padding:0 16px 10px }
+.lc-seg { flex:1; height:4px; border-radius:3px; background:var(--border);
+  cursor:pointer; overflow:hidden }
+.lc-seg i { display:block; height:100%; width:0; background:var(--sec);
+  border-radius:3px; transition:width .25s linear }
+.lc-seg.fait i { width:100% }
+
+.lc-scene { padding:6px 18px 18px; overflow-y:auto; flex:1; min-height:220px;
+  line-height:1.65; font-size:.93rem }
+.lc-etape-t { font-size:.72rem; font-weight:900; text-transform:uppercase;
+  letter-spacing:.07em; color:var(--sec); margin:6px 0 10px }
+.lc-r { opacity:0; transform:translateY(9px); transition:opacity .38s, transform .38s }
+.lc-r.vu { opacity:1; transform:none }
+.lc-scene table.mt { margin:10px 0 }
+.lc-eq { background:var(--secl); border-left:3px solid var(--sec); border-radius:8px;
+  padding:9px 13px; margin:10px 0; font-weight:800; font-size:.95rem }
+.lc-note { font-size:.86rem; color:var(--muted) }
+
+.lc-err { border:1.5px solid #fca5a5; background:#fef2f2; border-radius:12px;
+  padding:11px 13px; margin:9px 0 }
+.lc-err b { color:#991b1b; display:block; font-size:.87rem; margin-bottom:3px }
+.lc-err .v { color:#166534; font-weight:700; font-size:.87rem }
+.lc-err .p { font-size:.82rem; color:#475569; margin-top:4px }
+.lc-fiche { border:2px solid var(--sec); border-radius:14px; padding:14px 16px;
+  background:var(--secl) }
+.lc-fiche li { margin:6px 0; font-size:.9rem }
+
+.lc-q { margin:4px 0 0 }
+.lc-q h4 { margin:0 0 10px; font-size:.96rem; font-weight:800; line-height:1.45 }
+.lc-c { display:block; width:100%; text-align:left; margin:7px 0; padding:11px 14px;
+  border:2px solid var(--border); border-radius:11px; background:var(--surf);
+  color:var(--text); font-family:var(--f); font-size:.9rem; font-weight:700;
+  cursor:pointer; transition:.15s }
+.lc-c:hover:not(:disabled) { border-color:var(--sec); background:var(--secl) }
+.lc-c.ok { border-color:#059669; background:#dcfce7; color:#166534 }
+.lc-c.ko { border-color:#dc2626; background:#fee2e2; color:#991b1b }
+.lc-c:disabled { cursor:default }
+.lc-exp { margin-top:11px; padding:11px 13px; border-radius:11px;
+  background:var(--border); font-size:.87rem; line-height:1.6 }
+
+.lc-ctrl { border-top:1px solid var(--border); padding:10px 16px;
+  display:flex; align-items:center; gap:9px; flex-wrap:wrap }
+.lc-b { min-height:40px; padding:0 15px; border-radius:11px; border:2px solid var(--border);
+  background:var(--surf); color:var(--text); font-family:var(--f); font-weight:800;
+  font-size:.86rem; cursor:pointer }
+.lc-b:hover { border-color:var(--sec); color:var(--sec) }
+.lc-b.pri { background:var(--sec); border-color:var(--sec); color:#fff }
+.lc-b:disabled { opacity:.4; cursor:default }
+.lc-pos { margin-left:auto; font-size:.78rem; color:var(--muted); font-weight:700 }
+
+/* Bouton d'appel dans le cours */
+.lc-appel { display:flex; align-items:center; gap:13px; width:100%; margin:0 0 18px;
+  padding:14px 16px; border-radius:14px; border:2px solid var(--sec);
+  background:var(--secl); cursor:pointer; font-family:var(--f); text-align:left }
+.lc-appel:hover { transform:translateY(-1px); box-shadow:0 6px 18px rgba(0,0,0,.1) }
+.lc-appel .ic { flex-shrink:0; width:42px; height:42px; border-radius:50%;
+  background:var(--sec); display:flex; align-items:center; justify-content:center }
+.lc-appel .ic::after { content:''; border-style:solid; border-width:8px 0 8px 13px;
+  border-color:transparent transparent transparent #fff; margin-left:3px }
+.lc-appel b { display:block; font-size:.95rem; font-weight:900; color:var(--secd) }
+.lc-appel span { display:block; font-size:.78rem; color:var(--muted); font-weight:700;
+  margin-top:2px }
+
+
+/* Cadre 16:9 sur ordinateur et tablette. Sur téléphone, un format plus
+   haut : un 16:9 strict ne laisserait que 200 px de hauteur, et le texte
+   ne serait plus lisible — ce que la commande demande justement d'éviter. */
+.lc-box.vid .lc-scene { aspect-ratio:16/9; min-height:0 }
+@media(max-width:640px){ .lc-box.vid .lc-scene { aspect-ratio:1/1 } }
+
+/* Générique d'ouverture et de clôture */
+.v-logo { display:flex; justify-content:center; gap:7px;
+  font-family:Georgia,serif; font-weight:700 }
+.v-logo i { font-style:normal; padding:7px 15px; border-radius:9px;
+  font-size:1.75rem; letter-spacing:-.01em }
+.v-logo .m1 { background:#fff; color:#0c1f3d }
+.v-logo .m2 { background:#fbbf24; color:#0c1f3d }
+.v-slogan { margin-top:14px; font-size:1.06rem; font-weight:700; color:#fbbf24;
+  letter-spacing:.02em }
+.v-sous { margin-top:20px; font-size:1.3rem; font-weight:900; color:#fff }
+@media(max-width:640px){
+  .v-logo i { font-size:1.35rem; padding:6px 12px }
+  .v-slogan { font-size:.92rem } .v-sous { font-size:1.08rem; margin-top:14px }
+}
+
+/* ── Mode vidéo MathsPro : fond bleu nuit, texte court, grandes tailles ──
+   Code couleur de la chaîne : jaune = question et données,
+   vert = résultat, rouge = piège. */
+.lc-box.vid { background:#0c1f3d; border-color:#1e3a5f; color:#eaf2ff }
+.lc-box.vid .lc-head { border-bottom-color:#1e3a5f }
+.lc-box.vid .lc-head h3 { color:#fff }
+.lc-box.vid .lc-head p { color:#8fb0d9 }
+.lc-box.vid .lc-x { border-color:#2b4a72; color:#8fb0d9 }
+.lc-box.vid .lc-x:hover { background:#16325a }
+.lc-box.vid .lc-seg { background:#1e3a5f }
+.lc-box.vid .lc-seg i { background:#fbbf24 }
+.lc-box.vid .lc-ctrl { border-top-color:#1e3a5f }
+.lc-box.vid .lc-b { background:transparent; border-color:#2b4a72; color:#cfe0f7 }
+.lc-box.vid .lc-b:hover { border-color:#fbbf24; color:#fbbf24 }
+.lc-box.vid .lc-b.pri { background:#fbbf24; border-color:#fbbf24; color:#0c1f3d }
+.lc-box.vid .lc-pos { color:#8fb0d9 }
+.lc-box.vid .lc-etape-t { color:#fbbf24; letter-spacing:.1em }
+
+.lc-box.vid .lc-scene { display:flex; flex-direction:column; align-items:center;
+  justify-content:center; text-align:center; min-height:330px; gap:4px;
+  font-size:1.02rem; padding:14px 20px 22px }
+.lc-box.vid .lc-r { transform:translateY(14px) scale(.97) }
+.lc-box.vid .lc-r.vu { transform:none }
+
+.v-gr { font-size:1.72rem; font-weight:900; line-height:1.2; letter-spacing:-.01em }
+.v-md { font-size:1.22rem; font-weight:800; line-height:1.35 }
+.v-sm { font-size:.94rem; color:#a8c4e6; font-weight:600 }
+.v-j { color:#fbbf24 } .v-v { color:#4ade80 } .v-r { color:#f87171 }
+.v-eq { display:inline-block; background:rgba(255,255,255,.07); border-radius:13px;
+  padding:11px 20px; font-size:1.3rem; font-weight:800; letter-spacing:.01em }
+.v-eq.res { background:rgba(74,222,128,.15); border:1.5px solid #4ade80; color:#4ade80 }
+.v-eq.pie { background:rgba(248,113,113,.14); border:1.5px solid #f87171; color:#f87171 }
+.v-fl { font-size:1.5rem; color:#fbbf24; font-weight:900; line-height:1 }
+
+.v-tab { border-collapse:separate; border-spacing:0; margin:6px auto;
+  font-size:1.02rem; font-weight:700 }
+.v-tab th, .v-tab td { padding:8px 15px; border:1px solid #2b4a72 }
+.v-tab th { background:#16325a; color:#a8c4e6; font-weight:800; font-size:.9rem }
+.v-tab td { background:rgba(255,255,255,.04); color:#eaf2ff; text-align:center }
+.v-tab td.j { color:#fbbf24 } .v-tab td.v { color:#4ade80 } .v-tab td.q { color:#8fb0d9 }
+
+.v-fiche { border:2px solid #fbbf24; border-radius:16px; padding:16px 20px;
+  background:rgba(251,191,36,.08); text-align:left; max-width:520px }
+.v-fiche li { margin:7px 0; font-size:.98rem; color:#eaf2ff }
+@media(max-width:640px){ .v-fiche { padding:12px 15px }
+  .v-fiche li { margin:5px 0; font-size:.86rem } }
+.v-fiche li b { color:#fbbf24 }
+.v-marque { position:absolute; right:16px; bottom:60px; display:flex; gap:3px;
+  font-family:Georgia,serif; font-weight:700; opacity:.5; pointer-events:none }
+.v-marque i { font-style:normal; padding:2px 6px; border-radius:4px; font-size:.64rem }
+.v-marque .m1 { background:#fff; color:#0c1f3d }
+.v-marque .m2 { background:#fbbf24; color:#0c1f3d }
+
+@media(max-width:640px){
+  .v-marque { display:none }
+  .lc-box.vid .lc-scene { min-height:300px; padding:12px 14px 18px }
+  .v-gr { font-size:1.42rem } .v-md { font-size:1.08rem }
+  .v-eq { font-size:1.12rem; padding:9px 15px }
+  .v-tab th, .v-tab td { padding:7px 11px; font-size:.94rem }
+}
+
+@media(max-width:640px){
+  .lc-box { max-height:97vh; border-radius:16px }
+  .lc-scene { padding:6px 13px 16px; font-size:.9rem }
+  .lc-ctrl { padding:9px 12px; gap:7px }
+  .lc-b { padding:0 11px; font-size:.82rem }
+}
+</style>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  LEÇONS ANIMÉES — les données de chaque chapitre vivent ici.
+//  Structure : LECONS['id du chapitre'] = { titre, etapes[], erreurs[],
+//  retenir[], questions[] }.  Dans le HTML d'une étape, chaque bloc
+//  portant la classe « lc-r » apparaît l'un après l'autre : c'est ce
+//  qui donne le déroulé progressif.
+// ═══════════════════════════════════════════════════════════════════
+const LECONS = {};
+
+// Remonter le score des questions au professeur (comme les autres travaux).
+var LECON_SUIVI = true;
+
+// ── Voix off ──────────────────────────────────────────────────────
+// Trois sources possibles, dans cet ordre : un fichier audio si le bloc
+// en declare un (data-a), sinon la voix du navigateur sur le texte parle
+// (data-v), sinon rien — la lecon fonctionne dans les trois cas.
+var LC_VOIX_DISPO = null;
+var LC_AUDIO = null;
+
+function lcVoixCharger() {
+  try {
+    var vs = window.speechSynthesis ? (speechSynthesis.getVoices() || []) : [];
+    var fr = vs.filter(function (v) { return /^fr/i.test(v.lang); });
+    if (!fr.length) { LC_VOIX_DISPO = null; return; }
+    // Preference pour une voix masculine quand le nom permet de la deviner.
+    var m = fr.filter(function (v) {
+      return /paul|thomas|henri|nicolas|claude|male|homme/i.test(v.name); });
+    LC_VOIX_DISPO = m[0] || fr[0];
+  } catch (e) { LC_VOIX_DISPO = null; }
+}
+if (window.speechSynthesis) {
+  lcVoixCharger();
+  speechSynthesis.onvoiceschanged = lcVoixCharger;
+}
+
+// Les videos MathsPro sont muettes : tout est explique a l'ecran.
+// Le texte parle reste dans les donnees (data-v) ; passer LECON_VOIX a
+// true le reactive, sans rien reecrire.
+var LECON_VOIX = false;
+
+function lcVoixActive() {
+  if (!LECON_VOIX) return false;
+  try { return localStorage.getItem('mp_voix') !== '0'; } catch (e) { return true; }
+}
+function lcVoixBascule() {
+  var n = lcVoixActive() ? '0' : '1';
+  try { localStorage.setItem('mp_voix', n); } catch (e) {}
+  if (LC) { lcStop(); lcRendu(); }
+}
+
+function lcStop() {
+  try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+  if (LC_AUDIO) { try { LC_AUDIO.pause(); } catch (e) {} LC_AUDIO = null; }
+}
+
+// Lit le bloc a voix haute. Renvoie true si quelque chose a demarre.
+// Une securite declenche la suite meme si la voix ne rend jamais la main.
+function lcDire(bloc, fin, dureeMax) {
+  if (!bloc || !lcVoixActive()) return false;
+  var fait = false;
+  function finir() { if (!fait) { fait = true; fin(); } }
+
+  var src = bloc.getAttribute('data-a');
+  if (src) {
+    try {
+      LC_AUDIO = new Audio(src);
+      LC_AUDIO.onended = finir;
+      LC_AUDIO.onerror = finir;
+      LC_AUDIO.play().catch(finir);
+      setTimeout(finir, Math.max(dureeMax, 30000));
+      return true;
+    } catch (e) { /* on retombe sur la voix du navigateur */ }
+  }
+
+  var txt = bloc.getAttribute('data-v');
+  if (!txt || !window.speechSynthesis || !LC_VOIX_DISPO) return false;
+  try {
+    var u = new SpeechSynthesisUtterance(txt);
+    u.voice = LC_VOIX_DISPO;
+    u.lang = LC_VOIX_DISPO.lang || 'fr-FR';
+    u.rate = 0.97; u.pitch = 1;
+    u.onend = finir;
+    u.onerror = finir;
+    speechSynthesis.speak(u);
+    // Filet de securite : certains navigateurs n'emettent jamais onend.
+    setTimeout(finir, Math.max(dureeMax, lcMots(txt) * 420 + 3000));
+    return true;
+  } catch (e) { return false; }
+}
+
+// ── Musique d'ambiance ───────────────────────────────────────────
+// Deposez un fichier libre de droits dans le depot et indiquez son
+// chemin ici. Tant que la valeur est vide, aucune musique n'est jouee
+// et le bouton n'apparait pas.
+var LECON_MUSIQUE = '';
+var LECON_MUSIQUE_VOL = 0.10;      // volume : discret par construction
+var LC_MUS = null;
+
+function lcMusActive() {
+  try { return localStorage.getItem('mp_musique') !== '0'; } catch (e) { return true; }
+}
+
+function lcMusDemarrer() {
+  if (!LECON_MUSIQUE || !lcMusActive()) return;
+  try {
+    if (!LC_MUS) {
+      LC_MUS = new Audio(LECON_MUSIQUE);
+      LC_MUS.loop = true;
+      LC_MUS.volume = LECON_MUSIQUE_VOL;
+    }
+    LC_MUS.play().catch(function () {});
+  } catch (e) {}
+}
+
+function lcMusArreter() {
+  if (LC_MUS) { try { LC_MUS.pause(); LC_MUS.currentTime = 0; } catch (e) {} }
+}
+
+function lcMusBascule() {
+  var n = lcMusActive() ? '0' : '1';
+  try { localStorage.setItem('mp_musique', n); } catch (e) {}
+  if (n === '0') lcMusArreter(); else lcMusDemarrer();
+  if (LC) lcRendu();
+}
+
+function lcBoutonMusique() {
+  if (!LECON_MUSIQUE) return '';
+  return '<button class="lc-b" onclick="lcMusBascule()" title="Musique d\u2019ambiance">'
+    + (lcMusActive() ? '\uD83C\uDFB5 Musique' : '\uD83D\uDD07 Musique') + '</button>';
+}
+
+var LC = null;   // etat du lecteur
+
+function lcMots(html) {
+  return (html.replace(/<[^>]+>/g, ' ').match(/[\wÀ-ÿ'’]+/g) || []).length;
+}
+
+// Duree d'affichage d'un bloc : assez long pour etre lu sans voix off.
+function lcDuree(html) {
+  return Math.min(9000, Math.max(2800, 1900 + lcMots(html) * 260));
+}
+
+// Carte d'identité MathsPro, affichée en ouverture et en clôture.
+function lcGenerique(sous) {
+  return '<div class="lc-r"><div class="v-logo">'
+    + '<i class="m1">MATHS</i><i class="m2">PRO</i></div>'
+    + '<div class="v-slogan">Les maths qui servent vraiment</div>'
+    + (sous ? '<div class="v-sous">' + sous + '</div>' : '') + '</div>';
+}
+
+function lcEtapes(l) {
+  var e = l.etapes.slice();
+  if (l.style === 'video') {
+    e.unshift({ t: '', h: lcGenerique(l.titre), gen: 1 });
+  }
+  if (l.erreurs && l.erreurs.length) {
+    e.push({ t: 'Attention aux erreurs fréquentes',
+      h: l.erreurs.map(function (x) {
+        return '<div class="lc-r"' + (x.dit ? ' data-v="' + x.dit + '"' : '')
+             + '><div class="lc-err"><b>✗ ' + x.f + '</b>'
+             + '<div class="v">✓ ' + x.v + '</div>'
+             + '<div class="p">' + x.p + '</div></div></div>';
+      }).join('') });
+  }
+  if (l.retenir && l.retenir.length) {
+    e.push({ t: 'À retenir',
+      h: '<div class="lc-r"' + (l.retenirDit ? ' data-v="' + l.retenirDit + '"' : '')
+       + '><div class="' + (l.style === 'video' ? 'v-fiche' : 'lc-fiche')
+       + '"><ul style="margin:0;padding-left:18px">'
+       + l.retenir.map(function (x) { return '<li>' + x + '</li>'; }).join('')
+       + '</ul></div></div>' });
+  }
+  if (l.style === 'video') {
+    e.push({ t: '', h: lcGenerique(''), gen: 1 });
+  }
+  return e;
+}
+
+function lcEstimation(l) {
+  var ms = 0;
+  lcEtapes(l).forEach(function (e) {
+    var parts = e.h.split('class="lc-r"');
+    if (parts.length === 1) { ms += lcDuree(e.h); return; }
+    for (var i = 1; i < parts.length; i++) ms += lcDuree(parts[i]);
+  });
+  if (l.questions) ms += l.questions.length * 20000;
+  return Math.max(2, Math.round(ms / 60000));
+}
+
+// ── Compteur de visionnage, sur l'appareil de l'eleve ──
+function lcVues(id, incr) {
+  try {
+    var c = parseInt(localStorage.getItem('mp_lecon_' + id) || '0', 10) || 0;
+    if (incr) { c++; localStorage.setItem('mp_lecon_' + id, String(c)); }
+    return c;
+  } catch (e) { return 0; }
+}
+
+// ── Bouton affiche en tete du cours ──
+function boutonLecon(id) {
+  var l = LECONS[id];
+  if (!l) return '';
+  var v = lcVues(id, false);
+  return '<button class="lc-appel" onclick="lcOuvrir(\'' + id + '\')">'
+    + '<span class="ic"></span><span>'
+    + '<b>VIDÉO — Comprendre la notion</b>'
+    + '<span>' + l.titre + ' · environ ' + lcEstimation(l) + ' min'
+    + (v ? ' · déjà vue ' + v + (v > 1 ? ' fois' : ' fois') : '') + '</span>'
+    + '</span></button>';
+}
+
+// ── Ouverture ──
+function lcOuvrir(id) {
+  var l = LECONS[id];
+  if (!l) return;
+  lcVues(id, true);
+  LC = { id: id, l: l, etapes: lcEtapes(l), i: 0, b: 0, lecture: true,
+         t: null, phase: 'etapes', qi: 0, score: 0 };
+  var ov = document.getElementById('lc-ov');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'lc-ov';
+    document.body.appendChild(ov);
+  }
+  document.body.style.overflow = 'hidden';
+  lcMusDemarrer();
+  ov.innerHTML =
+      '<div class="lc-box' + (l.style === 'video' ? ' vid' : '') + '">'
+    + '<div class="lc-head"><div><h3>' + l.titre + '</h3>'
+    + '<p>' + (l.sous || '') + ' · environ ' + lcEstimation(l) + ' min</p></div>'
+    + '<button class="lc-x" onclick="lcFermer()" aria-label="Fermer">×</button></div>'
+    + '<div class="lc-prog" id="lc-prog"></div>'
+    + '<div class="lc-scene" id="lc-scene"></div>'
+    + (l.style === 'video'
+        ? '<div class="v-marque"><i class="m1">MATHS</i><i class="m2">PRO</i></div>' : '')
+    + '<div class="lc-ctrl" id="lc-ctrl"></div>'
+    + '</div>';
+  lcRendu();
+}
+
+function lcFermer() {
+  if (LC && LC.t) clearTimeout(LC.t);
+  lcStop();
+  lcMusArreter();
+  LC = null;
+  var ov = document.getElementById('lc-ov');
+  if (ov) ov.remove();
+  document.body.style.overflow = '';
+}
+
+// ── Affichage de l'etape courante ──
+function lcRendu() {
+  if (!LC) return;
+  var sc = document.getElementById('lc-scene');
+  var pr = document.getElementById('lc-prog');
+  var ct = document.getElementById('lc-ctrl');
+  var n = LC.etapes.length;
+  var total = n + (LC.l.questions && LC.l.questions.length ? 1 : 0);
+
+  // Barre de progression
+  var h = '';
+  for (var k = 0; k < total; k++) {
+    var actif = (LC.phase === 'questions') ? (k === n) : (k === LC.i);
+    var fait = (LC.phase === 'questions') ? (k < n) : (k < LC.i);
+    h += '<div class="lc-seg' + (fait ? ' fait' : '') + '" onclick="lcAller(' + k + ')">'
+       + '<i style="width:' + (actif ? lcPct() : (fait ? 100 : 0)) + '%"></i></div>';
+  }
+  pr.innerHTML = h;
+
+  if (LC.phase === 'questions') return lcQuestion();
+
+  var e = LC.etapes[LC.i];
+  sc.innerHTML = (e.t ? '<div class="lc-etape-t">' + e.t + '</div>' : '') + e.h;
+  var mq = document.querySelector('.v-marque');
+  if (mq) mq.style.display = e.gen ? 'none' : '';
+  var blocs = sc.querySelectorAll('.lc-r');
+  for (var j = 0; j < blocs.length; j++) {
+    if (j <= LC.b) blocs[j].classList.add('vu');
+  }
+  sc.scrollTop = sc.scrollHeight;
+
+  ct.innerHTML =
+      '<button class="lc-b" onclick="lcPrec()"' + (LC.i === 0 && LC.b === 0 ? ' disabled' : '') + '>‹</button>'
+    + '<button class="lc-b pri" onclick="lcLecture()">' + (LC.lecture ? '❚❚ Pause' : '▶ Lire') + '</button>'
+    + '<button class="lc-b" onclick="lcSuiv()">›</button>'
+    + '<button class="lc-b" onclick="lcOuvrir(\'' + LC.id + '\')">↺ Revoir</button>'
+    + lcBoutonVoix() + lcBoutonMusique()
+    + '<span class="lc-pos">Étape ' + (LC.i + 1) + ' / ' + n + '</span>';
+
+  if (LC.t) clearTimeout(LC.t);
+  lcStop();
+  if (LC.lecture) {
+    var bloc = blocs[LC.b];
+    var duree = lcDuree(bloc ? bloc.innerHTML : e.h);
+    // Si la voix parle, c'est elle qui donne le rythme : le bloc suivant
+    // n'apparait qu'une fois la phrase terminee.
+    var parle = lcDire(bloc, function () {
+      if (LC && LC.lecture) LC.t = setTimeout(lcSuiv, 500);
+    }, duree);
+    if (!parle) LC.t = setTimeout(lcSuiv, duree);
+  }
+}
+
+function lcBoutonVoix() {
+  if (!LECON_VOIX) return '';
+  if (!window.speechSynthesis && !document.querySelector('[data-a]')) return '';
+  var on = lcVoixActive();
+  var dispo = !!LC_VOIX_DISPO;
+  return '<button class="lc-b" onclick="lcVoixBascule()" title="'
+    + (dispo ? 'Activer ou couper la voix'
+             : 'Aucune voix française installée sur cet appareil') + '">'
+    + (on ? '🔊 Voix' : '🔇 Muet') + '</button>';
+}
+
+function lcPct() {
+  var sc = document.getElementById('lc-scene');
+  if (!sc) return 0;
+  var n = sc.querySelectorAll('.lc-r').length || 1;
+  return Math.round((LC.b + 1) / n * 100);
+}
+
+function lcSuiv() {
+  if (!LC) return;
+  if (LC.phase === 'questions') return;
+  var sc = document.getElementById('lc-scene');
+  var n = sc ? sc.querySelectorAll('.lc-r').length : 0;
+  if (LC.b + 1 < n) { LC.b++; return lcRendu(); }
+  if (LC.i + 1 < LC.etapes.length) { LC.i++; LC.b = 0; return lcRendu(); }
+  if (LC.l.questions && LC.l.questions.length) {
+    LC.phase = 'questions'; LC.qi = 0; LC.lecture = false;
+    if (LC.t) clearTimeout(LC.t);
+    return lcRendu();
+  }
+  LC.lecture = false;
+  lcRendu();
+}
+
+function lcPrec() {
+  if (!LC) return;
+  if (LC.phase === 'questions') { LC.phase = 'etapes'; LC.i = LC.etapes.length - 1; LC.b = 99; }
+  else if (LC.b > 0) LC.b--;
+  else if (LC.i > 0) { LC.i--; LC.b = 99; }
+  lcRendu();
+}
+
+function lcAller(k) {
+  if (!LC) return;
+  if (k >= LC.etapes.length) { LC.phase = 'questions'; LC.qi = 0; LC.lecture = false; }
+  else { LC.phase = 'etapes'; LC.i = k; LC.b = 0; }
+  lcRendu();
+}
+
+function lcLecture() {
+  if (!LC) return;
+  LC.lecture = !LC.lecture;
+  lcRendu();
+}
+
+// ── Questions de verification : la reponse n'apparait qu'apres le choix ──
+function lcQuestion() {
+  var sc = document.getElementById('lc-scene');
+  var ct = document.getElementById('lc-ctrl');
+  var qs = LC.l.questions;
+  if (LC.qi >= qs.length) {
+    sc.innerHTML = '<div class="lc-etape-t">C’est terminé</div>'
+      + '<div class="lc-r vu"><p>Tu as répondu correctement à <strong>'
+      + LC.score + ' question' + (LC.score > 1 ? 's' : '') + ' sur ' + qs.length
+      + '</strong>.</p>'
+      + (LC.score === qs.length
+          ? '<p>La notion est comprise. Tu peux passer aux exercices.</p>'
+          : '<p>Revois les étapes concernées, puis refais les questions : '
+            + 'c’est en reprenant qu’on retient.</p>') + '</div>';
+    ct.innerHTML =
+        '<button class="lc-b" onclick="lcOuvrir(\'' + LC.id + '\')">↺ Revoir la leçon</button>'
+      + '<button class="lc-b pri" onclick="lcFermer()">Fermer</button>';
+    if (LECON_SUIVI && typeof sendToSheets === 'function') {
+      var niv = { cap:'CAP', sec:'Seconde', pre:'Première', ter:'Terminale' };
+      sendToSheets({
+        niveau: niv[(typeof curLvl !== 'undefined' && curLvl) || ''] || '-',
+        chapitre: (typeof curCh !== 'undefined' && curCh)
+                  ? ('Ch' + curCh.num + ' — ' + curCh.title) : LC.id,
+        type: '🎬 Leçon animée',
+        score: LC.score, scoreMax: qs.length,
+        detail: LC.l.titre
+      }, { silencieux: true });
+    }
+    return;
+  }
+  var q = qs[LC.qi];
+  sc.innerHTML = '<div class="lc-etape-t">Question ' + (LC.qi + 1) + ' sur ' + qs.length + '</div>'
+    + '<div class="lc-q"><h4>' + q.q + '</h4>'
+    + q.c.map(function (c, i) {
+        return '<button class="lc-c" id="lc-c' + i + '" onclick="lcRepondre(' + i + ')">'
+             + c + '</button>';
+      }).join('')
+    + '<div id="lc-exp"></div></div>';
+  ct.innerHTML = '<button class="lc-b" onclick="lcPrec()">‹ Revoir</button>'
+    + lcBoutonVoix()
+    + '<span class="lc-pos">Question ' + (LC.qi + 1) + ' / ' + qs.length + '</span>';
+  // L'enonce est lu a voix haute : une aide reelle pour les lecteurs fragiles.
+  lcStop();
+  if (q.v) {
+    var faux = document.createElement('div');
+    faux.setAttribute('data-v', q.v);
+    lcDire(faux, function () {}, 12000);
+  }
+}
+
+function lcRepondre(i) {
+  var q = LC.l.questions[LC.qi];
+  var juste = (i === q.b);
+  if (juste) LC.score++;
+  for (var k = 0; k < q.c.length; k++) {
+    var b = document.getElementById('lc-c' + k);
+    if (!b) continue;
+    b.disabled = true;
+    if (k === q.b) b.classList.add('ok');
+    else if (k === i) b.classList.add('ko');
+  }
+  document.getElementById('lc-exp').innerHTML =
+      '<div class="lc-exp">' + (juste ? '✅ <strong>Bonne réponse.</strong> '
+                                      : '❌ <strong>Ce n’est pas la bonne réponse.</strong> ')
+    + q.e + '</div>';
+  var ct = document.getElementById('lc-ctrl');
+  ct.innerHTML = '<button class="lc-b pri" onclick="lcQsuiv()">'
+    + (LC.qi + 1 < LC.l.questions.length ? 'Question suivante ›' : 'Terminer ›') + '</button>'
+    + '<span class="lc-pos">Question ' + (LC.qi + 1) + ' / ' + LC.l.questions.length + '</span>';
+}
+
+function lcQsuiv() { LC.qi++; lcRendu(); }
+
+document.addEventListener('keydown', function (e) {
+  if (!LC) return;
+  if (e.key === 'Escape') lcFermer();
+  else if (LC.phase === 'etapes') {
+    if (e.key === 'ArrowRight') lcSuiv();
+    else if (e.key === 'ArrowLeft') lcPrec();
+    else if (e.key === ' ') { e.preventDefault(); lcLecture(); }
+  }
+});
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  CAP · Chapitre 3 — Proportionnalité
+//  Mini-vidéo MathsPro : un plan = une idée, texte court, code couleur
+//  jaune (question et données) · vert (résultat) · rouge (piège).
+//  data-v = texte parlé · data-a = fichier audio, prioritaire s'il existe.
+// ═══════════════════════════════════════════════════════════════════
+LECONS.c3 = {
+titre: 'La proportionnalité',
+sous: 'CAP · Chapitre 3',
+style: 'video',
+
+etapes: [
+
+{ t: 'Accroche', h:
+  '<div class="lc-r" data-v="Trois mètres de câble coûtent sept euros cinquante.">' + '<div class="v-md">⚡ Câble électrique</div><div class="v-gr v-j">3 m → 7,50 €</div>' + '</div>'
++ '<div class="lc-r" data-v="Combien coûtent huit mètres ?">' + '<div class="v-gr">8 m → <span class="v-j">?</span></div>' + '</div>'
++ '<div class="lc-r" data-v="Et sans refaire toute la facture.">' + '<div class="v-sm">Sans refaire toute la facture.</div>' + '</div>' },
+
+{ t: 'Comprendre l’idée', h:
+  '<div class="lc-r" data-v="Proportionnel.">' + '<div class="v-gr v-j">PROPORTIONNEL</div>' + '</div>'
++ '<div class="lc-r" data-v="Cela veut dire : on multiplie toujours par le même nombre.">' + '<div class="v-md">on multiplie <strong>toujours</strong><br>par le même nombre</div>' + '</div>' },
+
+{ t: 'Comprendre l’idée', h:
+  '<div class="lc-r" data-v="Un gâteau, deux œufs. Deux gâteaux, quatre œufs. Trois gâteaux, six œufs.">' + '<table class="v-tab"><tr><th>Gâteaux</th><td>1</td><td>2</td><td>3</td></tr><tr><th>Œufs</th><td class="j">2</td><td class="j">4</td><td class="j">6</td></tr></table>' + '</div>'
++ '<div class="lc-r" data-v="À chaque fois, on multiplie par deux.">' + '<div class="v-fl">↓ ×2 &nbsp; ↓ ×2 &nbsp; ↓ ×2</div>' + '</div>'
++ '<div class="lc-r" data-v="Ce nombre porte un nom : le coefficient.">' + '<div class="v-eq res">coefficient = 2</div>' + '</div>' },
+
+{ t: 'Un exemple', h:
+  '<div class="lc-r" data-v="Trois kilos de viande coûtent quarante-cinq euros.">' + '<div class="v-md">🥩 3 kg → <span class="v-j">45 €</span></div>' + '</div>'
++ '<div class="lc-r" data-v="Combien coûtent sept kilos ?">' + '<div class="v-gr">7 kg → <span class="v-j">?</span></div>' + '</div>'
++ '<div class="lc-r" data-v="On range les données dans un tableau.">' + '<table class="v-tab"><tr><th>Masse (kg)</th><td class="j">3</td><td class="j">7</td></tr><tr><th>Prix (€)</th><td class="j">45</td><td class="q">?</td></tr></table>' + '</div>'
++ '<div class="lc-r" data-v="D’abord le prix d’un kilo : quarante-cinq divisé par trois.">' + '<div class="v-eq">45 ÷ 3</div>' + '</div>' },
+
+{ t: 'On termine le calcul', h:
+  '<div class="lc-r" data-v="Quinze euros le kilo.">' + '<div class="v-eq res">1 kg = 15 €</div>' + '</div>'
++ '<div class="lc-r" data-v="On multiplie par sept.">' + '<div class="v-eq">7 × 15</div>' + '</div>'
++ '<div class="lc-r" data-v="Cent cinq euros.">' + '<div class="v-gr v-v">105 €</div>' + '</div>'
++ '<div class="lc-r" data-v="Vérification : plus de kilos, donc plus cher. C’est cohérent.">' + '<div class="v-sm">plus de kg → plus cher ✓</div>' + '</div>' },
+
+{ t: 'Sur le chantier', h:
+  '<div class="lc-r" data-v="Revenons au câble de l’électricien.">' + '<div class="v-md">⚡ 3 m → 7,50 € &nbsp;·&nbsp; 8 m → ?</div>' + '</div>'
++ '<div class="lc-r" data-v="Le prix d’un mètre : sept euros cinquante divisé par trois.">' + '<div class="v-eq">7,50 ÷ 3</div>' + '</div>'
++ '<div class="lc-r" data-v="Deux euros cinquante le mètre.">' + '<div class="v-eq res">1 m = 2,50 €</div>' + '</div>'
++ '<div class="lc-r" data-v="Huit mètres : huit fois deux euros cinquante.">' + '<div class="v-eq">8 × 2,50</div>' + '</div>'
++ '<div class="lc-r" data-v="Vingt euros. Le devis est prêt.">' + '<div class="v-gr v-v">20 €</div>' + '</div>' },
+
+{ t: 'L’erreur à éviter', h:
+  '<div class="lc-r" data-v="Attention à l’erreur classique.">' + '<div class="v-md v-r">⚠️ L’erreur classique</div>' + '</div>'
++ '<div class="lc-r" data-v="Quatre mètres : huit euros cinquante ?">' + '<div class="v-eq pie">4 m → 8,50 € ?</div>' + '</div>'
++ '<div class="lc-r" data-v="Non. Un mètre de plus, ce n’est pas un euro de plus.">' + '<div class="v-md v-r">+1 m &nbsp;≠&nbsp; +1 €</div>' + '</div>'
++ '<div class="lc-r" data-v="C’est deux euros cinquante de plus. Quatre fois deux euros cinquante font dix euros.">' + '<div class="v-eq res">4 × 2,50 = 10 €</div>' + '</div>'
++ '<div class="lc-r" data-v="En proportionnalité, on multiplie. On n’ajoute jamais.">' + '<div class="v-md v-j">On multiplie.<br>On n’ajoute pas.</div>' + '</div>' }
+
+],
+
+erreurs: [],
+
+retenir: [
+'<b>Proportionnel</b> : on multiplie toujours par le même nombre.',
+'<b>Coefficient</b> = prix (ou valeur) pour 1.',
+'<b>Méthode</b> : diviser pour trouver 1, puis multiplier.',
+'<b>Produit en croix</b> : (b × c) ÷ a.',
+'<b>Attention</b> : on multiplie, on n’ajoute pas.'
+],
+retenirDit: 'À retenir. Proportionnel signifie que l’on multiplie toujours par le même nombre. Le coefficient, c’est la valeur pour un. La méthode : on divise pour trouver un, puis on multiplie. Et surtout : on multiplie, on n’ajoute pas.',
+
+questions: [
+{ q: '🧱 5 kg de plâtre coûtent 12,50 €. Combien coûtent 8 kg ?',
+  v: 'Question 1. Cinq kilos de plâtre coûtent douze euros cinquante. Combien coûtent huit kilos ?',
+  c: ['15,50 €', '20 €', '22,50 €', '18 €'], b: 1,
+  e: '12,50 ÷ 5 = 2,50 € le kilo, puis 8 × 2,50 = <strong>20 €</strong>.' },
+
+{ q: '📐 Ce tableau est-il proportionnel ?<table class="v-tab">'
+   + '<tr><th>Côté</th><td>2</td><td>4</td><td>6</td></tr>'
+   + '<tr><th>Aire</th><td>4</td><td>16</td><td>36</td></tr></table>',
+  v: 'Question 2. Voici le côté d’un carré et son aire. Ce tableau est-il proportionnel ?',
+  c: ['Oui, le coefficient est 2', 'Non : 4 ÷ 2 = 2 mais 16 ÷ 4 = 4',
+      'Oui, puisque les deux lignes augmentent'], b: 1,
+  e: 'Les coefficients diffèrent : ce n’est <strong>pas</strong> proportionnel. '
+   + 'Doubler le côté quadruple l’aire.' },
+
+{ q: '🏗️ Sur un plan à l’échelle 1/50, une pièce mesure 8 cm. '
+   + 'Quelle est sa longueur réelle ?',
+  v: 'Question 3. Sur un plan à l’échelle un sur cinquante, une pièce mesure huit centimètres. Quelle est sa longueur réelle ?',
+  c: ['0,16 m', '4 m', '40 m', '400 m'], b: 1,
+  e: '8 × 50 = 400 cm, soit <strong>4 m</strong>.' }
+]
+};
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE DEVOIRS — bloc autonome.
+     L'élève répond, rien ne lui est corrigé. Les réponses partent
+     dans la feuille « Devoirs » du classeur, une ligne par question,
+     avec les colonnes Note et Commentaire à remplir.
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="p-devoirs" class="page">
+  <div class="phd">
+    <button class="bk" onclick="goHome()">← Accueil</button>
+    <h1 class="ptitle">Devoirs</h1>
+    <span class="psub">À rendre à ton professeur</span>
+  </div>
+  <div id="dv-liste"></div>
+</div>
+
+<style>
+.dv-carte { border:2px solid var(--border); border-radius:16px; padding:16px 18px;
+  margin-bottom:14px; background:var(--surf) }
+.dv-carte h3 { margin:0 0 4px; font-size:1.05rem; font-weight:900 }
+.dv-meta { font-size:.82rem; color:var(--muted); font-weight:700; margin-bottom:10px }
+.dv-etat { display:inline-block; padding:3px 10px; border-radius:20px;
+  font-size:.74rem; font-weight:800; margin-left:8px }
+.dv-ouvert { background:#dcfce7; color:#166534 }
+.dv-ferme  { background:#fee2e2; color:#991b1b }
+.dv-rendu  { background:#dbeafe; color:#1e40af }
+.dv-btn { min-height:44px; padding:0 18px; border-radius:12px; border:0;
+  background:#2563eb; color:#fff; font-family:var(--f); font-weight:800;
+  font-size:.92rem; cursor:pointer }
+.dv-btn:disabled { background:var(--border); color:var(--muted); cursor:default }
+.dv-btn.sec { background:transparent; border:2px solid var(--border); color:var(--text) }
+
+#dv-ov { position:fixed; inset:0; z-index:10004; background:rgba(10,25,50,.84);
+  display:flex; align-items:center; justify-content:center; padding:12px }
+.dv-box { background:var(--surf); border:2px solid var(--border); border-radius:18px;
+  width:100%; max-width:680px; max-height:94vh; display:flex; flex-direction:column;
+  overflow:hidden }
+.dv-head { padding:14px 18px 11px; border-bottom:1px solid var(--border);
+  display:flex; align-items:flex-start; gap:12px }
+.dv-head h3 { margin:0; font-size:1.02rem; font-weight:900 }
+.dv-head p { margin:3px 0 0; font-size:.78rem; color:var(--muted); font-weight:700 }
+.dv-corps { padding:16px 18px; overflow-y:auto; flex:1 }
+.dv-pied { border-top:1px solid var(--border); padding:11px 18px;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+.dv-info { font-size:.78rem; color:var(--muted); font-weight:700; margin-left:auto }
+
+.dv-q { border:1.5px solid var(--border); border-radius:13px; padding:13px 15px;
+  margin-bottom:12px }
+.dv-q.remplie { border-color:#059669; background:rgba(5,150,105,.05) }
+.dv-qn { font-size:.74rem; font-weight:900; color:var(--sec);
+  text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px }
+.dv-e { font-size:.95rem; line-height:1.6; margin-bottom:10px }
+.dv-rep { width:100%; min-height:46px; padding:11px 13px; border:2px solid var(--border);
+  border-radius:10px; font-family:var(--f); font-size:1rem; font-weight:700;
+  background:var(--surf); color:var(--text); box-sizing:border-box }
+.dv-rep:focus { outline:none; border-color:#2563eb }
+.dv-u { font-size:.8rem; color:var(--muted); font-weight:700; margin-left:7px }
+
+.dv-code { width:160px; text-align:center; letter-spacing:.3em; font-size:1.3rem;
+  font-weight:900; padding:12px; border:2px solid var(--border); border-radius:12px;
+  background:var(--surf); color:var(--text); font-family:var(--f) }
+.dv-avert { background:#fef3c7; border:1.5px solid #fcd34d; color:#92400e;
+  border-radius:12px; padding:11px 14px; font-size:.86rem; line-height:1.6;
+  font-weight:700; margin-bottom:14px }
+.dv-tab { width:100%; border-collapse:collapse; margin:9px 0 11px;
+  font-size:.84rem }
+.dv-tab th, .dv-tab td { border:1px solid var(--border); padding:5px 7px;
+  text-align:center }
+.dv-tab th { background:var(--surf2); font-weight:800 }
+.dv-prog { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.86rem;
+  line-height:1.75; background:var(--surf2); border:1.5px solid var(--border);
+  border-left:4px solid var(--sec); border-radius:10px; padding:10px 13px;
+  margin:9px 0 11px; white-space:normal }
+
+.dv-groupe { font-size:.76rem; font-weight:900; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.07em; margin:18px 0 9px }
+.dv-groupe:first-child { margin-top:2px }
+.dv-hs { background:#fff7ed; border:1.5px solid #fdba74; color:#9a3412;
+  border-radius:12px; padding:11px 14px; font-size:.86rem; line-height:1.6;
+  font-weight:700; margin-bottom:14px }
+
+@media(max-width:640px){ .dv-box { max-height:97vh } .dv-corps { padding:13px }
+  .dv-tab { font-size:.76rem } .dv-tab th, .dv-tab td { padding:4px 5px } }
+</style>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  LES DEVOIRS
+//  Aucune réponse attendue n'est stockée ici : le corrigé reste chez
+//  vous. Un élève qui ouvrirait le code source ne trouverait rien.
+//  limite : date au format AAAA-MM-JJTHH:MM (heure de Paris).
+//  classes : liste vide = toutes les classes.
+// ═══════════════════════════════════════════════════════════════════
+const DEVOIRS = {
+
+'c1-court': {
+  titre: 'CAP · Ch.1 Statistique — version courte',
+  chapitre: 'c1',
+  version: 'court',
+  code: '6520',
+  duree: 15,
+  questions: [
+    { e: '🍕 Un pizzaïolo a noté ses ventes du samedi soir :<br><table class="dv-tab"><thead><tr><th>Pizza</th><th>Margherita</th><th>Reine</th><th>4 fromages</th><th>Calzone</th></tr></thead><tbody><tr><td>Nombre vendu</td><td>18</td><td>24</td><td>12</td><td>6</td></tr></tbody></table>Quel est l’<strong>effectif total</strong> ?', u: 'pizzas', ph: 'ex. 50', s: 'Q1 — Effectif total du tableau des pizzas' },
+    { e: 'Avec le même tableau : quelle est la <strong>fréquence de la Reine</strong>, en pourcentage ?', u: '%', ph: 'ex. 25', s: 'Q2 — Fréquence de la Reine en %' },
+    { e: 'Avec le même tableau : quel <strong>angle</strong> occupera la Calzone dans un diagramme circulaire ?', u: 'degrés', ph: 'ex. 90', s: 'Q3 — Angle du secteur Calzone' },
+    { e: '📋 Cinq élèves ont obtenu : 11 — 8 — 14 — 9 — 13. Calcule la <strong>moyenne</strong>.', u: 'sur 20', ph: 'ex. 12', s: 'Q4 — Moyenne de 11, 8, 14, 9, 13' },
+    { e: '🔧 Montant des réparations sur 50 véhicules :<br><table class="dv-tab"><thead><tr><th>Montant</th><th>[0 ; 200[</th><th>[200 ; 400[</th><th>[400 ; 600[</th><th>600 et plus</th></tr></thead><tbody><tr><td>Effectif</td><td>14</td><td>21</td><td>9</td><td>6</td></tr></tbody></table>Combien de véhicules ont coûté <strong>moins de 400 €</strong> ?', u: 'véhicules', ph: 'ex. 20', s: 'Q5 — Véhicules à moins de 400 €' }
+  ]
+},
+
+'c1-long': {
+  titre: 'CAP · Ch.1 Statistique — version longue',
+  chapitre: 'c1',
+  version: 'long',
+  code: '2375',
+  duree: 30,
+  questions: [
+    { e: '🛠️ Interventions d’un technicien de maintenance :<br><table class="dv-tab"><thead><tr><th>Jour</th><th>Lundi</th><th>Mardi</th><th>Mercredi</th><th>Jeudi</th><th>Vendredi</th></tr></thead><tbody><tr><td>Interventions</td><td>7</td><td>12</td><td>4</td><td>9</td><td>8</td></tr></tbody></table>Quel est l’<strong>effectif total</strong> de la semaine ?', u: 'interventions', ph: 'ex. 35', s: 'Q1 — Effectif total de la semaine' },
+    { e: 'Avec le même tableau : quel est le jour où il y a eu le plus d’interventions ? (écris le nom du jour)', ph: 'un jour de la semaine', s: 'Q2 — Jour le plus chargé' },
+    { e: 'Avec le même tableau : quelle est la <strong>fréquence du mercredi</strong>, en pourcentage ?', u: '%', ph: 'ex. 15', s: 'Q3 — Fréquence du mercredi en %' },
+    { e: 'Avec le même tableau : combien d’interventions <strong>en moyenne</strong> par jour ?', u: 'interventions', ph: 'ex. 9', s: 'Q4 — Moyenne quotidienne' },
+    { e: 'Avec le même tableau : quel <strong>angle</strong> occupera le mardi dans un diagramme circulaire ?', u: 'degrés', ph: 'ex. 72', s: 'Q5 — Angle du secteur mardi' },
+    { e: 'Dans n’importe quel tableau de fréquences, combien fait la <strong>somme de toutes les fréquences</strong> en pourcentage ?', u: '%', ph: 'un nombre', s: 'Q6 — Somme des fréquences' },
+    { e: '💶 Prix relevés dans 4 magasins : 14,50 € — 19,00 € — 22,50 € — 16,00 €. Quel est le <strong>prix moyen</strong> ?', u: 'euros', ph: 'ex. 17,50', s: 'Q7 — Prix moyen des 4 magasins' },
+    { e: 'Dans un diagramme circulaire, un secteur mesure <strong>90°</strong>. Quelle <strong>fréquence</strong> représente-t-il, en pourcentage ?', u: '%', ph: 'ex. 30', s: 'Q8 — Fréquence d’un secteur de 90°' },
+    { e: '🚗 Âge des 20 véhicules d’un garage :<br><table class="dv-tab"><thead><tr><th>Âge</th><th>[0 ; 5[</th><th>[5 ; 10[</th><th>[10 ; 15]</th></tr></thead><tbody><tr><td>Effectif</td><td>5</td><td>11</td><td>4</td></tr></tbody></table>Quelle est la <strong>fréquence de la classe [5 ; 10[</strong>, en pourcentage ?', u: '%', ph: 'ex. 50', s: 'Q9 — Fréquence de la classe [5 ; 10[' }
+  ]
+},
+
+'c2-court': {
+  titre: 'CAP · Ch.2 Probabilités — version courte',
+  chapitre: 'c2',
+  version: 'court',
+  code: '5801',
+  duree: 15,
+  questions: [
+    { e: '🎲 On lance un dé à 6 faces. Quelle est la probabilité d’obtenir <strong>4</strong> ? Écris ta réponse sous la forme d’une fraction, par exemple 2/5.', ph: 'ex. 2/5', s: 'Q1 — P(obtenir 4) avec un dé' },
+    { e: '🔵 Une urne contient 12 jetons, dont 5 rouges. Quelle est la probabilité de tirer un <strong>jeton rouge</strong> ? (sous forme de fraction)', ph: 'ex. 3/8', s: 'Q2 — P(jeton rouge)' },
+    { e: 'Un événement A a pour probabilité <strong>P(A) = 0,35</strong>. Quelle est la probabilité de l’événement contraire, <strong>P(non A)</strong> ?', ph: 'ex. 0,70', s: 'Q3 — P(non A) quand P(A) = 0,35' },
+    { e: '⚙️ Dans un lot de 20 pièces, 4 sont défectueuses. Quelle est la probabilité de tirer une pièce défectueuse, <strong>en pourcentage</strong> ?', u: '%', ph: 'ex. 25', s: 'Q4 — P(pièce défectueuse) en %' },
+    { e: 'Une probabilité peut-elle valoir <strong>1,4</strong> ? Réponds par <strong>oui</strong> ou <strong>non</strong>.', ph: 'oui ou non', s: 'Q5 — Une probabilité peut-elle valoir 1,4 ?' }
+  ]
+},
+
+'c2-long': {
+  titre: 'CAP · Ch.2 Probabilités — version longue',
+  chapitre: 'c2',
+  version: 'long',
+  code: '2026',
+  duree: 30,
+  questions: [
+    { e: '🎲 On lance un dé à 6 faces. Probabilité d’obtenir un <strong>nombre pair</strong> ? Donne la fraction <strong>simplifiée</strong>.', ph: 'ex. 1/3', s: 'Q1 — P(nombre pair) simplifiée' },
+    { e: '🃏 Dans un jeu de 32 cartes, il y a 8 cœurs. Probabilité de tirer un <strong>cœur</strong> ? Donne la fraction <strong>simplifiée</strong>.', ph: 'ex. 1/8', s: 'Q2 — P(cœur) simplifiée' },
+    { e: '<strong>P(B) = 0,18</strong>. Calcule <strong>P(non B)</strong>.', ph: 'ex. 0,90', s: 'Q3 — P(non B) quand P(B) = 0,18' },
+    { e: '🔩 Sur 25 vis contrôlées, 3 ne sont pas conformes. Probabilité de tirer une vis <strong>conforme</strong>, en pourcentage ?', u: '%', ph: 'ex. 90', s: 'Q4 — P(vis conforme) en %' },
+    { e: '📦 Un lot de 50 pièces contient 6 rebuts. Probabilité de tirer un rebut, sous forme <strong>décimale</strong> ?', ph: 'ex. 0,15', s: 'Q5 — P(rebut) en décimal' },
+    { e: 'Quelle est la <strong>plus grande valeur</strong> que peut prendre une probabilité ?', ph: 'un nombre', s: 'Q6 — Plus grande valeur d’une probabilité' },
+    { e: '🎡 Une roue est partagée en 8 secteurs identiques, dont 3 verts. Probabilité de tomber sur un secteur vert ? (sous forme de fraction)', ph: 'ex. 5/8', s: 'Q7 — P(secteur vert)' },
+    { e: '🪙 On lance <strong>deux</strong> pièces de monnaie. Combien y a-t-il d’issues possibles en tout ?', u: 'issues', ph: 'un nombre', s: 'Q8 — Nombre d’issues avec deux pièces' },
+    { e: '📊 On lance 200 fois un dé : le 5 est sorti 34 fois. Quelle est la <strong>fréquence observée</strong> du 5, en pourcentage ?', u: '%', ph: 'ex. 20', s: 'Q9 — Fréquence observée du 5' }
+  ]
+},
+
+'c3-court': {
+  titre: 'CAP · Ch.3 Proportionnalité — version courte',
+  chapitre: 'c3',
+  version: 'court',
+  code: '5082',
+  duree: 15,
+  questions: [
+    { e: '🎨 5 kg de peinture coûtent 42 €. Combien coûtent <strong>15 kg</strong> ?', u: 'euros', ph: 'ex. 100', s: 'Q1 — Prix de 15 kg de peinture' },
+    { e: '📏 3 mètres de goulotte coûtent 7,50 €. Combien coûtent <strong>8 mètres</strong> ?', u: 'euros', ph: 'ex. 18', s: 'Q2 — Prix de 8 m de goulotte' },
+    { e: '🏗️ Sur un plan à l’échelle <strong>1/200</strong>, une façade mesure 4,5 cm. Quelle est sa longueur réelle <strong>en mètres</strong> ?', u: 'mètres', ph: 'ex. 12', s: 'Q3 — Longueur réelle à l’échelle 1/200' },
+    { e: '🛒 Calcule <strong>20 % de 350 €</strong>.', u: 'euros', ph: 'ex. 50', s: 'Q4 — 20 % de 350 €' },
+    { e: '🏋️ Un abonnement coûte 15 € d’inscription, puis 2 € par séance. Le prix payé est-il <strong>proportionnel</strong> au nombre de séances ? Réponds par <strong>oui</strong> ou <strong>non</strong>.', ph: 'oui ou non', s: 'Q5 — Abonnement : proportionnel ?' }
+  ]
+},
+
+'c3-long': {
+  titre: 'CAP · Ch.3 Proportionnalité — version longue',
+  chapitre: 'c3',
+  version: 'long',
+  code: '1677',
+  duree: 30,
+  questions: [
+    { e: '⚡ 4 mètres de câble coûtent 10 €. Combien coûtent <strong>12 mètres</strong> ?', u: 'euros', ph: 'ex. 25', s: 'Q1 — Prix de 12 m de câble' },
+    { e: '🧱 7 m² de carrelage coûtent 63 €. Combien coûtent <strong>18 m²</strong> ?', u: 'euros', ph: 'ex. 120', s: 'Q2 — Prix de 18 m² de carrelage' },
+    { e: '🔧 Un atelier produit 8 pièces en 96 minutes. Combien de minutes pour <strong>15 pièces</strong> ?', u: 'minutes', ph: 'ex. 150', s: 'Q3 — Durée pour 15 pièces' },
+    { e: '🏗️ Sur un plan à l’échelle 1/150, un mur mesure 6 cm. Quelle est sa longueur réelle <strong>en mètres</strong> ?', u: 'mètres', ph: 'ex. 12', s: 'Q4 — Longueur réelle à l’échelle 1/150' },
+    { e: '🛒 Un article coûte 240 €. Calcule <strong>15 % de 240 €</strong>.', u: 'euros', ph: 'ex. 30', s: 'Q5 — 15 % de 240 €' },
+    { e: '📐 Le côté d’un carré passe de 3 cm à 9 cm. Par combien son <strong>aire</strong> est-elle multipliée ?', ph: 'un nombre', s: 'Q6 — Carré : par combien l’aire est multipliée' },
+    { e: '🚰 Une pompe débite 450 litres en 6 minutes. Combien de litres en <strong>20 minutes</strong> ?', u: 'litres', ph: 'ex. 1200', s: 'Q7 — Litres en 20 minutes' },
+    { e: '🎨 Pour 2 litres de peinture, il faut 14 cl de diluant. Combien de cl pour <strong>3 litres</strong> ?', u: 'cl', ph: 'ex. 20', s: 'Q8 — Diluant pour 3 litres' }
+  ]
+},
+
+'c4-court': {
+  titre: 'CAP · Ch.4 Équations — version courte',
+  chapitre: 'c4',
+  version: 'court',
+  code: '4363',
+  duree: 15,
+  questions: [
+    { e: '🧮 Résous : <strong>x + 7 = 19</strong>', ph: 'un nombre', s: 'Résoudre x + 7 = 19' },
+    { e: '🧮 Résous : <strong>3x = 24</strong>', ph: 'un nombre', s: 'Résoudre 3x = 24' },
+    { e: '🧮 Résous : <strong>2x + 5 = 17</strong>', ph: 'un nombre', s: 'Résoudre 2x + 5 = 17' },
+    { e: '🧮 Résous : <strong>5x − 8 = 27</strong>', ph: 'un nombre', s: 'Résoudre 5x − 8 = 27' },
+    { e: '🧮 Résous : <strong>4x + 3 = 3</strong>', ph: 'un nombre', s: 'Résoudre 4x + 3 = 3' }
+  ]
+},
+
+'c4-long': {
+  titre: 'CAP · Ch.4 Équations — version longue',
+  chapitre: 'c4',
+  version: 'long',
+  code: '1328',
+  duree: 30,
+  questions: [
+    { e: '🧮 Résous : <strong>x − 9 = 14</strong>', ph: 'un nombre', s: 'Résoudre x − 9 = 14' },
+    { e: '🧮 Résous : <strong>7x = 91</strong>', ph: 'un nombre', s: 'Résoudre 7x = 91' },
+    { e: '🧮 Résous : <strong>3x + 11 = 35</strong>', ph: 'un nombre', s: 'Résoudre 3x + 11 = 35' },
+    { e: '🧮 Résous : <strong>6x − 13 = 29</strong>', ph: 'un nombre', s: 'Résoudre 6x − 13 = 29' },
+    { e: '🧮 Résous : <strong>2x + 1,5 = 10,5</strong>', ph: 'ex. 3,5', s: 'Résoudre 2x + 1,5 = 10,5' },
+    { e: '🧮 Résous : <strong>9 = 4x + 1</strong>', ph: 'un nombre', s: 'Résoudre 9 = 4x + 1' },
+    { e: '🧮 Résous : <strong>12x + 15 = 99</strong>', ph: 'un nombre', s: 'Résoudre 12x + 15 = 99' },
+    { e: '🔧 Un plombier facture 45 € de déplacement, puis 38 € par heure de travail. La facture s’élève à <strong>235 €</strong>. Combien d’heures a-t-il travaillé ?', u: 'heures', ph: 'ex. 4', s: 'Q8 — Heures du plombier (38h + 45 = 235)' },
+    { e: '🪵 Un menuisier achète x planches à 7 € l’unité et paie 14 € de livraison. Le total est de <strong>112 €</strong>. Combien de planches a-t-il achetées ?', u: 'planches', ph: 'ex. 10', s: 'Q9 — Nombre de planches (7x + 14 = 112)' }
+  ]
+},
+
+'c5-court': {
+  titre: 'CAP · Ch.5 Fonctions — version courte',
+  chapitre: 'c5',
+  version: 'court',
+  code: '3644',
+  duree: 15,
+  questions: [
+    { e: 'On donne <strong>f(x) = 3x + 2</strong>. Calcule <strong>f(4)</strong>.', ph: 'un nombre', s: 'Q1 — f(4) pour f(x) = 3x + 2' },
+    { e: 'Toujours avec <strong>f(x) = 3x + 2</strong> : quel est l’<strong>antécédent de 17</strong> ?', ph: 'un nombre', s: 'Q2 — Antécédent de 17 pour f(x) = 3x + 2' },
+    { e: 'La fonction <strong>g</strong> est linéaire : <strong>g(x) = 5x</strong>. Calcule <strong>g(7)</strong>.', ph: 'un nombre', s: 'Q3 — g(7) pour g(x) = 5x' },
+    { e: 'La fonction <strong>h</strong> est linéaire, donc h(x) = a × x. On sait que <strong>h(4) = 20</strong>. Quelle est la valeur de <strong>a</strong> ?', ph: 'un nombre', s: 'Q4 — Coefficient a avec h(4) = 20' },
+    { e: 'On donne <strong>f(x) = 2x − 6</strong>. Calcule <strong>f(0)</strong>.', ph: 'ex. −4', s: 'Q5 — f(0) pour f(x) = 2x − 6' }
+  ]
+},
+
+'c5-long': {
+  titre: 'CAP · Ch.5 Fonctions — version longue',
+  chapitre: 'c5',
+  version: 'long',
+  code: '9979',
+  duree: 30,
+  questions: [
+    { e: 'On donne <strong>f(x) = 4x − 5</strong>. Calcule <strong>f(3)</strong>.', ph: 'un nombre', s: 'Q1 — f(3) pour f(x) = 4x − 5' },
+    { e: 'Toujours avec <strong>f(x) = 4x − 5</strong> : quel est l’<strong>antécédent de 15</strong> ?', ph: 'un nombre', s: 'Q2 — Antécédent de 15 pour f(x) = 4x − 5' },
+    { e: 'On donne <strong>g(x) = 0,5x + 8</strong>. Calcule <strong>g(10)</strong>.', ph: 'un nombre', s: 'Q3 — g(10) pour g(x) = 0,5x + 8' },
+    { e: '<strong>h</strong> est linéaire : h(x) = a × x, et <strong>h(6) = 27</strong>. Quelle est la valeur de <strong>a</strong> ?', ph: 'ex. 2,5', s: 'Q4 — Coefficient a avec h(6) = 27' },
+    { e: 'On donne <strong>f(x) = −2x + 9</strong>. Calcule <strong>f(5)</strong>.', ph: 'ex. −3', s: 'Q5 — f(5) pour f(x) = −2x + 9' },
+    { e: '📋 Voici le tableau de valeurs d’une fonction f :<br><table class="dv-tab"><thead><tr><th>x</th><th>0</th><th>1</th><th>2</th><th>3</th></tr></thead><tbody><tr><td>f(x)</td><td>1</td><td>4</td><td>7</td><td>10</td></tr></tbody></table>Quelle est l’<strong>image de 2</strong> ?', ph: 'un nombre', s: 'Q6 — Image de 2 dans le tableau' },
+    { e: 'Avec le même tableau : quel est l’<strong>antécédent de 10</strong> ?', ph: 'un nombre', s: 'Q7 — Antécédent de 10 dans le tableau' },
+    { e: '🚕 Le prix d’une course de taxi est donné par <strong>f(x) = 1,2x + 4</strong>, où x est le nombre de kilomètres. Quel est le prix d’une course de <strong>15 km</strong> ?', u: 'euros', ph: 'ex. 20', s: 'Q8 — Prix d’une course de 15 km' },
+    { e: 'Avec le même taxi : pour quel nombre de <strong>kilomètres</strong> la course coûte-t-elle <strong>34 €</strong> ?', u: 'km', ph: 'ex. 20', s: 'Q9 — Kilomètres pour 34 €' }
+  ]
+},
+
+'c6-court': {
+  titre: 'CAP · Ch.6 Calculs commerciaux — version courte',
+  chapitre: 'c6',
+  version: 'court',
+  code: '2925',
+  duree: 15,
+  questions: [
+    { e: '🏷️ Un article est affiché <strong>480 €</strong>. Le vendeur accorde une remise de <strong>15 %</strong>. Quel est le <strong>montant de la remise</strong> ?', u: 'euros', ph: 'ex. 50', s: 'Q1 — Montant de la remise (480 €, 15 %)' },
+    { e: 'Avec le même article : quel est le <strong>prix net</strong> à payer ?', u: 'euros', ph: 'ex. 400', s: 'Q2 — Prix net après remise' },
+    { e: '🧾 Un devis indique <strong>250 € HT</strong>, TVA à <strong>20 %</strong>. Quel est le <strong>prix TTC</strong> ?', u: 'euros', ph: 'ex. 280', s: 'Q3 — Prix TTC de 250 € HT à 20 %' },
+    { e: '🛍️ Un commerçant achète un article <strong>60 € HT</strong> et le revend <strong>84 € HT</strong>. Quelle est sa <strong>marge</strong> ?', u: 'euros', ph: 'ex. 20', s: 'Q4 — Marge (achat 60, vente 84)' },
+    { e: '🏦 On place <strong>2 000 €</strong> à <strong>3 %</strong> pendant <strong>2 ans</strong>. Calcule les <strong>intérêts simples</strong>.', u: 'euros', ph: 'ex. 100', s: 'Q5 — Intérêts simples (2 000 €, 3 %, 2 ans)' }
+  ]
+},
+
+'c6-long': {
+  titre: 'CAP · Ch.6 Calculs commerciaux — version longue',
+  chapitre: 'c6',
+  version: 'long',
+  code: '9630',
+  duree: 30,
+  questions: [
+    { e: '🏷️ Prix brut <strong>1 250 €</strong>, remise <strong>12 %</strong>. Montant de la remise ?', u: 'euros', ph: 'ex. 120', s: 'Q1 — Remise de 12 % sur 1 250 €' },
+    { e: 'Avec le même article : <strong>prix net</strong> à payer ?', u: 'euros', ph: 'ex. 1000', s: 'Q2 — Prix net' },
+    { e: '🧾 Un devis indique <strong>840 € HT</strong>, TVA <strong>20 %</strong>. Quel est le <strong>montant de la TVA</strong> ?', u: 'euros', ph: 'ex. 150', s: 'Q3 — Montant de la TVA sur 840 € HT' },
+    { e: 'Avec le même devis : quel est le <strong>prix TTC</strong> ?', u: 'euros', ph: 'ex. 1000', s: 'Q4 — Prix TTC du devis' },
+    { e: '🛍️ Coût d’achat <strong>45 € HT</strong>, prix de vente <strong>72 € HT</strong>. Quelle est la <strong>marge</strong> ?', u: 'euros', ph: 'ex. 25', s: 'Q5 — Marge (achat 45, vente 72)' },
+    { e: 'Avec les mêmes chiffres : quel est le <strong>taux de marge</strong>, en pourcentage ?', u: '%', ph: 'ex. 50', s: 'Q6 — Taux de marge' },
+    { e: '🏦 On place <strong>5 000 €</strong> à <strong>2,5 %</strong> pendant <strong>4 ans</strong>. Calcule les <strong>intérêts simples</strong>.', u: 'euros', ph: 'ex. 400', s: 'Q7 — Intérêts simples (5 000 €, 2,5 %, 4 ans)' },
+    { e: 'Avec le même placement : quelle est la <strong>valeur acquise</strong> au bout des 4 ans ?', u: 'euros', ph: 'ex. 5200', s: 'Q8 — Valeur acquise' },
+    { e: '🧾 Une facture comporte <strong>3 articles à 125 € HT</strong> chacun, TVA <strong>20 %</strong>. Quel est le <strong>total TTC</strong> ?', u: 'euros', ph: 'ex. 400', s: 'Q9 — Total TTC de la facture' }
+  ]
+},
+
+'c7-court': {
+  titre: 'CAP · Ch.7 Pythagore & Thalès — version courte',
+  chapitre: 'c7',
+  version: 'court',
+  code: '2206',
+  duree: 20,
+  questions: [
+    { e: '📐 Un triangle rectangle a pour côtés de l’angle droit <strong>6 cm</strong> et <strong>8 cm</strong>. Calcule la longueur de l’<strong>hypoténuse</strong>.', u: 'cm', ph: 'ex. 12', s: 'Q1 — Hypoténuse d’un triangle 6 ; 8' },
+    { e: '📐 Dans un triangle rectangle, l’hypoténuse mesure <strong>13 cm</strong> et un côté de l’angle droit <strong>5 cm</strong>. Calcule l’<strong>autre côté</strong>.', u: 'cm', ph: 'ex. 10', s: 'Q2 — Côté manquant (hyp 13, côté 5)' },
+    { e: '📐 Un triangle a pour côtés <strong>9 cm, 12 cm et 15 cm</strong>. Est-il <strong>rectangle</strong> ? Réponds par <strong>oui</strong> ou <strong>non</strong>.', ph: 'oui ou non', s: 'Q3 — Le triangle 9 ; 12 ; 15 est-il rectangle ?' },
+    { e: '📏 Configuration de Thalès : (MN) est parallèle à (BC), <strong>AM = 3 cm</strong>, <strong>AB = 9 cm</strong>, <strong>AN = 4 cm</strong>. Calcule <strong>AC</strong>.', u: 'cm', ph: 'ex. 10', s: 'Q4 — Thalès : calcul de AC' },
+    { e: '🪜 Une échelle de <strong>2,5 m</strong> est posée contre un mur, son pied à <strong>1,5 m</strong> du mur. À quelle <strong>hauteur</strong> touche-t-elle le mur ?', u: 'mètres', ph: 'ex. 2,2', s: 'Q5 — Hauteur atteinte par l’échelle' }
+  ]
+},
+
+'c7-long': {
+  titre: 'CAP · Ch.7 Pythagore & Thalès — version longue',
+  chapitre: 'c7',
+  version: 'long',
+  code: '9281',
+  duree: 35,
+  questions: [
+    { e: '📐 Côtés de l’angle droit <strong>9 cm</strong> et <strong>12 cm</strong>. Calcule l’<strong>hypoténuse</strong>.', u: 'cm', ph: 'ex. 14', s: 'Q1 — Hypoténuse d’un triangle 9 ; 12' },
+    { e: '📐 Hypoténuse <strong>17 cm</strong>, un côté <strong>8 cm</strong>. Calcule l’<strong>autre côté</strong>.', u: 'cm', ph: 'ex. 12', s: 'Q2 — Côté manquant (hyp 17, côté 8)' },
+    { e: '📐 Côtés de l’angle droit <strong>2,4 m</strong> et <strong>1,8 m</strong>. Calcule l’<strong>hypoténuse</strong>.', u: 'mètres', ph: 'ex. 3,2', s: 'Q3 — Hypoténuse d’un triangle 2,4 ; 1,8' },
+    { e: '📐 Un triangle a pour côtés <strong>7, 24 et 25 cm</strong>. Est-il rectangle ? (oui ou non)', ph: 'oui ou non', s: 'Q4 — 7 ; 24 ; 25 rectangle ?' },
+    { e: '📐 Un triangle a pour côtés <strong>5, 6 et 8 cm</strong>. Est-il rectangle ? (oui ou non)', ph: 'oui ou non', s: 'Q5 — 5 ; 6 ; 8 rectangle ?' },
+    { e: '📏 Thalès : (MN) ∥ (BC), <strong>AM = 4 cm</strong>, <strong>AB = 10 cm</strong>, <strong>MN = 6 cm</strong>. Calcule <strong>BC</strong>.', u: 'cm', ph: 'ex. 12', s: 'Q6 — Thalès : calcul de BC' },
+    { e: '📏 Thalès : (MN) ∥ (BC), <strong>AM = 6 cm</strong>, <strong>AB = 15 cm</strong>, <strong>AC = 20 cm</strong>. Calcule <strong>AN</strong>.', u: 'cm', ph: 'ex. 9', s: 'Q7 — Thalès : calcul de AN' },
+    { e: '🏠 Un pan de toit forme un triangle rectangle : base <strong>4,8 m</strong>, hauteur <strong>3,6 m</strong>. Quelle est la <strong>longueur du pan</strong> (l’hypoténuse) ?', u: 'mètres', ph: 'ex. 6,5', s: 'Q8 — Longueur du pan de toit' },
+    { e: '🪟 Un panneau rectangulaire mesure <strong>12 cm sur 16 cm</strong>. Quelle est la longueur de sa <strong>diagonale</strong> ?', u: 'cm', ph: 'ex. 18', s: 'Q9 — Diagonale d’un rectangle 12 × 16' }
+  ]
+},
+
+'c8-court': {
+  titre: 'CAP · Ch.8 Périmètres & Aires — version courte',
+  chapitre: 'c8',
+  version: 'court',
+  code: '1487',
+  duree: 15,
+  questions: [
+    { e: '⬛ Quel est le <strong>périmètre</strong> d’un carré de côté <strong>7 cm</strong> ?', u: 'cm', ph: 'ex. 20', s: 'Q1 — Périmètre d’un carré de 7 cm' },
+    { e: '▭ Quelle est l’<strong>aire</strong> d’un rectangle de <strong>12 m sur 8 m</strong> ?', u: 'm²', ph: 'ex. 80', s: 'Q2 — Aire d’un rectangle 12 × 8' },
+    { e: '⭕ Quel est le <strong>périmètre</strong> d’un cercle de rayon <strong>5 cm</strong> ? Prends <strong>π ≈ 3,14</strong>.', u: 'cm', ph: 'ex. 30', s: 'Q3 — Périmètre d’un cercle de rayon 5' },
+    { e: '🔺 Quelle est l’<strong>aire</strong> d’un triangle de base <strong>10 cm</strong> et de hauteur <strong>6 cm</strong> ?', u: 'cm²', ph: 'ex. 25', s: 'Q4 — Aire d’un triangle 10 ; 6' },
+    { e: '📏 Convertis : <strong>3 m² = ? cm²</strong>', u: 'cm²', ph: 'ex. 20000', s: 'Q5 — 3 m² en cm²' }
+  ]
+},
+
+'c8-long': {
+  titre: 'CAP · Ch.8 Périmètres & Aires — version longue',
+  chapitre: 'c8',
+  version: 'long',
+  code: '8932',
+  duree: 30,
+  questions: [
+    { e: '▭ Un rectangle mesure <strong>15 m sur 9 m</strong>. Calcule son <strong>périmètre</strong>.', u: 'm', ph: 'ex. 40', s: 'Q1 — Périmètre d’un rectangle 15 × 9' },
+    { e: 'Avec le même rectangle : calcule son <strong>aire</strong>.', u: 'm²', ph: 'ex. 120', s: 'Q2 — Aire du rectangle 15 × 9' },
+    { e: '⬛ Quelle est l’<strong>aire</strong> d’un carré de côté <strong>2,5 m</strong> ?', u: 'm²', ph: 'ex. 5', s: 'Q3 — Aire d’un carré de 2,5 m' },
+    { e: '⭕ Quelle est l’<strong>aire</strong> d’un disque de rayon <strong>4 cm</strong> ? Prends <strong>π ≈ 3,14</strong>.', u: 'cm²', ph: 'ex. 48', s: 'Q4 — Aire d’un disque de rayon 4' },
+    { e: '⭕ Un cercle a un <strong>diamètre de 10 m</strong>. Calcule son <strong>périmètre</strong> (π ≈ 3,14).', u: 'm', ph: 'ex. 30', s: 'Q5 — Périmètre d’un cercle de diamètre 10' },
+    { e: '🔺 Calcule l’<strong>aire</strong> d’un triangle de base <strong>14 cm</strong> et de hauteur <strong>9 cm</strong>.', u: 'cm²', ph: 'ex. 60', s: 'Q6 — Aire d’un triangle 14 ; 9' },
+    { e: '📏 Convertis : <strong>4,5 m² = ? dm²</strong>', u: 'dm²', ph: 'ex. 400', s: 'Q7 — 4,5 m² en dm²' },
+    { e: '🧱 Une pièce mesure <strong>6 m sur 4,5 m</strong>. Le carrelage coûte <strong>22 € le m²</strong>. Quel est le <strong>coût total</strong> ?', u: 'euros', ph: 'ex. 500', s: 'Q8 — Coût du carrelage' },
+    { e: '🌳 Un terrain rectangulaire mesure <strong>30 m sur 18 m</strong>. Quelle <strong>longueur de clôture</strong> faut-il pour en faire le tour ?', u: 'm', ph: 'ex. 90', s: 'Q9 — Longueur de clôture' }
+  ]
+},
+
+'c9-court': {
+  titre: 'CAP · Ch.9 Algorithmique — version courte',
+  chapitre: 'c9',
+  version: 'court',
+  code: '9768',
+  duree: 15,
+  questions: [
+    { e: '💻 Que vaut A à la fin de cet algorithme ?<div class="dv-prog">A ← 5<br>A ← A + 3<br>Afficher A</div>', ph: 'un nombre', s: 'Q1 — Valeur de A (A←5 ; A←A+3)' },
+    { e: '🔁 Un lutin exécute : <strong>Répéter 4 fois : avancer de 25 pas</strong>. Quelle <strong>distance totale</strong> parcourt-il ?', u: 'pas', ph: 'ex. 80', s: 'Q2 — Distance après 4 × 25 pas' },
+    { e: '🔀 Avec <strong>x = 7</strong>, qu’affiche cet algorithme ? (recopie le mot affiché)<div class="dv-prog">Si x &gt; 5 alors<br>&nbsp;&nbsp;Afficher « grand »<br>Sinon<br>&nbsp;&nbsp;Afficher « petit »</div>', ph: 'un mot', s: 'Q3 — Affichage de la condition (x = 7)' },
+    { e: 'Combien y a-t-il de <strong>structures fondamentales</strong> en algorithmique ? (séquence, boucle, condition)', ph: 'un nombre', s: 'Q4 — Nombre de structures fondamentales' },
+    { e: '💻 Que vaut P à la fin ?<div class="dv-prog">P ← 12<br>P ← P × 2<br>P ← P − 4<br>Afficher P</div>', ph: 'un nombre', s: 'Q5 — Valeur de P (×2 puis −4)' }
+  ]
+},
+
+'c9-long': {
+  titre: 'CAP · Ch.9 Algorithmique — version longue',
+  chapitre: 'c9',
+  version: 'long',
+  code: '8583',
+  duree: 30,
+  questions: [
+    { e: '💻 Que vaut N à la fin ?<div class="dv-prog">N ← 10<br>N ← N + 15<br>Afficher N</div>', ph: 'un nombre', s: 'Q1 — Valeur de N (N←10 ; N←N+15)' },
+    { e: '🔁 Que vaut S à la fin ?<div class="dv-prog">S ← 0<br>Répéter 6 fois<br>&nbsp;&nbsp;S ← S + 5<br>Afficher S</div>', ph: 'un nombre', s: 'Q2 — Valeur de S (6 fois +5)' },
+    { e: '💻 Que vaut c à la fin ?<div class="dv-prog">a ← 3<br>b ← 8<br>c ← a × b<br>Afficher c</div>', ph: 'un nombre', s: 'Q3 — Valeur de c (a × b)' },
+    { e: '🌡️ Avec <strong>t = 21</strong>, qu’affiche cet algorithme ? (recopie le mot affiché)<div class="dv-prog">Si t &lt; 18 alors<br>&nbsp;&nbsp;Afficher « chauffage »<br>Sinon<br>&nbsp;&nbsp;Afficher « arrêt »</div>', ph: 'un mot', s: 'Q4 — Affichage de la condition (t = 21)' },
+    { e: '🔁 Un lutin exécute <strong>Répéter 4 fois : avancer de 60 pas, tourner de 90°</strong>. Quelle <strong>figure</strong> trace-t-il ? (un mot)', ph: 'un mot', s: 'Q5 — Figure tracée (4 × 60 pas, 90°)' },
+    { e: '💻 Que vaut V à la fin ?<div class="dv-prog">V ← 100<br>Répéter 3 fois<br>&nbsp;&nbsp;V ← V ÷ 2<br>Afficher V</div>', ph: 'ex. 25', s: 'Q6 — Valeur de V (3 divisions par 2)' },
+    { e: '🏷️ Que vaut Prix à la fin ?<div class="dv-prog">Prix ← 80<br>Si Prix &gt; 50 alors<br>&nbsp;&nbsp;Prix ← Prix − 10<br>Afficher Prix</div>', ph: 'un nombre', s: 'Q7 — Valeur de Prix (remise conditionnelle)' },
+    { e: '💻 Que vaut y à la fin ?<div class="dv-prog">x ← 4<br>y ← x × x + 1<br>Afficher y</div>', ph: 'un nombre', s: 'Q8 — Valeur de y (x × x + 1)' },
+    { e: 'Dans un algorithme, le résultat produit à la fin s’appelle : l’<strong>entrée</strong>, le <strong>traitement</strong> ou la <strong>sortie</strong> ? (recopie le mot)', ph: 'un mot', s: 'Q9 — Nom du résultat produit' }
+  ]
+},
+
+'c10-court': {
+  titre: 'CAP · Ch.10 Volumes — version courte',
+  chapitre: 'c10',
+  version: 'court',
+  code: '6548',
+  duree: 15,
+  questions: [
+    { e: '🧊 Quel est le <strong>volume</strong> d’un cube d’arête <strong>4 cm</strong> ?', u: 'cm³', ph: 'ex. 50', s: 'Q1 — Volume d’un cube de 4 cm' },
+    { e: '📦 Quel est le <strong>volume</strong> d’un pavé droit de <strong>8 cm × 5 cm × 3 cm</strong> ?', u: 'cm³', ph: 'ex. 100', s: 'Q2 — Volume d’un pavé 8 × 5 × 3' },
+    { e: '🥫 Un cylindre a un rayon de <strong>2 cm</strong> et une hauteur de <strong>10 cm</strong>. Calcule son <strong>volume</strong> (π ≈ 3,14).', u: 'cm³', ph: 'ex. 120', s: 'Q3 — Volume d’un cylindre r=2, h=10' },
+    { e: '💧 Combien de <strong>litres</strong> représente <strong>1 dm³</strong> ?', u: 'litre', ph: 'un nombre', s: 'Q4 — 1 dm³ en litres' },
+    { e: '🧱 Une dalle en béton mesure <strong>2 m × 1,5 m × 0,8 m</strong>. Quel est son <strong>volume</strong> ?', u: 'm³', ph: 'ex. 3', s: 'Q5 — Volume d’une dalle 2 × 1,5 × 0,8' }
+  ]
+},
+
+'c10-long': {
+  titre: 'CAP · Ch.10 Volumes — version longue',
+  chapitre: 'c10',
+  version: 'long',
+  code: '1963',
+  duree: 35,
+  questions: [
+    { e: '🧊 Volume d’un cube d’arête <strong>6 cm</strong> ?', u: 'cm³', ph: 'ex. 200', s: 'Q1 — Volume d’un cube de 6 cm' },
+    { e: '📦 Volume d’un pavé droit <strong>12 cm × 7 cm × 4 cm</strong> ?', u: 'cm³', ph: 'ex. 300', s: 'Q2 — Volume d’un pavé 12 × 7 × 4' },
+    { e: '🥫 Cylindre de rayon <strong>3 cm</strong>, hauteur <strong>8 cm</strong> (π ≈ 3,14). Calcule le <strong>volume</strong>.', u: 'cm³', ph: 'ex. 220', s: 'Q3 — Volume d’un cylindre r=3, h=8' },
+    { e: '📏 Convertis : <strong>2,5 m³ = ? dm³</strong>', u: 'dm³', ph: 'ex. 2000', s: 'Q4 — 2,5 m³ en dm³' },
+    { e: '📏 Convertis : <strong>4 500 L = ? m³</strong>', u: 'm³', ph: 'ex. 5', s: 'Q5 — 4 500 L en m³' },
+    { e: '🛢️ Une cuve cylindrique a un rayon de <strong>0,5 m</strong> et une hauteur de <strong>2 m</strong> (π ≈ 3,14). Quelle est sa contenance <strong>en litres</strong> ?', u: 'litres', ph: 'ex. 1500', s: 'Q6 — Contenance de la cuve en litres' },
+    { e: '⚽ Volume d’une boule de rayon <strong>3 cm</strong> ? Formule V = (4/3) × π × r³, avec π ≈ 3,14.', u: 'cm³', ph: 'ex. 110', s: 'Q7 — Volume d’une boule de rayon 3' },
+    { e: '🍦 Volume d’un cône de rayon <strong>5 cm</strong> et hauteur <strong>12 cm</strong> ? Formule V = (1/3) × π × r² × h, avec π ≈ 3,14.', u: 'cm³', ph: 'ex. 300', s: 'Q8 — Volume d’un cône r=5, h=12' },
+    { e: '🏊 Une piscine rectangulaire mesure <strong>8 m × 4 m</strong> et <strong>1,5 m</strong> de profondeur. Quel est son <strong>volume</strong> en m³ ?', u: 'm³', ph: 'ex. 50', s: 'Q9 — Volume de la piscine' }
+  ]
+},
+
+'c11-court': {
+  titre: 'CAP · Ch.11 Géométrie — version courte',
+  chapitre: 'c11',
+  version: 'court',
+  code: '5829',
+  duree: 15,
+  questions: [
+    { e: '🔺 Dans un triangle, deux angles mesurent <strong>50°</strong> et <strong>70°</strong>. Combien mesure le <strong>troisième</strong> ?', u: 'degrés', ph: 'ex. 45', s: 'Q1 — Troisième angle (50° et 70°)' },
+    { e: '▭ Dans un quadrilatère, trois angles mesurent <strong>90°, 85° et 100°</strong>. Combien mesure le <strong>quatrième</strong> ?', u: 'degrés', ph: 'ex. 90', s: 'Q2 — Quatrième angle du quadrilatère' },
+    { e: '📐 Dans un triangle <strong>rectangle</strong>, un angle aigu mesure <strong>35°</strong>. Combien mesure l’<strong>autre angle aigu</strong> ?', u: 'degrés', ph: 'ex. 50', s: 'Q3 — Autre angle aigu (triangle rectangle, 35°)' },
+    { e: '🔺 Combien mesure chaque angle d’un triangle <strong>équilatéral</strong> ?', u: 'degrés', ph: 'un nombre', s: 'Q4 — Angle d’un triangle équilatéral' },
+    { e: '◆ Combien un <strong>losange</strong> a-t-il de côtés de même longueur ?', u: 'côtés', ph: 'un nombre', s: 'Q5 — Côtés égaux du losange' }
+  ]
+},
+
+'c11-long': {
+  titre: 'CAP · Ch.11 Géométrie — version longue',
+  chapitre: 'c11',
+  version: 'long',
+  code: '1614',
+  duree: 30,
+  questions: [
+    { e: '🔺 Deux angles d’un triangle mesurent <strong>42°</strong> et <strong>78°</strong>. Combien mesure le troisième ?', u: 'degrés', ph: 'ex. 50', s: 'Q1 — Troisième angle (42° et 78°)' },
+    { e: '🔺 Un triangle <strong>isocèle</strong> a un angle au sommet de <strong>40°</strong>. Combien mesure <strong>chacun</strong> des deux angles à la base ?', u: 'degrés', ph: 'ex. 60', s: 'Q2 — Angle à la base (isocèle, sommet 40°)' },
+    { e: '▭ Trois angles d’un quadrilatère mesurent <strong>110°, 65° et 95°</strong>. Combien mesure le quatrième ?', u: 'degrés', ph: 'ex. 90', s: 'Q3 — Quatrième angle (110°, 65°, 95°)' },
+    { e: '📐 Dans un triangle rectangle, un angle aigu mesure <strong>28°</strong>. Combien mesure l’autre angle aigu ?', u: 'degrés', ph: 'ex. 60', s: 'Q4 — Autre angle aigu (28°)' },
+    { e: '▭ Combien mesure chaque angle d’un <strong>rectangle</strong> ?', u: 'degrés', ph: 'un nombre', s: 'Q5 — Angle d’un rectangle' },
+    { e: '🔺 Dans un triangle équilatéral, combien mesure chaque angle ?', u: 'degrés', ph: 'un nombre', s: 'Q6 — Angle d’un triangle équilatéral' },
+    { e: '◆ Les <strong>diagonales d’un losange</strong> sont parallèles, perpendiculaires ou égales ? (recopie le mot)', ph: 'un mot', s: 'Q7 — Diagonales du losange' },
+    { e: '📏 La <strong>médiatrice</strong> d’un segment est perpendiculaire à ce segment et passe par son… (un mot)', ph: 'un mot', s: 'Q8 — Médiatrice : passe par le…' },
+    { e: '🔺 Un triangle peut-il avoir <strong>deux angles droits</strong> ? Réponds par <strong>oui</strong> ou <strong>non</strong>.', ph: 'oui ou non', s: 'Q9 — Deux angles droits possibles ?' }
+  ]
+},
+
+'c12-court': {
+  titre: 'CAP · Ch.12 Pourcentages — version courte',
+  chapitre: 'c12',
+  version: 'court',
+  code: '5110',
+  duree: 15,
+  questions: [
+    { e: '🛒 Calcule <strong>25 % de 160 €</strong>.', u: 'euros', ph: 'ex. 30', s: 'Q1 — 25 % de 160 €' },
+    { e: '📊 Sur <strong>48 élèves</strong>, <strong>12</strong> sont en CAP Cuisine. Quel <strong>pourcentage</strong> cela représente-t-il ?', u: '%', ph: 'ex. 20', s: 'Q2 — 12 sur 48 en pourcentage' },
+    { e: '💰 Une remise de <strong>30 €</strong> représente <strong>15 %</strong> du prix. Quel est le <strong>prix total</strong> ?', u: 'euros', ph: 'ex. 180', s: 'Q3 — Prix total dont 30 € = 15 %' },
+    { e: '📈 Quel est le <strong>coefficient multiplicateur</strong> d’une <strong>augmentation de 8 %</strong> ?', ph: 'ex. 1,05', s: 'Q4 — CM d’une augmentation de 8 %' },
+    { e: '🏷️ Un article coûte <strong>60 €</strong>. Il est soldé à <strong>−20 %</strong>. Quel est le <strong>nouveau prix</strong> ?', u: 'euros', ph: 'ex. 50', s: 'Q5 — 60 € réduit de 20 %' }
+  ]
+},
+
+'c12-long': {
+  titre: 'CAP · Ch.12 Pourcentages — version longue',
+  chapitre: 'c12',
+  version: 'long',
+  code: '1265',
+  duree: 30,
+  questions: [
+    { e: '🛒 Calcule <strong>35 % de 240 €</strong>.', u: 'euros', ph: 'ex. 80', s: 'Q1 — 35 % de 240 €' },
+    { e: '📊 Sur <strong>72 pièces</strong>, <strong>18</strong> sont rebutées. Quel pourcentage cela représente-t-il ?', u: '%', ph: 'ex. 20', s: 'Q2 — 18 sur 72 en pourcentage' },
+    { e: '💰 <strong>45 €</strong> représentent <strong>18 %</strong> d’une somme. Quelle est cette <strong>somme</strong> ?', u: 'euros', ph: 'ex. 200', s: 'Q3 — Somme dont 45 € = 18 %' },
+    { e: '📉 Quel est le <strong>coefficient multiplicateur</strong> d’une <strong>réduction de 15 %</strong> ?', ph: 'ex. 0,90', s: 'Q4 — CM d’une réduction de 15 %' },
+    { e: '📈 Un prix de <strong>80 €</strong> augmente de <strong>12,5 %</strong>. Quel est le nouveau prix ?', u: 'euros', ph: 'ex. 85', s: 'Q5 — 80 € augmenté de 12,5 %' },
+    { e: '🏷️ Un prix de <strong>150 €</strong> baisse de <strong>30 %</strong>. Quel est le nouveau prix ?', u: 'euros', ph: 'ex. 100', s: 'Q6 — 150 € réduit de 30 %' },
+    { e: '💶 Un salaire passe de <strong>1 600 €</strong> à <strong>1 680 €</strong>. Quel est le <strong>taux d’augmentation</strong>, en pourcentage ?', u: '%', ph: 'ex. 4', s: 'Q7 — Taux d’augmentation 1 600 → 1 680' },
+    { e: '🏷️ Un article passe de <strong>90 €</strong> à <strong>72 €</strong>. Quel est le <strong>taux de réduction</strong>, en pourcentage ?', u: '%', ph: 'ex. 25', s: 'Q8 — Taux de réduction 90 → 72' },
+    { e: '🏫 Un lycée compte <strong>420 élèves</strong>. Un jour de grève, <strong>15 %</strong> sont absents. Combien d’élèves sont <strong>présents</strong> ?', u: 'élèves', ph: 'ex. 350', s: 'Q9 — Élèves présents (15 % d’absents)' }
+  ]
+},
+
+'c13-court': {
+  titre: 'CAP · Ch.13 Calculs numériques — version courte',
+  chapitre: 'c13',
+  version: 'court',
+  code: '4391',
+  duree: 15,
+  questions: [
+    { e: '🧮 Calcule <strong>7 + 3 × 4</strong>.', ph: 'un nombre', s: 'Q1 — 7 + 3 × 4' },
+    { e: '➗ Calcule <strong>3/4 + 1/4</strong>.', ph: 'un nombre ou une fraction', s: 'Q2 — 3/4 + 1/4' },
+    { e: '➗ Calcule <strong>2/5 × 3/4</strong> et donne le résultat sous forme <strong>décimale</strong>.', ph: 'ex. 0,5', s: 'Q3 — 2/5 × 3/4 en décimal' },
+    { e: '🔢 Calcule <strong>5³</strong>.', ph: 'un nombre', s: 'Q4 — 5³' },
+    { e: '📏 Arrondis <strong>7,486</strong> au <strong>dixième</strong>.', ph: 'ex. 7,4', s: 'Q5 — Arrondi de 7,486 au dixième' }
+  ]
+},
+
+'c13-long': {
+  titre: 'CAP · Ch.13 Calculs numériques — version longue',
+  chapitre: 'c13',
+  version: 'long',
+  code: '9916',
+  duree: 30,
+  questions: [
+    { e: '🧮 Calcule <strong>12 − 3 × 2</strong>.', ph: 'un nombre', s: 'Q1 — 12 − 3 × 2' },
+    { e: '🧮 Calcule <strong>(8 + 4) ÷ 3</strong>.', ph: 'un nombre', s: 'Q2 — (8 + 4) ÷ 3' },
+    { e: '➗ Calcule <strong>2/3 + 1/6</strong>. Donne une fraction <strong>simplifiée</strong>.', ph: 'ex. 3/4', s: 'Q3 — 2/3 + 1/6' },
+    { e: '➗ Écris <strong>3/8</strong> sous forme <strong>décimale</strong>.', ph: 'ex. 0,25', s: 'Q4 — 3/8 en décimal' },
+    { e: '🔢 Calcule <strong>4² + 3²</strong>.', ph: 'un nombre', s: 'Q5 — 4² + 3²' },
+    { e: '🔢 Calcule <strong>√144</strong>.', ph: 'un nombre', s: 'Q6 — Racine carrée de 144' },
+    { e: '🔢 Écris <strong>10⁻³</strong> sous forme <strong>décimale</strong>.', ph: 'ex. 0,01', s: 'Q7 — 10⁻³ en décimal' },
+    { e: '🔬 On écrit <strong>32 000</strong> en notation scientifique sous la forme <strong>3,2 × 10ⁿ</strong>. Quelle est la valeur de <strong>n</strong> ?', ph: 'un nombre', s: 'Q8 — Exposant de 32 000 en notation scientifique' },
+    { e: '🔤 On donne <strong>A = 3x + 5</strong>. Calcule A pour <strong>x = 7</strong>.', ph: 'un nombre', s: 'Q9 — A = 3x + 5 pour x = 7' }
+  ]
+}
+
+};
+
+var DV = null;
+
+// ═══════════════════════════════════════════════════════════════════
+//  PILOTAGE — c'est la feuille Pilotage du classeur qui décide.
+//  Le catalogue ci-dessus ne fait qu'exister : aucun devoir ne
+//  s'ouvre tant que l'enseignant ne l'a pas ouvert.
+//  · état frais pendant 5 minutes : le classeur n'est pas interrogé
+//    à chaque clic ;
+//  · au-delà, le dernier état connu sert encore 12 heures, pour
+//    qu'une coupure réseau en pleine séance n'enferme personne ;
+//  · au-delà encore, ou sans aucun état connu : TOUT EST FERMÉ.
+// ═══════════════════════════════════════════════════════════════════
+var DV_PIL = { ouverts: {}, a: 0, charge: false };
+var DV_PIL_CLE = 'mp_devoirs_ouverts_v1';
+var DV_PIL_FRAIS = 5 * 60 * 1000;
+var DV_PIL_SURSIS = 12 * 60 * 60 * 1000;
+var DV_PIL_ENCOURS = null;
+
+function dvPilLire() {
+  try {
+    var v = JSON.parse(localStorage.getItem(DV_PIL_CLE) || 'null');
+    if (v && v.ouverts && typeof v.a === 'number') return v;
+  } catch (e) {}
+  return null;
+}
+
+function dvPilEcrire(o) {
+  try { localStorage.setItem(DV_PIL_CLE, JSON.stringify(o)); } catch (e) {}
+}
+
+function dvPilCharger(forcer) {
+  var c = dvPilLire();
+  var age = c ? (Date.now() - c.a) : Infinity;
+  if (!forcer && c && age < DV_PIL_FRAIS) {
+    DV_PIL = { ouverts: c.ouverts, a: c.a, charge: true };
+    return Promise.resolve(DV_PIL);
+  }
+  if (DV_PIL_ENCOURS) return DV_PIL_ENCOURS;
+
+  DV_PIL_ENCOURS = MP_SYNC.poster({ action: 'devoirsOuverts' })
+    .then(function (d) {
+      var o = { ouverts: d.ouverts || {}, a: Date.now(), charge: true };
+      DV_PIL = o;
+      dvPilEcrire({ ouverts: o.ouverts, a: o.a });
+      return o;
+    })
+    .catch(function () {
+      // Le classeur ne répond pas. On conserve le dernier état connu
+      // pendant le sursis, puis tout se referme : jamais l'inverse.
+      if (c && age < DV_PIL_SURSIS) {
+        DV_PIL = { ouverts: c.ouverts, a: c.a, charge: true, perime: true };
+      } else {
+        DV_PIL = { ouverts: {}, a: 0, charge: true, injoignable: true };
+      }
+      return DV_PIL;
+    })
+    .then(function (r) { DV_PIL_ENCOURS = null; return r; });
+
+  return DV_PIL_ENCOURS;
+}
+
+// L'état complet d'un devoir : le catalogue fournit le texte, la feuille
+// Pilotage fournit la décision.
+function dvEtat(id) {
+  var d = DEVOIRS[id];
+  if (!d) return null;
+  var p = DV_PIL.ouverts[id] || null;
+  return {
+    id: id,
+    titre: d.titre,
+    chapitre: d.chapitre,
+    version: d.version,
+    duree: d.duree,
+    questions: d.questions,
+    ouvert: !!p,
+    code: (p && p.code) || d.code || '',
+    limite: (p && p.limite) || '',
+    classes: (p && p.classes) || []
+  };
+}
+
+function dvListe() {
+  return Object.keys(DEVOIRS).map(dvEtat);
+}
+
+// Ce que l'élève a le droit de voir : ouvert par l'enseignant, pour sa
+// classe, et dans les délais.
+function dvListeEleve() {
+  return dvListe().filter(function (d) {
+    return d.ouvert && dvPourMoi(d) && dvDansLesDelais(d);
+  });
+}
+
+function dvDansLesDelais(d) {
+  if (!d.limite) return true;
+  var t = new Date(d.limite);
+  if (isNaN(t.getTime())) return true;   // date mal saisie : on ne bloque pas
+  return new Date() <= t;
+}
+
+function dvOuvert(d) {
+  return !!d.ouvert && dvDansLesDelais(d);
+}
+
+function dvPourMoi(d) {
+  if (!d.classes || !d.classes.length) return true;
+  var c = (typeof ELEVE !== 'undefined' && ELEVE.classe) || '';
+  return d.classes.indexOf(c) >= 0;
+}
+
+function dvCleEleve() {
+  if (typeof ELEVE === 'undefined') return '';
+  return ((ELEVE.prenom || ELEVE.nom || '') + ' ' + (ELEVE.famille || '')).trim();
+}
+
+function dvDejaRendu(id) {
+  try { return !!localStorage.getItem('mp_devoir_rendu_' + id + '_' + dvCleEleve()); }
+  catch (e) { return false; }
+}
+
+function dvDate(iso) {
+  try {
+    var d = new Date(iso);
+    return d.toLocaleDateString('fr-FR') + ' à '
+         + d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+  } catch (e) { return iso; }
+}
+
+function dvRendu() {
+  var box = document.getElementById('dv-liste');
+  if (!box) return;
+  if (!DV_PIL.charge) {
+    box.innerHTML = '<p style="color:var(--muted);text-align:center;'
+      + 'padding:40px 16px">\u23f3 Recherche des devoirs ouverts\u2026</p>';
+    return;
+  }
+  var ds = dvListeEleve();
+  if (!ds.length) {
+    box.innerHTML =
+      (DV_PIL.injoignable
+        ? '<div class="dv-hs">Le service ne r\u00e9pond pas pour l\u2019instant, '
+          + 'donc aucun devoir ne peut \u00eatre ouvert. R\u00e9essaie dans un '
+          + 'moment, ou pr\u00e9viens ton professeur.</div>'
+        : '')
+      + '<p style="color:var(--muted);text-align:center;padding:40px 16px;'
+      + 'line-height:1.7">Aucun devoir pour le moment.<br>'
+      + '<span style="font-size:.86rem">Ton professeur en ouvrira un quand '
+      + 'ce sera le moment.</span></p>';
+    return;
+  }
+  box.innerHTML = ds.map(function (d) {
+    var rendu = dvDejaRendu(d.id);
+    var etat = rendu ? '<span class="dv-etat dv-rendu">\u2713 Rendu</span>'
+                     : '<span class="dv-etat dv-ouvert">Ouvert</span>';
+    return '<div class="dv-carte"><h3>' + d.titre + etat + '</h3>'
+      + '<div class="dv-meta">' + d.questions.length + ' questions'
+      + (d.duree ? ' \u00b7 environ ' + d.duree + ' min' : '')
+      + (d.limite ? ' \u00b7 \u00e0 rendre avant le ' + dvDate(d.limite) : '')
+      + '</div>'
+      + '<p style="font-size:.9rem;line-height:1.6;margin:0 0 12px">'
+      + DV_CONSIGNE + '</p>'
+      + '<button class="dv-btn" onclick="dvOuvrir(\'' + d.id + '\')"'
+      + (rendu ? ' disabled' : '') + '>'
+      + (rendu ? 'D\u00e9j\u00e0 rendu' : 'Commencer') + '</button></div>';
+  }).join('');
+}
+
+// La même consigne pour tous les devoirs : inutile de la répéter 26 fois
+// dans le catalogue.
+var DV_CONSIGNE = 'R\u00e9ponds \u00e0 chaque question par un nombre ou un mot, '
+  + 'avec l\u2019unit\u00e9 quand elle est demand\u00e9e, et \u00e9cris les '
+  + 'd\u00e9cimales avec une virgule.';
+
+function ouvrirDevoirs() {
+  if (typeof ELEVE === 'undefined' || !ELEVE.nom) {
+    if (typeof showEleveModal === 'function') showEleveModal();
+    return;
+  }
+  dvRendu();
+  showP('devoirs');
+  if (location.hash !== '#devoirs') history.replaceState(null, '', '#devoirs');
+  dvPilCharger().then(dvRendu);
+}
+
+// ── Ouverture d'un devoir : le code d'accès d'abord ──
+function dvOuvrir(id) {
+  var d = dvEtat(id);
+  if (!d || dvDejaRendu(id) || !dvOuvert(d)) return;
+  DV = { id: id, d: d, rep: dvBrouillonLire(id) };
+  if (d.code) dvEcranCode(); else dvEcranQuestions();
+}
+
+function dvCadre(corps, pied) {
+  var ov = document.getElementById('dv-ov');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'dv-ov';
+    document.body.appendChild(ov);
+  }
+  document.body.style.overflow = 'hidden';
+  ov.innerHTML = '<div class="dv-box">'
+    + '<div class="dv-head"><div><h3>' + DV.d.titre + '</h3>'
+    + '<p>' + (DV.d.duree ? 'environ ' + DV.d.duree + ' min · ' : '')
+    + DV.d.questions.length + ' questions</p></div>'
+    + '<button class="lc-x" onclick="dvFermer()" aria-label="Fermer">×</button></div>'
+    + '<div class="dv-corps" id="dv-corps">' + corps + '</div>'
+    + '<div class="dv-pied" id="dv-pied">' + pied + '</div></div>';
+}
+
+function dvFermer() {
+  DV = null;
+  var ov = document.getElementById('dv-ov');
+  if (ov) ov.remove();
+  document.body.style.overflow = '';
+  dvRendu();
+}
+
+function dvEcranCode() {
+  dvCadre(
+    '<p style="font-size:.95rem;line-height:1.6;margin:6px 0 16px">'
+    + 'Ton professeur te donne un <strong>code à 4 chiffres</strong> pour ouvrir '
+    + 'ce devoir.</p>'
+    + '<div style="text-align:center"><input class="dv-code" id="dv-c" inputmode="numeric" '
+    + 'maxlength="4" placeholder="····" autocomplete="off" '
+    + 'onkeydown="if(event.key===\'Enter\')dvVerifCode()"></div>'
+    + '<p id="dv-cerr" style="color:#dc2626;font-weight:700;text-align:center;'
+    + 'font-size:.86rem;margin:12px 0 0"></p>',
+    '<button class="dv-btn" onclick="dvVerifCode()">Ouvrir le devoir</button>'
+    + '<button class="dv-btn sec" onclick="dvFermer()">Annuler</button>');
+  setTimeout(function () {
+    var c = document.getElementById('dv-c'); if (c) c.focus();
+  }, 120);
+}
+
+function dvVerifCode() {
+  var v = (document.getElementById('dv-c').value || '').trim();
+  if (v === String(DV.d.code)) return dvEcranQuestions();
+  document.getElementById('dv-cerr').textContent = 'Ce code ne correspond pas.';
+  document.getElementById('dv-c').value = '';
+}
+
+// ── Les questions ──
+function dvEcranQuestions() {
+  var qs = DV.d.questions;
+  var corps =
+      '<div class="dv-avert">⚠️ Ce devoir est <strong>noté par ton professeur</strong>. '
+    + 'Aucune correction ne s’affichera. Tes réponses sont enregistrées au fur et à '
+    + 'mesure : tu peux fermer et revenir, tant que tu n’as pas rendu.</div>'
+    + '<p style="font-size:.92rem;line-height:1.6;margin:0 0 14px">'
+    + (DV.d.consigne || DV_CONSIGNE) + '</p>'
+    + qs.map(function (q, i) {
+        var v = DV.rep[i] || '';
+        return '<div class="dv-q' + (v ? ' remplie' : '') + '" id="dv-q' + i + '">'
+          + '<div class="dv-qn">Question ' + (i + 1) + ' sur ' + qs.length + '</div>'
+          + '<div class="dv-e">' + q.e + '</div>'
+          + '<input class="dv-rep" id="dv-r' + i + '" value="' + dvEchap(v) + '" '
+          + 'placeholder="' + (q.ph || 'Ta réponse') + '" autocomplete="off" '
+          + 'oninput="dvSaisie(' + i + ')">'
+          + (q.u ? '<span class="dv-u">unité attendue : ' + q.u + '</span>' : '')
+          + '</div>';
+      }).join('');
+  dvCadre(corps,
+      '<button class="dv-btn" onclick="dvRendre()">Rendre ma copie</button>'
+    + '<button class="dv-btn sec" onclick="dvFermer()">Continuer plus tard</button>'
+    + '<span class="dv-info" id="dv-compte"></span>');
+  DV.debut = Date.now();
+  dvCompte();
+}
+
+function dvEchap(v) {
+  return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function dvSaisie(i) {
+  var el = document.getElementById('dv-r' + i);
+  DV.rep[i] = el.value;
+  document.getElementById('dv-q' + i).className =
+    'dv-q' + (el.value.trim() ? ' remplie' : '');
+  dvBrouillonEcrire(DV.id, DV.rep);
+  dvCompte();
+}
+
+function dvCompte() {
+  var n = DV.d.questions.length;
+  var r = DV.rep.filter(function (x) { return x && x.trim(); }).length;
+  var c = document.getElementById('dv-compte');
+  if (c) c.textContent = r + ' / ' + n + ' répondues';
+}
+
+// ── Brouillon conservé sur l'appareil ──
+function dvBrouillonLire(id) {
+  try {
+    var v = JSON.parse(localStorage.getItem('mp_devoir_br_' + id + '_' + dvCleEleve()) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch (e) { return []; }
+}
+function dvBrouillonEcrire(id, rep) {
+  try { localStorage.setItem('mp_devoir_br_' + id + '_' + dvCleEleve(),
+                             JSON.stringify(rep)); } catch (e) {}
+}
+
+// ── Rendre la copie ──
+function dvRendre() {
+  var qs = DV.d.questions;
+  var vides = [];
+  for (var i = 0; i < qs.length; i++) {
+    if (!DV.rep[i] || !DV.rep[i].trim()) vides.push(i + 1);
+  }
+  var msg = vides.length
+    ? 'Il reste ' + vides.length + ' question' + (vides.length > 1 ? 's' : '')
+      + ' sans réponse (n° ' + vides.join(', ') + ').\n\n'
+      + 'Rendre quand même ta copie ? Tu ne pourras plus la modifier.'
+    : 'Rendre ta copie ? Tu ne pourras plus la modifier.';
+  if (!confirm(msg)) return;
+
+  var ev = {
+    action: 'devoir',
+    devoir: DV.d.titre,
+    devoirId: DV.id,
+    prenom: (typeof ELEVE !== 'undefined' ? (ELEVE.prenom || ELEVE.nom || '') : ''),
+    nom: (typeof ELEVE !== 'undefined' ? (ELEVE.famille || '') : ''),
+    identifiant: dvCleEleve(),
+    classe: (typeof ELEVE !== 'undefined' ? (ELEVE.classe || '') : ''),
+    appareil: (typeof ELEVE !== 'undefined' ? ELEVE.appareil : ''),
+    duree: DV.debut ? Math.round((Date.now() - DV.debut) / 60000) : '',
+    reponses: qs.map(function (q, i) {
+      // Le libellé court, quand il existe, reste lisible dans une cellule :
+      // un tableau d'énoncé aplati en texte ne l'est pas.
+      return { enonce: q.s || dvTexteBrut(q.e),
+               reponse: (DV.rep[i] || '').trim() };
+    })
+  };
+
+  var id = DV.id;
+  dvCadre('<p style="text-align:center;padding:28px 10px;font-size:1rem;line-height:1.7">'
+    + '⏳ Envoi de ta copie…</p>', '');
+
+  var inscrit = MP_SYNC.empiler('devoir', ev);
+  MP_SYNC.vider();
+  MP_SYNC.attendre(inscrit.cle, 15000).then(function (envoye) {
+    try { localStorage.setItem('mp_devoir_rendu_' + id + '_' + dvCleEleve(),
+                               new Date().toISOString()); } catch (e) {}
+    try { localStorage.removeItem('mp_devoir_br_' + id + '_' + dvCleEleve()); } catch (e) {}
+    dvCadre(
+      '<div style="text-align:center;padding:22px 10px">'
+      + (envoye
+          ? '<div style="font-size:2.4rem">✅</div>'
+            + '<p style="font-size:1.05rem;font-weight:800;margin:10px 0 6px">'
+            + 'Ta copie est enregistrée.</p>'
+            + '<p style="color:var(--muted);font-size:.9rem;line-height:1.6">'
+            + 'Ton professeur la recevra et la corrigera.<br>'
+            + 'Aucune correction ne s’affiche ici.</p>'
+          : '<div style="font-size:2.4rem">💾</div>'
+            + '<p style="font-size:1.05rem;font-weight:800;margin:10px 0 6px">'
+            + 'Ta copie est conservée sur cet appareil.</p>'
+            + '<p style="color:var(--muted);font-size:.9rem;line-height:1.6">'
+            + 'Le réseau ne répond pas pour l’instant.<br>'
+            + 'Elle partira automatiquement dès le retour de la connexion — '
+            + 'garde simplement le site ouvert un moment.</p>')
+      + '</div>',
+      '<button class="dv-btn" onclick="dvFermer()">Terminer</button>');
+  });
+}
+
+// L'énoncé est envoyé en texte simple, pour rester lisible dans la feuille.
+function dvTexteBrut(h) {
+  var d = document.createElement('div');
+  d.innerHTML = h;
+  return (d.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
+window.addEventListener('load', function () {
+  // Le bouton reste visible : c'est la page qui dit s'il y a un devoir.
+  if (location.hash === '#devoirs') ouvrirDevoirs();
+  if (location.hash === '#pilotage') ouvrirPilotage();
+});
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE DE PILOTAGE DES DEVOIRS — réservée à l'enseignant.
+     Bloc autonome, supprimable d'un seul tenant.
+     Le mot de passe n'est PAS dans cette page : il est vérifié par le
+     service Google, qui ne renvoie rien sans lui.
+     L'ancien espace professeur reste désactivé (MP_ESPACE_PROF = false) :
+     cette page ne fait qu'une chose, ouvrir et fermer les devoirs.
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="p-pilotage" class="page">
+  <div class="phd">
+    <button class="bk" onclick="goHome()">← Accueil</button>
+    <h1 class="ptitle">Pilotage des devoirs</h1>
+    <span class="psub">Espace enseignant — choisissez les devoirs que les élèves peuvent faire</span>
+  </div>
+  <div id="pil-corps"></div>
+</div>
+
+<style>
+.pil-mdp { max-width:420px; margin:30px auto; border:2px solid var(--border);
+  border-radius:16px; padding:22px 20px; background:var(--surf) }
+.pil-mdp h3 { margin:0 0 6px; font-size:1.02rem; font-weight:900 }
+.pil-mdp p { margin:0 0 15px; font-size:.86rem; color:var(--muted);
+  font-weight:600; line-height:1.6 }
+.pil-champ { width:100%; min-height:46px; padding:11px 13px; box-sizing:border-box;
+  border:2px solid var(--border); border-radius:10px; font-family:var(--f);
+  font-size:1rem; font-weight:700; background:var(--surf); color:var(--text) }
+.pil-champ:focus { outline:none; border-color:#2563eb }
+.pil-btn { min-height:44px; padding:0 17px; border-radius:11px; border:0;
+  background:#2563eb; color:#fff; font-family:var(--f); font-weight:800;
+  font-size:.9rem; cursor:pointer }
+.pil-btn.sec { background:transparent; border:2px solid var(--border);
+  color:var(--text) }
+.pil-btn.ferme { background:#dc2626 }
+.pil-btn.ouvre { background:#059669 }
+.pil-btn:disabled { opacity:.55; cursor:default }
+
+.pil-barre { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  border:2px solid var(--border); border-radius:14px; padding:12px 15px;
+  margin-bottom:16px; background:var(--surf2) }
+.pil-compte { font-size:.88rem; font-weight:800 }
+.pil-msg { font-size:.84rem; font-weight:700; margin-left:auto }
+
+.pil-grp { font-size:.78rem; font-weight:900; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.07em; margin:20px 0 9px }
+.pil-carte { border:2px solid var(--border); border-radius:14px;
+  padding:13px 15px; margin-bottom:11px; background:var(--surf) }
+.pil-carte.on { border-color:#059669; background:rgba(5,150,105,.05) }
+.pil-tete { display:flex; align-items:center; gap:11px; flex-wrap:wrap }
+.pil-tete b { font-size:.96rem; font-weight:900 }
+.pil-tete .pil-meta { font-size:.79rem; color:var(--muted); font-weight:700 }
+.pil-reg { display:grid; gap:9px; margin-top:11px;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); align-items:end }
+.pil-reg label { display:block; font-size:.74rem; font-weight:800;
+  color:var(--muted); text-transform:uppercase; letter-spacing:.05em;
+  margin-bottom:4px }
+.pil-reg .pil-champ { min-height:40px; font-size:.9rem; padding:8px 10px }
+.pil-note { font-size:.8rem; color:var(--muted); font-weight:700;
+  line-height:1.6; margin:4px 0 0 }
+.pil-avert { background:#fef3c7; border:1.5px solid #fcd34d; color:#92400e;
+  border-radius:12px; padding:11px 14px; font-size:.85rem; line-height:1.6;
+  font-weight:700; margin-bottom:15px }
+.pil-err { background:#fee2e2; border:1.5px solid #fca5a5; color:#991b1b;
+  border-radius:12px; padding:11px 14px; font-size:.86rem; line-height:1.6;
+  font-weight:700; margin-bottom:15px }
+@media(max-width:640px){ .pil-reg { grid-template-columns:1fr } }
+</style>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  PILOTAGE — côté enseignant
+//  Le mot de passe ne quitte jamais cette session : il est gardé en
+//  sessionStorage (effacé à la fermeture de l'onglet), jamais écrit
+//  dans localStorage, et il n'est stocké nulle part dans le fichier.
+// ═══════════════════════════════════════════════════════════════════
+var PIL = { mdp: '', jeton: '', etat: null, occupe: false };
+
+function pilMdpLire() {
+  try { return sessionStorage.getItem('mp_pil_mdp') || ''; } catch (e) { return ''; }
+}
+function pilMdpEcrire(v) {
+  try { if (v) sessionStorage.setItem('mp_pil_mdp', v);
+        else sessionStorage.removeItem('mp_pil_mdp'); } catch (e) {}
+}
+
+function ouvrirPilotage() {
+  showP('pilotage');
+  if (location.hash !== '#pilotage') history.replaceState(null, '', '#pilotage');
+  PIL.mdp = PIL.mdp || pilMdpLire();
+  // Un professeur déjà connecté à son espace n'a rien à ressaisir.
+  if (PIL.mdp || PIL.jeton) pilCharger(); else pilEcranMdp('');
+}
+
+function pilCorps(html) {
+  var b = document.getElementById('pil-corps');
+  if (b) b.innerHTML = html;
+}
+
+function pilEcranMdp(erreur) {
+  pilCorps(
+    '<div class="pil-mdp">'
+    + '<h3>Accès enseignant</h3>'
+    + '<p>Cette page sert uniquement à ouvrir et fermer les devoirs. '
+      + 'Le mot de passe est vérifié par le service d’enregistrement : '
+      + 'il n’est écrit nulle part dans le site.</p>'
+    + (erreur ? '<div class="pil-err">' + erreur + '</div>' : '')
+    + '<input class="pil-champ" id="pil-m" type="password" '
+      + 'autocomplete="current-password" placeholder="Mot de passe" '
+      + 'onkeydown="if(event.key===\'Enter\')pilValiderMdp()">'
+    + '<div style="margin-top:13px;display:flex;gap:9px">'
+    + '<button class="pil-btn" onclick="pilValiderMdp()">Entrer</button>'
+    + '<button class="pil-btn sec" onclick="goHome()">Annuler</button>'
+    + '</div></div>');
+  setTimeout(function () {
+    var m = document.getElementById('pil-m'); if (m) m.focus();
+  }, 120);
+}
+
+function pilValiderMdp() {
+  var v = (document.getElementById('pil-m').value || '').trim();
+  if (!v) return;
+  PIL.mdp = v;
+  pilCharger();
+}
+
+function pilCharger() {
+  pilCorps('<p style="text-align:center;color:var(--muted);padding:40px 16px">'
+    + '⏳ Lecture de l’état des devoirs…</p>');
+  var catalogue = Object.keys(DEVOIRS).map(function (k) {
+    return { id: k, titre: DEVOIRS[k].titre, code: DEVOIRS[k].code };
+  });
+  MP_SYNC.postBrut({ action: 'pilotageEtat', mdp: PIL.mdp, jeton: PIL.jeton,
+                     catalogue: catalogue }).then(function (d) {
+    if (d.ok) {
+      PIL.etat = d.etat || {};
+      pilMdpEcrire(PIL.mdp);
+      pilRendu('');
+      return;
+    }
+    if (d.reseau) {
+      pilCorps('<div class="pil-err">Le service d’enregistrement ne répond '
+        + 'pas.<br>' + (d.erreur || '') + '</div>'
+        + '<div style="text-align:center">'
+        + '<button class="pil-btn" onclick="pilCharger()">Réessayer</button> '
+        + '<button class="pil-btn sec" onclick="mpDiagnostic()">Diagnostic</button>'
+        + '</div>');
+      return;
+    }
+    PIL.mdp = ''; PIL.jeton = '';
+    pilMdpEcrire('');
+    pilEcranMdp(d.erreur || 'Mot de passe incorrect.');
+  });
+}
+
+function pilRendu(message) {
+  if (!PIL.etat) return;
+  var ids = Object.keys(DEVOIRS);
+  var ouverts = ids.filter(function (k) {
+    return PIL.etat[k] && PIL.etat[k].ouvert;
+  });
+
+  var html =
+      '<div class="pil-avert">Un devoir fermé est invisible pour les élèves. '
+    + 'Les énoncés figurent dans le fichier du site, les <strong>réponses '
+    + 'non</strong> : les corrigés restent dans vos documents.</div>'
+    + '<div class="pil-barre">'
+    + '<span class="pil-compte">' + ouverts.length + ' devoir'
+    + (ouverts.length > 1 ? 's' : '') + ' ouvert'
+    + (ouverts.length > 1 ? 's' : '') + ' sur ' + ids.length + '</span>'
+    + '<button class="pil-btn sec" onclick="pilCharger()">Actualiser</button>'
+    + (ouverts.length
+        ? '<button class="pil-btn ferme" onclick="pilToutFermer()">'
+          + 'Tout fermer</button>' : '')
+    + '<span class="pil-msg" id="pil-msg">' + (message || '') + '</span>'
+    + '</div>';
+
+  var chapitre = '';
+  ids.forEach(function (k) {
+    var d = DEVOIRS[k];
+    var e = PIL.etat[k] || { ouvert: false, code: d.code, limite: '', classes: [] };
+    if (d.chapitre !== chapitre) {
+      chapitre = d.chapitre;
+      html += '<div class="pil-grp">Chapitre ' + chapitre.substring(1) + ' — '
+            + pilNomChapitre(chapitre) + '</div>';
+    }
+    html += '<div class="pil-carte' + (e.ouvert ? ' on' : '') + '">'
+      + '<div class="pil-tete">'
+      + '<b>' + (d.version === 'court' ? 'Version courte' : 'Version longue')
+      + '</b>'
+      + '<span class="pil-meta">' + d.questions.length + ' questions · environ '
+      + d.duree + ' min</span>'
+      + '<button class="pil-btn ' + (e.ouvert ? 'ferme' : 'ouvre')
+      + '" style="margin-left:auto" onclick="pilBasculer(\'' + k + '\')">'
+      + (e.ouvert ? 'Fermer' : 'Ouvrir') + '</button>'
+      + '</div>'
+      + '<div class="pil-reg">'
+      + '<div><label>Code à donner en classe</label>'
+      + '<input class="pil-champ" id="pil-c-' + k + '" inputmode="numeric" '
+      + 'maxlength="6" value="' + pilEchap(e.code || d.code) + '"></div>'
+      + '<div><label>À rendre avant (facultatif)</label>'
+      + '<input class="pil-champ" id="pil-l-' + k + '" type="datetime-local" '
+      + 'value="' + pilEchap(e.limite || '') + '"></div>'
+      + '<div><label>Classes (vide = toutes)</label>'
+      + '<input class="pil-champ" id="pil-k-' + k + '" '
+      + 'placeholder="ex. 1CAP-A, 1CAP-B" value="'
+      + pilEchap((e.classes || []).join(', ')) + '"></div>'
+      + '<div><button class="pil-btn sec" onclick="pilEnregistrer(\'' + k
+      + '\')">Enregistrer</button></div>'
+      + '</div>'
+      + '<p class="pil-note">Identifiant dans le classeur : <code>' + k
+      + '</code>' + (e.modifie ? ' · modifié le ' + e.modifie : '') + '</p>'
+      + '</div>';
+  });
+
+  html += '<p class="pil-note" style="margin:22px 0 40px;text-align:center">'
+    + 'Chaque changement est écrit dans la feuille <strong>Pilotage</strong> '
+    + 'du classeur. Vous pouvez aussi la modifier directement : les deux '
+    + 'voies sont la même.</p>';
+  pilCorps(html);
+}
+
+function pilNomChapitre(ch) {
+  try {
+    var c = LVL.cap.chapters;
+    for (var i = 0; i < c.length; i++) if (c[i].id === ch) return c[i].title;
+  } catch (e) {}
+  return '';
+}
+
+function pilEchap(v) {
+  return String(v === undefined || v === null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function pilVal(prefixe, id) {
+  var el = document.getElementById(prefixe + id);
+  return el ? (el.value || '').trim() : '';
+}
+
+function pilBasculer(id) {
+  var e = PIL.etat[id] || {};
+  pilEnvoyer(id, !e.ouvert,
+             pilVal('pil-c-', id) || DEVOIRS[id].code,
+             pilVal('pil-l-', id),
+             pilVal('pil-k-', id));
+}
+
+function pilEnregistrer(id) {
+  var e = PIL.etat[id] || {};
+  pilEnvoyer(id, !!e.ouvert,
+             pilVal('pil-c-', id) || DEVOIRS[id].code,
+             pilVal('pil-l-', id),
+             pilVal('pil-k-', id));
+}
+
+function pilEnvoyer(id, ouvert, code, limite, classes) {
+  if (PIL.occupe) return;
+  PIL.occupe = true;
+  pilMessage('⏳ Enregistrement…', 'var(--muted)');
+  return MP_SYNC.postBrut({
+    action: 'pilotageDevoir',
+    mdp: PIL.mdp,
+    jeton: PIL.jeton,
+    devoir: id,
+    titre: DEVOIRS[id].titre,
+    ouvert: ouvert ? 'OUI' : 'NON',
+    code: code,
+    limite: limite,
+    classes: classes
+  }).then(function (d) {
+    PIL.occupe = false;
+    if (!d.ok) {
+      if (d.reseau) { pilMessage('⚠️ Rien n’a été enregistré : ' + (d.erreur || ''),
+                                 '#dc2626'); return false; }
+      PIL.mdp = ''; pilMdpEcrire('');
+      pilEcranMdp(d.erreur || 'Mot de passe incorrect.');
+      return false;
+    }
+    PIL.etat[id] = {
+      titre: DEVOIRS[id].titre, ouvert: ouvert, code: code,
+      limite: limite, classes: classes ? classes.split(/[;,]/)
+        .map(function (x) { return x.trim(); })
+        .filter(function (x) { return x.length; }) : [],
+      modifie: d.modifie || ''
+    };
+    // Le cache élève de CE navigateur est périmé : on le jette, pour voir
+    // immédiatement ce que verront les élèves.
+    try { localStorage.removeItem(DV_PIL_CLE); } catch (e) {}
+    DV_PIL = { ouverts: {}, a: 0, charge: false };
+    pilRendu((ouvert ? '✅ Ouvert' : '🔒 Fermé') + ' · '
+             + DEVOIRS[id].titre.replace('CAP · ', ''));
+    return true;
+  });
+}
+
+function pilMessage(txt, couleur) {
+  var m = document.getElementById('pil-msg');
+  if (m) { m.textContent = txt; m.style.color = couleur || ''; }
+}
+
+// Ferme tous les devoirs, un par un : si le réseau coupe au milieu, ceux
+// qui sont déjà fermés le restent.
+function pilToutFermer() {
+  var ouverts = Object.keys(DEVOIRS).filter(function (k) {
+    return PIL.etat[k] && PIL.etat[k].ouvert;
+  });
+  if (!ouverts.length) return;
+  if (!confirm('Fermer les ' + ouverts.length + ' devoirs ouverts ?')) return;
+  var i = 0;
+  function suite() {
+    if (i >= ouverts.length) { pilMessage('🔒 Tous les devoirs sont fermés.'); return; }
+    var k = ouverts[i++];
+    pilEnvoyer(k, false, PIL.etat[k].code, PIL.etat[k].limite,
+               (PIL.etat[k].classes || []).join(', ')).then(function (ok) {
+      if (ok) suite();
+    });
+  }
+  suite();
+}
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE SHORTS — bloc autonome, supprimable d'un seul tenant.
+     Pour ajouter un short : une ligne dans la liste SHORTS ci-dessous.
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="p-shorts" class="page">
+  <div class="phd">
+    <button class="bk" onclick="goHome()">← Accueil</button>
+    <h1 class="ptitle">Shorts</h1>
+    <span class="psub">Les maths qui servent vraiment — en moins d’une minute</span>
+  </div>
+  <div id="shorts-grille" class="sh-grille"></div>
+  <p id="shorts-vide" style="display:none;text-align:center;color:var(--muted);
+     padding:40px 16px;line-height:1.7">
+    Aucun short pour le moment.<br>
+    <span style="font-size:.86rem">Les prochaines vidéos arriveront bientôt.</span>
+  </p>
+</div>
+
+<style>
+.sh-grille { display:grid; gap:14px; padding:4px 0 30px;
+  grid-template-columns:repeat(auto-fill,minmax(148px,1fr)) }
+@media (min-width:640px){ .sh-grille{ gap:18px;
+  grid-template-columns:repeat(auto-fill,minmax(178px,1fr)) } }
+
+.sh-tuile { position:relative; aspect-ratio:9/16; border-radius:16px; overflow:hidden;
+  cursor:pointer; border:2px solid var(--border); background:#0f172a;
+  transition:transform .18s, box-shadow .18s; display:block; padding:0;
+  font-family:var(--f); text-align:left; width:100% }
+.sh-tuile:hover, .sh-tuile:focus-visible { transform:translateY(-3px);
+  box-shadow:0 10px 26px rgba(0,0,0,.24); outline:none; border-color:var(--sec) }
+.sh-tuile img { width:100%; height:100%; object-fit:cover; display:block;
+  transition:transform .3s }
+.sh-tuile:hover img { transform:scale(1.045) }
+
+/* Repli si la vignette YouTube ne charge pas (reseau filtre).
+   On n'y repete pas le titre : il figure deja dans le bandeau du bas. */
+.sh-repli { position:absolute; inset:0; padding:14px;
+  background:linear-gradient(150deg,#0f2b52,#16355f 55%,#0d2242) }
+.sh-marque { position:absolute; left:0; right:0; top:26%; display:flex;
+  justify-content:center; gap:4px; font-family:Georgia,serif; font-weight:700 }
+.sh-marque i { font-style:normal; padding:3px 7px; border-radius:5px;
+  font-size:.74rem; letter-spacing:-.01em }
+.sh-marque .m1 { background:#fff; color:#0f2b52 }
+.sh-marque .m2 { background:#fbbf24; color:#0f2b52 }
+
+.sh-play { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:48px; height:48px; border-radius:50%; background:rgba(15,23,42,.62);
+  backdrop-filter:blur(3px); border:2px solid rgba(255,255,255,.85);
+  display:flex; align-items:center; justify-content:center; pointer-events:none }
+.sh-play::after { content:''; border-style:solid; border-width:9px 0 9px 15px;
+  border-color:transparent transparent transparent #fff; margin-left:3px }
+
+.sh-bas { position:absolute; left:0; right:0; bottom:0; padding:26px 10px 9px;
+  background:linear-gradient(transparent,rgba(8,15,30,.9)); pointer-events:none }
+.sh-bas b { display:block; color:#fff; font-size:.78rem; font-weight:800;
+  line-height:1.3; text-shadow:0 1px 3px rgba(0,0,0,.5) }
+.sh-bas span { display:block; margin-top:3px; color:#fde68a; font-size:.67rem;
+  font-weight:800; text-transform:uppercase; letter-spacing:.05em }
+
+/* Lecteur */
+#sh-lb { position:fixed; inset:0; z-index:10002; background:rgba(6,12,24,.93);
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  padding:14px; gap:10px }
+#sh-lb-cadre { position:relative; aspect-ratio:9/16; width:auto; height:min(80vh,740px);
+  max-width:100%; border-radius:16px; overflow:hidden; background:#000;
+  box-shadow:0 16px 54px rgba(0,0,0,.55) }
+#sh-lb-cadre iframe { width:100%; height:100%; border:0; display:block }
+#sh-lb-titre { color:#fff; font-weight:800; font-size:.95rem; text-align:center;
+  max-width:560px; line-height:1.4 }
+#sh-lb-lien { color:#fde68a; font-size:.82rem; font-weight:700; text-decoration:none }
+#sh-lb-lien:hover { text-decoration:underline }
+.sh-fermer { position:absolute; top:12px; right:14px; z-index:2; width:40px; height:40px;
+  border-radius:50%; border:0; background:rgba(255,255,255,.14); color:#fff;
+  font-size:1.5rem; line-height:1; cursor:pointer; font-family:var(--f) }
+.sh-fermer:hover { background:rgba(255,255,255,.26) }
+.sh-nav { position:absolute; top:50%; transform:translateY(-50%); z-index:2;
+  width:42px; height:42px; border-radius:50%; border:0; background:rgba(255,255,255,.14);
+  color:#fff; font-size:1.3rem; cursor:pointer; font-family:var(--f) }
+.sh-nav:hover { background:rgba(255,255,255,.28) }
+.sh-nav.p { left:10px } .sh-nav.s { right:10px }
+@media (max-width:700px){ .sh-nav{ top:auto; bottom:14px; transform:none }
+  .sh-nav.p{ left:18px } .sh-nav.s{ right:18px } }
+</style>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  LISTE DES SHORTS
+//  Pour en ajouter un : copiez une ligne et remplacez l'identifiant.
+//  L'identifiant est la partie qui suit /shorts/ dans l'adresse YouTube.
+//  Exemple :  https://www.youtube.com/shorts/aB3xK9pQ1Zc  →  'aB3xK9pQ1Zc'
+//  L'ordre de la liste est l'ordre d'affichage : le plus récent en haut.
+// ═══════════════════════════════════════════════════════════════════
+const SHORTS = [
+  // { id: 'aB3xK9pQ1Zc', titre: 'L’erreur classique sur les pourcentages', theme: 'Pourcentages' },
+];
+
+// Adresse de la chaîne YouTube, affichée sous chaque vidéo.
+// Laissez la chaîne vide tant que la chaîne n'existe pas : aucun lien
+// ne s'affiche alors. Le jour venu, collez l'adresse ici, et c'est tout.
+const SHORTS_CHAINE = '';
+
+function shortsRendu() {
+  var g = document.getElementById('shorts-grille');
+  var vide = document.getElementById('shorts-vide');
+  if (!g) return;
+  if (!SHORTS.length) {
+    g.innerHTML = '';
+    if (vide) vide.style.display = 'block';
+    return;
+  }
+  if (vide) vide.style.display = 'none';
+  g.innerHTML = SHORTS.map(function (s, i) {
+    var t = (s.titre || 'Short').replace(/</g, '&lt;');
+    var th = (s.theme || '').replace(/</g, '&lt;');
+    return '<button class="sh-tuile" onclick="shortsOuvrir(' + i + ')" '
+      + 'aria-label="Lire : ' + t + '">'
+      + '<div class="sh-repli"></div>'
+      + '<div class="sh-marque"><i class="m1">MATHS</i><i class="m2">PRO</i></div>'
+      + '<img loading="lazy" alt="" src="https://i.ytimg.com/vi/' + s.id + '/oardefault.jpg" '
+      + 'onerror="shortsVignette(this)">'
+      + '<div class="sh-play"></div>'
+      + '<div class="sh-bas"><b>' + t + '</b>'
+      + (th ? '<span>' + th + '</span>' : '') + '</div>'
+      + '</button>';
+  }).join('');
+}
+
+// Si la vignette verticale n'existe pas, on tente la vignette standard ;
+// si le reseau bloque i.ytimg.com, la carte de repli reste visible.
+function shortsVignette(img) {
+  if (img.dataset.repli) { img.remove(); return; }
+  img.dataset.repli = '1';
+  img.src = 'https://i.ytimg.com/vi/' + img.src.split('/vi/')[1].split('/')[0]
+          + '/hqdefault.jpg';
+}
+
+var SH_IDX = -1;
+
+function shortsOuvrir(i) {
+  if (!SHORTS[i]) return;
+  SH_IDX = i;
+  var s = SHORTS[i];
+  var lb = document.getElementById('sh-lb');
+  if (!lb) {
+    lb = document.createElement('div');
+    lb.id = 'sh-lb';
+    document.body.appendChild(lb);
+    lb.addEventListener('click', function (e) { if (e.target === lb) shortsFermer(); });
+  }
+  document.body.style.overflow = 'hidden';
+  var t = (s.titre || 'Short').replace(/</g, '&lt;');
+  // L'iframe n'est creee qu'ici : rien n'est charge depuis YouTube
+  // tant que l'eleve n'a pas clique.
+  lb.innerHTML =
+      '<button class="sh-fermer" onclick="shortsFermer()" aria-label="Fermer">×</button>'
+    + (SHORTS.length > 1
+        ? '<button class="sh-nav p" onclick="shortsDeplacer(-1)" aria-label="Précédent">‹</button>'
+        + '<button class="sh-nav s" onclick="shortsDeplacer(1)" aria-label="Suivant">›</button>'
+        : '')
+    + '<div id="sh-lb-cadre"><iframe src="https://www.youtube-nocookie.com/embed/'
+    + s.id + '?autoplay=1&rel=0&modestbranding=1&playsinline=1" '
+    + 'allow="autoplay; encrypted-media; picture-in-picture" '
+    + 'allowfullscreen title="' + t + '"></iframe></div>'
+    + '<div id="sh-lb-titre">' + t + '</div>'
+    + (SHORTS_CHAINE
+        ? '<a id="sh-lb-lien" href="' + SHORTS_CHAINE + '" target="_blank" '
+          + 'rel="noopener">Voir la chaîne Mathspro ↗</a>'
+        : '');
+}
+
+function shortsDeplacer(d) {
+  var n = SHORTS.length;
+  if (!n) return;
+  shortsOuvrir((SH_IDX + d + n) % n);
+}
+
+function shortsFermer() {
+  var lb = document.getElementById('sh-lb');
+  if (lb) lb.remove();            // retire l'iframe : la lecture s'arrete
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function (e) {
+  if (!document.getElementById('sh-lb')) return;
+  if (e.key === 'Escape') shortsFermer();
+  else if (e.key === 'ArrowRight') shortsDeplacer(1);
+  else if (e.key === 'ArrowLeft') shortsDeplacer(-1);
+});
+
+function ouvrirShorts() {
+  shortsRendu();
+  showP('shorts');
+  if (location.hash !== '#shorts') history.replaceState(null, '', '#shorts');
+}
+
+window.addEventListener('load', function () {
+  shortsRendu();
+  // Le bouton de la barre n'apparait que s'il y a au moins un short.
+  var b = document.getElementById('shorts-btn');
+  if (b && !SHORTS.length) b.style.display = 'none';
+  if (location.hash === '#shorts') ouvrirShorts();
+});
+</script>
 
 <div id="p-level" class="page">
   <div class="phd">
@@ -1545,6 +3709,8 @@ button, .bk, .qbtn, .fnb, .fnb {
       <a onclick="showML()" style="color:inherit;text-decoration:underline;cursor:pointer">Mentions légales</a>
       &nbsp;|&nbsp;
       <a onclick="showCGU()" style="color:inherit;text-decoration:underline;cursor:pointer">CGU</a>
+      &nbsp;|&nbsp;
+      <a onclick="ouvrirPilotage()" style="color:inherit;text-decoration:underline;cursor:pointer" title="Ouvrir ou fermer les devoirs (mot de passe)">Enseignant</a>
     </span>
   </div>
 </footer>
@@ -29971,7 +32137,25 @@ var MP_SYNC = (function () {
   // POST en text/plain : requête « simple » au sens CORS, donc aucune
   // requête preflight, et la réponse reste lisible (contrairement à
   // mode:'no-cors', qui rendait tout accusé de réception impossible).
+  // Même envoi que poster(), mais la réponse du service est rendue telle
+  // quelle, y compris lorsqu'elle dit « non ». Le pilotage en a besoin :
+  // un mot de passe refusé n'est pas une panne de réseau, et l'enseignant
+  // doit lire l'un ou l'autre, pas un message unique et faux.
+  function postBrut(corps) {
+    return envoyer(corps).catch(function (err) {
+      return { ok: false, reseau: true,
+               erreur: String(err && err.message || err) };
+    });
+  }
+
   function poster(corps) {
+    return envoyer(corps).then(function (d) {
+      if (!d || d.ok !== true) throw new Error(d && d.erreur || 'Réponse invalide');
+      return d;
+    });
+  }
+
+  function envoyer(corps) {
     if (!urlValide()) return Promise.reject(new Error('Adresse du service absente'));
     if (adresseObsolete()) {
       return Promise.reject(new Error(
@@ -29994,16 +32178,13 @@ var MP_SYNC = (function () {
       if (minuteur) clearTimeout(minuteur);
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
-    }).then(function (d) {
-      if (!d || d.ok !== true) throw new Error(d && d.erreur || 'Réponse invalide');
-      return d;
     });
   }
 
   // ── Empilage ────────────────────────────────────────────────────
   function empiler(action, donnees) {
-    var ev = Object.assign({ action: action, cle: cle(),
-                             date: new Date().toISOString() }, donnees);
+    var ev = Object.assign({ cle: cle(), date: new Date().toISOString() },
+                           donnees, { action: donnees.action || action });
     var f = fileLire();
     f.push(ev);
     fileEcrire(f);
@@ -30020,19 +32201,22 @@ var MP_SYNC = (function () {
     if (Date.now() < prochaineRelance) return Promise.resolve(etatCourant());
 
     enVol = true;
-    var cnx = [], res = [];
-    for (var i = 0; i < f.length && res.length + cnx.length < PAR_LOT; i++) {
-      (f[i].action === 'connexion' ? cnx : res).push(f[i]);
+    var seuls = [], res = [];
+    for (var i = 0; i < f.length && res.length + seuls.length < PAR_LOT; i++) {
+      // Connexions et copies de devoir partent une par une, avec leur
+      // propre action ; les resultats partent groupes.
+      if (f[i].action === 'connexion' || f[i].action === 'devoir') seuls.push(f[i]);
+      else res.push(f[i]);
     }
 
     var taches = [];
     if (res.length) taches.push(poster({ action: 'resultats', lot: res }));
-    cnx.forEach(function (c) { taches.push(poster(c)); });
+    seuls.forEach(function (c) { taches.push(poster(c)); });
 
     return Promise.all(taches).then(function (reps) {
       var traitees = {};
       res.forEach(function (e) { traitees[e.cle] = 1; });
-      cnx.forEach(function (e) { traitees[e.cle] = 1; });
+      seuls.forEach(function (e) { traitees[e.cle] = 1; });
       reps.forEach(function (d) {
         (d && d.cles || []).forEach(function (k) { traitees[k] = 1; });
         if (d && typeof d.total === 'number') dernierTotal = d.total;
@@ -30138,6 +32322,7 @@ var MP_SYNC = (function () {
     attendre: attendre,
     etat: etatCourant,
     poster: poster,
+    postBrut: postBrut,
     fileLire: fileLire,
     cle: cle
   };
@@ -31960,7 +34145,7 @@ function openChap(k,id){
   document.getElementById('bklvl').onclick=()=>showLevel(k);
   document.getElementById('chtit').textContent=`Ch.${ch.num} — ${ch.title}`;
   document.getElementById('chdesc').textContent=ch.desc;
-  document.getElementById('tc-cours').innerHTML=ch.cours||'<p style="color:var(--muted)">Cours à venir.</p>';
+  document.getElementById('tc-cours').innerHTML=(typeof boutonLecon === 'function' ? boutonLecon(ch.id) : '') + (ch.cours||'<p style="color:var(--muted)">Cours à venir.</p>');
   // Initialiser les canvas interactifs GEO_CANVAS présents dans le cours
   setTimeout(function(){
     document.querySelectorAll('#tc-cours .geo-wrap').forEach(function(w){
@@ -32942,15 +35127,13 @@ function printExos(){
 //  ESPACE PROFESSEUR — MathsPro
 // ═══════════════════════════════════════════════════════════
 
-var profActif = null;
+var profActif = null;      // { email, nom, etablissement, classes:[{nom,niveau}] }
+var profJeton = '';        // jeton de session, renvoyé par le service
 
 // ── Ouvrir / fermer ────────────────────────────────────────
-// Interrupteur unique de l'espace professeur. Repasser a true pour le retablir :
-// le bouton reapparait et toutes les fonctions reprennent telles quelles.
-var MP_ESPACE_PROF = false;
+// Interrupteur unique de l'espace professeur.
+var MP_ESPACE_PROF = true;
 
-// Le bouton suit l'interrupteur : rien d'autre n'est a modifier pour
-// retablir l'espace professeur le moment venu.
 window.addEventListener('load', function () {
   try {
     var b = document.getElementById('prof-btn');
@@ -32958,20 +35141,34 @@ window.addEventListener('load', function () {
   } catch (e) {}
 });
 
+// Le jeton vit dans sessionStorage : il disparaît à la fermeture de
+// l'onglet. Sur un poste partagé, rien ne reste derrière soi.
+function profSessionLire() {
+  try {
+    var v = JSON.parse(sessionStorage.getItem('mp_prof_session') || 'null');
+    if (v && v.jeton && v.prof) return v;
+  } catch (e) {}
+  return null;
+}
+function profSessionEcrire(jeton, prof) {
+  try {
+    if (jeton) sessionStorage.setItem('mp_prof_session',
+      JSON.stringify({ jeton: jeton, prof: prof }));
+    else sessionStorage.removeItem('mp_prof_session');
+  } catch (e) {}
+}
+
 function openProfSpace() {
-  if (!MP_ESPACE_PROF) return;   // desactive temporairement
+  if (!MP_ESPACE_PROF) return;
   document.getElementById('prof-overlay').style.display = 'block';
   document.body.style.overflow = 'hidden';
-  // Auto-reconnexion si token local
-  var saved = localStorage.getItem('mathspro_prof_last');
-  if (saved) {
-    var data = localStorage.getItem('mathspro_prof_' + saved);
-    if (data) {
-      profActif = JSON.parse(data);
-      showProfTab('dashboard');
-      refreshDashboard();
-      return;
-    }
+  var s = profSessionLire();
+  if (s) {
+    profJeton = s.jeton;
+    profActif = s.prof;
+    showProfTab('dashboard');
+    refreshDashboard();
+    return;
   }
   showProfTab('login');
 }
@@ -33000,229 +35197,324 @@ function profNotif(msg, type, id) {
   el.textContent = msg;
   el.className = 'pnotif ' + (type === 'err' ? 'pnotif-err' : 'pnotif-ok');
   el.style.display = 'block';
-  setTimeout(function() { el.style.display = 'none'; }, 4000);
+  if (type !== 'err') setTimeout(function() { el.style.display = 'none'; }, 4000);
 }
 
-// ── Chargement / sauvegarde via Sheets ────────────────────
-async function loadProf(email) {
-  // 1) Base partagee en priorite : permet de retrouver son compte
-  //    depuis n'importe quel appareil.
-  try {
-    var r = await fetch(SHEETS_URL + '?action=loadProf&email=' + encodeURIComponent(email));
-    var d = await r.json();
-    if (d.ok && d.data) {
-      localStorage.setItem('mathspro_prof_' + email, JSON.stringify(d.data));
-      return d.data;   // donnees serveur = source de verite
-    }
-  } catch(e) {}
-  // 2) Repli hors connexion : copie locale du dernier acces
-  var local = localStorage.getItem('mathspro_prof_' + email);
-  if (local) return JSON.parse(local);
-  return null;
-}
-
-async function saveProf() {
-  if (!profActif) return;
-  // Toujours sauvegarder en localStorage
-  localStorage.setItem('mathspro_prof_' + profActif.email, JSON.stringify(profActif));
-  // Tentative Sheets en background (silencieuse)
-  try {
-    fetch(SHEETS_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: {'Content-Type': 'text/plain;charset=utf-8'},
-      body: JSON.stringify({action: 'saveProf', data: profActif})
-    }).catch(function(){});
-  } catch(e) {}
+// Tous les échanges passent par le même tuyau que le reste du site :
+// réponse lisible, erreurs nommées, jamais de « no-cors » muet.
+function profAppel(corps) {
+  corps.jeton = profJeton;
+  return MP_SYNC.postBrut(corps);
 }
 
 // ── Inscription ────────────────────────────────────────────
-async function profRegister() {
+function profRegister() {
   var nom   = document.getElementById('p-nom').value.trim();
   var email = document.getElementById('p-remail').value.trim();
   var etab  = document.getElementById('p-etab').value.trim();
   var pwd   = document.getElementById('p-rpwd').value;
-  if (!nom || !email || !etab || !pwd) { profNotif('Remplissez tous les champs.','err','prof-notif2'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { profNotif('Email invalide.','err','prof-notif2'); return; }
-  if (pwd.length < 6) { profNotif('Mot de passe trop court (6 min.).','err','prof-notif2'); return; }
-  var exist = localStorage.getItem('mathspro_prof_' + email);
-  if (exist) { profNotif('Un compte existe déjà avec cet email.','err','prof-notif2'); return; }
-  var prof = {nom:nom,email:email,etablissement:etab,password:pwd,classes:[],createdAt:new Date().toISOString()};
-  localStorage.setItem('mathspro_prof_' + email, JSON.stringify(prof));
-  // L'inscription vaut premiere connexion reussie
-  if (typeof enregistrerConnexion === 'function') enregistrerConnexion('prof', email);
-  // Tentative Sheets silencieuse
-  try {
-    fetch(SHEETS_URL, {
-      method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({action:'registerProf', data:prof})
-    }).catch(function(){});
-  } catch(e) {}
-  profNotif('Compte créé ! Connectez-vous maintenant. ✅','ok','prof-notif2');
+  if (!nom || !email || !etab || !pwd) {
+    return profNotif('Remplissez tous les champs.','err','prof-notif2'); }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    return profNotif('Adresse électronique invalide.','err','prof-notif2'); }
+  if (pwd.length < 6) {
+    return profNotif('Mot de passe trop court (6 caractères minimum).','err','prof-notif2'); }
+
+  profNotif('Création du compte…','ok','prof-notif2');
+  profAppel({ action:'profInscription', email:email, nom:nom,
+              etablissement:etab, mdp:pwd }).then(function (d) {
+    if (!d.ok) return profNotif(d.erreur || 'Création impossible.','err','prof-notif2');
+    profJeton = d.jeton;
+    profActif = d.prof;
+    profSessionEcrire(profJeton, profActif);
+    if (typeof sendToSheets === 'function') {
+      MP_SYNC.empiler('connexion', { action:'connexion', role:'prof',
+        identifiant: email, prenom: nom, nom: '', classe: '' });
+      MP_SYNC.vider();
+    }
+    document.getElementById('p-rpwd').value = '';
+    showProfTab('dashboard');
+    refreshDashboard();
+  });
 }
 
 // ── Connexion ──────────────────────────────────────────────
-async function profLogin() {
+function profLogin() {
   var email = document.getElementById('p-email').value.trim();
   var pwd   = document.getElementById('p-pwd').value;
-  if (!email || !pwd) { profNotif('Remplissez tous les champs.','err'); return; }
+  if (!email || !pwd) return profNotif('Remplissez tous les champs.','err');
+
   profNotif('Connexion…','ok');
-  var data = await loadProf(email);
-  if (!data) { profNotif('Aucun compte trouvé.','err'); return; }
-  if (data.password !== pwd) { profNotif('Mot de passe incorrect.','err'); return; }
-  profActif = data;
-  localStorage.setItem('mathspro_prof_' + email, JSON.stringify(data));
-  localStorage.setItem('mathspro_prof_last', email);
-  if (typeof enregistrerConnexion === 'function') enregistrerConnexion('prof', email);
-  showProfTab('dashboard');
-  refreshDashboard();
-  profNotif('Bienvenue ' + data.nom + ' 👋','ok');
+  MP_SYNC.postBrut({ action:'profConnexion', email:email, mdp:pwd })
+    .then(function (d) {
+      if (!d.ok) {
+        return profNotif(d.reseau
+          ? 'Le service ne répond pas. ' + (d.erreur || '')
+          : (d.erreur || 'Connexion refusée.'), 'err');
+      }
+      profJeton = d.jeton;
+      profActif = d.prof;
+      profSessionEcrire(profJeton, profActif);
+      MP_SYNC.empiler('connexion', { action:'connexion', role:'prof',
+        identifiant: email, prenom: d.prof.nom, nom: '', classe: '' });
+      MP_SYNC.vider();
+      document.getElementById('p-pwd').value = '';
+      showProfTab('dashboard');
+      refreshDashboard();
+      profNotif('Bienvenue ' + d.prof.nom + ' 👋','ok');
+    });
 }
 
 // ── Déconnexion ────────────────────────────────────────────
 function profLogout() {
   profActif = null;
-  localStorage.removeItem('mathspro_prof_last');
+  profJeton = '';
+  profSessionEcrire('', null);
   document.getElementById('ptab-dashboard').style.display = 'none';
   showProfTab('login');
   document.getElementById('p-pwd').value = '';
 }
 
-// ── Dashboard ──────────────────────────────────────────────
+// ── Tableau de bord ────────────────────────────────────────
 function refreshDashboard() {
   if (!profActif) return;
   var classes = profActif.classes || [];
-  var nbEleves = classes.reduce(function(s,cl){return s+(cl.eleves||[]).length;},0);
   document.getElementById('d-nb-classes').textContent = classes.length;
-  document.getElementById('d-nb-eleves').textContent = nbEleves;
   document.getElementById('dash-header').innerHTML =
-    '<p style="margin:0;color:#0f3b5c;font-weight:700">👋 ' + profActif.nom +
-    ' &nbsp;|&nbsp; <span style="font-weight:400;color:#555">' + (profActif.etablissement||'') + '</span></p>';
+    '<p style="margin:0;color:#0f3b5c;font-weight:700">👋 ' + profEchap(profActif.nom) +
+    ' &nbsp;|&nbsp; <span style="font-weight:400;color:#555">'
+    + profEchap(profActif.etablissement || '') + '</span></p>';
+
   var html = '';
-  if (classes.length === 0) {
-    html = '<p style="color:#888;font-size:.85rem;text-align:center;padding:20px 0">Aucune classe. Créez-en une ci-dessus.</p>';
+  if (!classes.length) {
+    html = '<p style="color:#888;font-size:.85rem;text-align:center;padding:20px 0">'
+         + 'Aucune classe. Déclarez-en une ci-dessus : vos élèves la verront '
+         + 'dans leur écran d’identification.</p>';
   } else {
-    classes.forEach(function(cl, i) {
-      html += '<div class="pclasse-card">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">' +
-        '<div><strong style="color:#0f3b5c">' + cl.nom + '</strong>' +
-        ' <span style="font-size:.78rem;color:#888">' + cl.niveau.toUpperCase() + '</span>' +
-        '</div>' +
-        '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
-        '<span class="pcode-badge" onclick="copierCode(\'' + cl.code + '\')" title="Cliquer pour copier">📋 ' + cl.code + '</span>' +
-        '<button onclick="voirResultats('+i+')" style="background:#e6f4ff;color:#0f3b5c;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:.78rem;font-weight:700">📊 Résultats</button>' +
-        '<button onclick="profDeleteClasse('+i+')" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:.78rem;font-weight:700">🗑️</button>' +
-        '</div></div>' +
-        '<p style="margin:6px 0 0;font-size:.8rem;color:#888">' + (cl.eleves||[]).length + ' élève(s) enregistré(s)</p>' +
-        '</div>';
+    classes.forEach(function (cl, i) {
+      html += '<div class="pclasse-card">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">'
+        + '<div><strong style="color:#0f3b5c">' + profEchap(cl.nom) + '</strong> '
+        + '<span style="font-size:.78rem;color:#888">'
+        + String(cl.niveau || '').toUpperCase() + '</span></div>'
+        + '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'
+        + '<button onclick="voirResultats(' + i + ')" style="background:#e6f4ff;color:#0f3b5c;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:.78rem;font-weight:700">📊 Résultats</button>'
+        + '<button onclick="profDeleteClasse(' + i + ')" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:.78rem;font-weight:700">🗑️</button>'
+        + '</div></div>'
+        + '<p style="margin:6px 0 0;font-size:.8rem;color:#888" id="d-eff-' + i + '">'
+        + '—</p></div>';
     });
   }
   document.getElementById('d-classes').innerHTML = html;
+  document.getElementById('d-resultats-wrap').style.display = 'none';
   refreshGlobalStats();
   if (typeof majAffichageConnexions === 'function') majAffichageConnexions();
+  profChargerDevoirs();
 }
 
-// ── Créer une classe ───────────────────────────────────────
-async function profCreateClasse() {
+function profEchap(v) {
+  return String(v === undefined || v === null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+}
+
+// ── Déclarer une classe ────────────────────────────────────
+function profCreateClasse() {
   if (!profActif) return;
-  var nom = document.getElementById('d-classe-nom').value.trim();
+  var champ = document.getElementById('d-classe-nom');
+  var nom = champ.value.trim();
   var niv = document.getElementById('d-classe-niv').value;
-  if (!nom) { alert('Donnez un nom à la classe.'); return; }
-  var code = 'MP-' + Math.random().toString(36).substring(2,8).toUpperCase();
-  if (!profActif.classes) profActif.classes = [];
-  profActif.classes.push({nom:nom, niveau:niv, code:code, eleves:[], createdAt:new Date().toISOString()});
-  await saveProf();
-  document.getElementById('d-classe-nom').value = '';
-  refreshDashboard();
-  // Notif
-  var tmp = document.createElement('div');
-  tmp.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#0f3b5c;color:white;padding:12px 20px;border-radius:12px;font-weight:700;z-index:9999;font-size:.88rem';
-  tmp.textContent = '✅ Classe créée ! Code : ' + code;
-  document.body.appendChild(tmp);
-  setTimeout(function(){tmp.remove();},4000);
+  if (!nom) { profNotif('Donnez un nom à la classe.','err','prof-notif3'); return; }
+  profNotif('Enregistrement…','ok','prof-notif3');
+  profAppel({ action:'profClasseAjout', classe:nom, niveau:niv })
+    .then(function (d) {
+      if (!d.ok) return profNotif(d.erreur || 'Impossible.','err','prof-notif3');
+      profActif.classes = d.classes;
+      profSessionEcrire(profJeton, profActif);
+      champ.value = '';
+      refreshDashboard();
+      majListeClasses();
+      profNotif(d.deja ? 'Cette classe était déjà la vôtre.'
+                       : '✅ Classe « ' + nom + ' » déclarée.', 'ok', 'prof-notif3');
+    });
 }
 
-// ── Supprimer une classe ───────────────────────────────────
-async function profDeleteClasse(i) {
-  if (!confirm('Supprimer cette classe et ses données ?')) return;
-  profActif.classes.splice(i,1);
-  await saveProf();
-  refreshDashboard();
-}
-
-// ── Copier le code ─────────────────────────────────────────
-function copierCode(code) {
-  navigator.clipboard.writeText(code).then(function(){
-    var tmp = document.createElement('div');
-    tmp.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#ff6d00;color:white;padding:10px 18px;border-radius:12px;font-weight:700;z-index:9999;font-size:.85rem';
-    tmp.textContent = '✅ Code copié : ' + code;
-    document.body.appendChild(tmp);
-    setTimeout(function(){tmp.remove();},2500);
+function profDeleteClasse(i) {
+  var cl = (profActif.classes || [])[i];
+  if (!cl) return;
+  if (!confirm('Retirer la classe « ' + cl.nom + ' » de votre espace ?\n\n'
+             + 'Aucune copie ni aucun résultat n’est supprimé.')) return;
+  profAppel({ action:'profClasseSuppr', classe: cl.nom }).then(function (d) {
+    if (!d.ok) return profNotif(d.erreur || 'Impossible.','err','prof-notif3');
+    profActif.classes = d.classes;
+    profSessionEcrire(profJeton, profActif);
+    refreshDashboard();
+    majListeClasses();
   });
 }
 
-// ── Compteur de visites global (tout visiteur, prof ou élève) ──
-function logVisiteSite() {
-  // Incrémenter compteur local
-  try {
-    var v = parseInt(localStorage.getItem('mp_visites_count')||'0') + 1;
-    localStorage.setItem('mp_visites_count', v);
-  } catch(e) {}
-  // Tentative Sheets en background (silencieuse)
-  try {
-    var params = 'action=logVisite&page=' + encodeURIComponent(location.hash||'accueil')
-      + '&ecran=' + (window.innerWidth<768?'mobile':'desktop');
-    fetch(SHEETS_URL + '?' + params).catch(function(){});
-  } catch(e) {}
-}
-
-// ── Statistiques globales du site (visites totales) ────────────
-async function refreshGlobalStats() {
-  var el = document.getElementById('d-nb-visites');
-  if (!el) return;
-  // Lire depuis localStorage
-  var visites = parseInt(localStorage.getItem('mp_visites_count')||'0');
-  el.textContent = visites;
-  // Tentative Sheets en background
-  try {
-    var r = await fetch(SHEETS_URL + '?action=statsGlobales');
-    var d = await r.json();
-    if (d.ok && d.visites) el.textContent = d.visites;
-  } catch(e) {}
-}
-
-// ── Voir résultats d'une classe ────────────────────────────
-async function voirResultats(i) {
-  var cl = (profActif.classes||[])[i];
+// ── Résultats d'une classe ─────────────────────────────────
+function voirResultats(i) {
+  var cl = (profActif.classes || [])[i];
   if (!cl) return;
   var wrap = document.getElementById('d-resultats-wrap');
   var el   = document.getElementById('d-resultats');
   var nbEl = document.getElementById('d-nb-resultats');
   wrap.style.display = 'block';
+  document.getElementById('d-resultats-titre').textContent =
+    'Résultats — ' + cl.nom;
   el.innerHTML = '<p style="color:#888;font-size:.82rem">Chargement…</p>';
-  try {
-    var url = SHEETS_URL + '?action=resultatsClasse&code=' + encodeURIComponent(cl.code) + '&email=' + encodeURIComponent(profActif.email);
-    var r = await fetch(url);
-    var d = await r.json();
-    if (d.ok && d.data && d.data.length > 0) {
-      nbEl.textContent = d.data.length;
-      var rows = d.data.map(function(row){
-        return '<tr><td style="padding:4px 8px">' + (row.eleve||'') + '</td>' +
-               '<td style="padding:4px 8px">' + (row.chapitre||row.type||'') + '</td>' +
-               '<td style="padding:4px 8px;text-align:center"><strong>' + (row.score||'') + '</strong></td>' +
-               '<td style="padding:4px 8px;color:#888">' + (row.date||'').split(',')[0] + '</td></tr>';
-      }).join('');
-      el.innerHTML = '<table style="width:100%;border-collapse:collapse">' +
-        '<tr style="background:#e6f4ff"><th style="padding:4px 8px">Élève</th><th>Chapitre</th><th>Score</th><th>Date</th></tr>' +
-        rows + '</table>';
-    } else {
-      el.innerHTML = '<p style="color:#888;font-size:.82rem;text-align:center;padding:12px">Aucun résultat pour la classe <strong>' + cl.code + '</strong> pour le moment.</p>';
+
+  profAppel({ action:'profResultats', classe: cl.nom }).then(function (d) {
+    if (!d.ok) {
+      el.innerHTML = '<p style="color:#c62828;font-size:.82rem">'
+        + profEchap(d.erreur || 'Lecture impossible.') + '</p>';
+      return;
     }
-  } catch(e) {
-    el.innerHTML = '<p style="color:#c62828;font-size:.82rem">Erreur de connexion au serveur. Vérifiez le script Google Apps.</p>';
-  }
+    var L = d.lignes || [];
+    nbEl.textContent = L.length;
+    if (!L.length) {
+      el.innerHTML = '<p style="color:#888;font-size:.82rem;text-align:center;padding:12px">'
+        + 'Aucun résultat pour « ' + profEchap(cl.nom) + ' » pour le moment.</p>';
+      return;
+    }
+    el.innerHTML = '<table style="width:100%;border-collapse:collapse">'
+      + '<tr style="background:#e6f4ff"><th style="padding:4px 8px;text-align:left">Élève</th>'
+      + '<th style="padding:4px 8px;text-align:left">Activité</th>'
+      + '<th style="padding:4px 8px">Score</th>'
+      + '<th style="padding:4px 8px;text-align:left">Date</th></tr>'
+      + L.map(function (r) {
+          var score = (r.score !== '' && r.sur !== '')
+            ? r.score + ' / ' + r.sur : (r.score === '' ? '—' : r.score);
+          return '<tr><td style="padding:4px 8px">'
+            + profEchap((r.prenom + ' ' + r.nom).trim() || r.identifiant) + '</td>'
+            + '<td style="padding:4px 8px">'
+            + profEchap(r.activite || r.chapitre || '') + '</td>'
+            + '<td style="padding:4px 8px;text-align:center"><strong>' + score + '</strong></td>'
+            + '<td style="padding:4px 8px;color:#888">'
+            + profEchap(String(r.horodatage || '').slice(0, 10)) + '</td></tr>';
+        }).join('')
+      + '</table>';
+  });
 }
 
+// ── Devoirs : rendus et non rendus ─────────────────────────
+function profChargerDevoirs() {
+  var box = document.getElementById('d-devoirs');
+  if (!box || !profActif) return;
+  if (!(profActif.classes || []).length) {
+    box.innerHTML = '<p style="color:#888;font-size:.83rem;margin:0">'
+      + 'Déclarez d’abord une classe.</p>';
+    return;
+  }
+  box.innerHTML = '<p style="color:#888;font-size:.83rem;margin:0">Chargement…</p>';
+  profAppel({ action:'profDevoirs' }).then(function (d) {
+    if (!d.ok) {
+      box.innerHTML = '<p style="color:#c62828;font-size:.83rem;margin:0">'
+        + profEchap(d.erreur || 'Lecture impossible.') + '</p>';
+      return;
+    }
+    // Effectif connu par classe, affiché sous chaque carte de classe.
+    (profActif.classes || []).forEach(function (cl, i) {
+      var p = document.getElementById('d-eff-' + i);
+      if (p) {
+        var n = ((d.eleves || {})[cl.nom] || []).length;
+        p.textContent = n + ' élève(s) identifié(s) dans cette classe';
+      }
+    });
+    var tot = 0;
+    (profActif.classes || []).forEach(function (cl) {
+      tot += ((d.eleves || {})[cl.nom] || []).length;
+    });
+    document.getElementById('d-nb-eleves').textContent = tot;
+
+    var D = d.devoirs || [];
+    if (!D.length) {
+      box.innerHTML = '<p style="color:#888;font-size:.83rem;margin:0">'
+        + 'Aucun devoir ouvert pour vos classes. '
+        + '<a onclick="profPilotage()" style="color:#0f3b5c;font-weight:700;cursor:pointer;text-decoration:underline">Ouvrir un devoir</a></p>';
+      return;
+    }
+    box.innerHTML = D.map(function (x) {
+      var liste = function (tab, cle) {
+        if (!tab.length) return '<em style="color:#888">aucun</em>';
+        return tab.map(function (y) { return profEchap(y.eleve); }).join(', ');
+      };
+      return '<div style="border:1.5px solid #e5e7eb;border-radius:12px;padding:10px 12px;margin-bottom:9px">'
+        + '<div style="font-weight:800;color:#0f3b5c;font-size:.86rem">'
+        + profEchap(x.titre) + '</div>'
+        + '<div style="font-size:.78rem;color:#888;margin:2px 0 7px">'
+        + profEchap(x.classe)
+        + (x.limite ? ' · à rendre avant le ' + profEchap(x.limite.replace('T',' à ')) : '')
+        + '</div>'
+        + '<p style="margin:0 0 4px;font-size:.82rem"><strong style="color:#166534">✓ Rendu ('
+        + x.rendus.length + ')</strong> — ' + liste(x.rendus) + '</p>'
+        + '<p style="margin:0;font-size:.82rem"><strong style="color:#b91c1c">✗ Pas rendu ('
+        + x.nonRendus.length + ')</strong> — ' + liste(x.nonRendus) + '</p>'
+        + '</div>';
+    }).join('')
+    + '<p style="margin:6px 0 0;font-size:.76rem;color:#888;line-height:1.5">'
+    + 'La liste des élèves d’une classe est celle des élèves qui se sont '
+    + 'identifiés sur le site : un élève qui n’est jamais venu n’y figure pas '
+    + 'encore. Les copies et les notes sont dans la feuille <strong>Devoirs</strong> '
+    + 'du classeur.</p>';
+  });
+}
+
+// Le pilotage des devoirs reste la page déjà en place : on l'ouvre, on ne
+// la refait pas. Le jeton de session y vaut mot de passe.
+function profPilotage() {
+  closeProfSpace();
+  if (typeof PIL !== 'undefined') { PIL.mdp = ''; PIL.jeton = profJeton; }
+  ouvrirPilotage();
+}
+
+// ── La liste des classes proposée aux élèves ───────────────
+// Les cinq classes d'origine restent ; celles déclarées par les
+// professeurs viennent s'y ajouter.
+function majListeClasses() {
+  var sel = document.getElementById('em-classe');
+  if (!sel) return;
+  MP_SYNC.postBrut({ action:'classesPubliques' }).then(function (d) {
+    if (!d.ok || !d.classes || !d.classes.length) return;
+    var deja = {};
+    for (var i = 0; i < sel.options.length; i++) {
+      deja[sel.options[i].value] = true;
+    }
+    var grp = document.getElementById('em-classe-profs');
+    if (!grp) {
+      grp = document.createElement('optgroup');
+      grp.id = 'em-classe-profs';
+      grp.label = 'Classes de vos professeurs';
+      sel.appendChild(grp);
+    }
+    d.classes.forEach(function (c) {
+      if (deja[c]) return;
+      deja[c] = true;
+      var o = document.createElement('option');
+      o.value = c; o.textContent = c;
+      grp.appendChild(o);
+    });
+    if (!grp.children.length) grp.remove();
+  });
+}
+
+window.addEventListener('load', function () { setTimeout(majListeClasses, 1200); });
+
+// ── Compteur de visites de cet appareil ────────────────────
+function logVisiteSite() {
+  try {
+    var v = parseInt(localStorage.getItem('mp_visites_count') || '0', 10) + 1;
+    localStorage.setItem('mp_visites_count', v);
+  } catch (e) {}
+}
+
+function refreshGlobalStats() {
+  var el = document.getElementById('d-nb-visites');
+  if (!el) return;
+  try {
+    el.textContent = parseInt(localStorage.getItem('mp_visites_count') || '0', 10);
+  } catch (e) { el.textContent = '0'; }
+}
 
 // ── INIT ──
 updateHome();
@@ -33292,7 +35584,7 @@ logVisiteSite();
         <div class="pstat"><span id="d-nb-classes">0</span><small>Classes</small></div>
         <div class="pstat"><span id="d-nb-eleves">0</span><small>Élèves</small></div>
         <div class="pstat"><span id="d-nb-resultats">0</span><small>Résultats classe</small></div>
-        <div class="pstat" style="background:#f3e8ff;border-color:#d8b4fe"><span id="d-nb-visites" style="color:#7b1fa2">0</span><small>Visites du site</small></div>
+        <div class="pstat" style="background:#f3e8ff;border-color:#d8b4fe"><span id="d-nb-visites" style="color:#7b1fa2">0</span><small>Visites (cet appareil)</small></div>
       </div>
       <!-- Connexions reelles au site -->
       <div style="background:var(--surf);border:1.5px solid var(--border);border-radius:12px;
@@ -33328,14 +35620,30 @@ logVisiteSite();
             <option value="pre">Première</option>
             <option value="ter">Terminale</option>
           </select>
-          <button class="pbtn-sm" onclick="profCreateClasse()">Créer</button>
+          <button class="pbtn-sm" onclick="profCreateClasse()">Déclarer</button>
         </div>
+        <p style="margin:8px 0 0;font-size:.78rem;color:#555;line-height:1.5">
+          Le nom que vous donnez ici est celui que vos élèves choisiront dans
+          leur écran d’identification. Vous ne voyez que les classes que vous
+          avez déclarées.</p>
+        <div id="prof-notif3" class="pnotif" style="display:none"></div>
+      </div>
+
+      <!-- Devoirs : rendus et non rendus -->
+      <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;
+        padding:14px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+          <strong style="font-size:.88rem;color:#0f3b5c">📝 Devoirs en cours</strong>
+          <button class="pbtn-sm" style="margin-left:auto" onclick="profPilotage()">Ouvrir / fermer des devoirs</button>
+          <button class="pbtn-sm" onclick="profChargerDevoirs()">Actualiser</button>
+        </div>
+        <div id="d-devoirs"></div>
       </div>
       <!-- Liste des classes -->
       <div id="d-classes" style="margin-bottom:16px"></div>
       <!-- Résultats récents -->
       <div id="d-resultats-wrap" style="display:none">
-        <h4 style="color:#0f3b5c;margin:0 0 8px;font-size:.9rem">📋 Résultats de la classe</h4>
+        <h4 style="color:#0f3b5c;margin:0 0 8px;font-size:.9rem">📋 <span id="d-resultats-titre">Résultats de la classe</span></h4>
         <div id="d-resultats" style="overflow-x:auto;font-size:.82rem"></div>
       </div>
       <button onclick="profLogout()" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:20px;padding:7px 18px;cursor:pointer;font-size:.82rem;font-weight:700;margin-top:8px">🚪 Se déconnecter</button>
