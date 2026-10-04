@@ -4160,10 +4160,64 @@ function dvOuvert(d) {
   return !!d.ouvert && dvDansLesDelais(d);
 }
 
+// La même comparaison que le serveur : casse et espaces de bord
+// ignorés. Une égalité stricte rendait un devoir invisible pour un
+// écart d'une majuscule, sans le moindre message.
+function dvMemeClasse(a, b) {
+  return String(a || '').trim().toLowerCase()
+      === String(b || '').trim().toLowerCase();
+}
+
 function dvPourMoi(d) {
   if (!d.classes || !d.classes.length) return true;
   var c = (typeof ELEVE !== 'undefined' && ELEVE.classe) || '';
-  return d.classes.indexOf(c) >= 0;
+  for (var i = 0; i < d.classes.length; i++) {
+    if (dvMemeClasse(d.classes[i], c)) return true;
+  }
+  return false;
+}
+/* ── Pourquoi la liste est vide ────────────────────────────────────
+   Trois raisons très différentes donnaient le même message. L'élève
+   doit pouvoir distinguer « il n'y a rien » de « il y a quelque chose,
+   mais pas pour toi » — sinon il attend, et son professeur attend
+   aussi. */
+function dvPourquoiRien() {
+  var tous = dvListe().filter(function (d) {
+    return d.ouvert && dvDansLesDelais(d);
+  });
+  var maClasse = (typeof ELEVE !== 'undefined' && ELEVE.classe) || '';
+  var style = 'color:var(--muted);text-align:center;padding:34px 16px;'
+            + 'line-height:1.7';
+
+  if (!tous.length) {
+    return '<p style="' + style + '">Aucun devoir pour le moment.<br>'
+      + '<span style="font-size:.86rem">Ton professeur en ouvrira un '
+      + 'quand ce sera le moment.</span></p>';
+  }
+
+  // Des devoirs existent : ils visent d'autres classes que la sienne.
+  var visees = {};
+  tous.forEach(function (d) {
+    (d.classes || []).forEach(function (c) { if (c) visees[c] = true; });
+  });
+  var liste = Object.keys(visees);
+
+  return '<p style="' + style + '">'
+    + tous.length + (tous.length > 1 ? ' devoirs sont ouverts' : ' devoir est ouvert')
+    + ', mais aucun pour ta classe.<br>'
+    + '<span style="font-size:.86rem">'
+    + (maClasse ? 'Tu es inscrit en <strong>' + dvEchapper(maClasse) + '</strong>.'
+                : 'Tu n’as pas indiqué ta classe.')
+    + (liste.length ? '<br>Ces devoirs sont ouverts pour : '
+                      + liste.map(dvEchapper).join(' · ') + '.' : '')
+    + '<br>Si c’est une erreur, change ta classe avec le bouton « Quitter », '
+    + 'ou préviens ton professeur.</span></p>';
+}
+
+function dvEchapper(s) {
+  return String(s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
 }
 
 function dvCleEleve() {
@@ -4200,10 +4254,7 @@ function dvRendu() {
           + 'donc aucun devoir ne peut \u00eatre ouvert. R\u00e9essaie dans un '
           + 'moment, ou pr\u00e9viens ton professeur.</div>'
         : '')
-      + '<p style="color:var(--muted);text-align:center;padding:40px 16px;'
-      + 'line-height:1.7">Aucun devoir pour le moment.<br>'
-      + '<span style="font-size:.86rem">Ton professeur en ouvrira un quand '
-      + 'ce sera le moment.</span></p>';
+      + dvPourquoiRien();
     return;
   }
   box.innerHTML = ds.map(function (d) {
@@ -4252,7 +4303,13 @@ function ouvrirDevoirs() {
   dvRendu();
   showP('devoirs');
   if (location.hash !== '#devoirs') history.replaceState(null, '', '#devoirs');
-  dvPilCharger().then(dvRendu);
+  dvPilCharger().then(function () {
+    dvRendu();
+    // La liste est gardée cinq minutes. Si elle ressort vide, c'est le
+    // moment de redemander au serveur plutôt que de laisser l'élève
+    // devant un écran vide jusqu'à l'expiration du cache.
+    if (!dvListeEleve().length) dvPilCharger(true).then(dvRendu);
+  });
 }
 
 // ── Ouverture d'un devoir : le code d'accès d'abord ──
@@ -33977,6 +34034,41 @@ function mpDiagnostic() {
     h += ligne('ok', 'Compteur de connexions lisible',
                'total ' + s.total + ' · élèves ' + s.eleves + ' · comptes distincts ' + s.comptes);
     corps.innerHTML = h;
+    // Les classes déclarées : c'est d'elles que dépend l'arrivée des
+    // travaux chez le professeur, et l'affichage des devoirs.
+    return MP_SYNC.postBrut({ action: 'classesPubliques' });
+  }).then(function (c) {
+    if (!c || c.ok !== true) {
+      h += ligne('ko', 'Liste des classes illisible',
+        'Le service a répondu : ' + (c && c.erreur ? c.erreur : 'réponse vide')
+        + '.<br>Si le message parle d’une action inconnue, le script déployé '
+        + 'est une version ancienne : republiez une <strong>nouvelle version</strong> '
+        + 'dans Apps Script.');
+    } else if (!c.classes || !c.classes.length) {
+      h += ligne('warn', 'Aucune classe déclarée',
+        'Tant qu’aucune classe n’existe, les élèves ne voient que les cinq '
+        + 'classes génériques, et leur travail n’arrive à aucun professeur. '
+        + 'Déclarez vos classes dans l’Espace Prof.');
+    } else {
+      h += ligne('ok', c.classes.length + ' classe(s) déclarée(s)',
+        'Vos élèves doivent choisir <strong>exactement</strong> l’un de ces '
+        + 'noms :<br>' + c.classes.join(' · '));
+    }
+    corps.innerHTML = h;
+    // Le fichier musique du lecteur vidéo.
+    return fetch(LECON_MUSIQUE, { method: 'GET', headers: { Range: 'bytes=0-1' } })
+      .then(function (r) { return { ok: r.ok || r.status === 206, code: r.status }; })
+      .catch(function (e) { return { ok: false, code: String(e && e.message || e) }; });
+  }).then(function (m) {
+    if (m.ok) {
+      h += ligne('ok', 'Fichier musique présent', LECON_MUSIQUE);
+    } else {
+      h += ligne('ko', 'Fichier musique introuvable',
+        'Les vidéos jouées dans le site seront silencieuses. Déposez '
+        + '<code>' + LECON_MUSIQUE + '</code> à la racine, à côté de '
+        + 'index.html. (' + m.code + ')');
+    }
+    corps.innerHTML = h;
   }).catch(function (err) {
     var m = String(err && err.message || err);
     h += ligne('ko', 'Le serveur ne répond pas', m);
@@ -34223,6 +34315,9 @@ function showEleveModal() {
   </div>`;
 
   document.body.appendChild(modal);
+  // La liste des classes se demande ici : c'est le seul moment où l'on
+  // est sûr que la fiche existe.
+  if (typeof majListeClasses === 'function') majListeClasses();
   setTimeout(() => document.getElementById('em-nom')?.focus(), 150);
 }
 
@@ -37299,9 +37394,6 @@ function profPilotage() {
   ouvrirPilotage();
 }
 
-// ── La liste des classes proposée aux élèves ───────────────
-// Les cinq classes d'origine restent ; celles déclarées par les
-// professeurs viennent s'y ajouter.
 // Les classes réellement déclarées par les professeurs, telles que le
 // serveur les donne. Sert à prévenir l'élève quand la sienne n'y est pas.
 var MP_CLASSES_PROFS = null;
@@ -37358,34 +37450,99 @@ function mpAvertirClasse() {
   };
 }
 
+// ── La liste des classes proposée aux élèves ───────────────
+// Les cinq classes d'origine restent ; celles déclarées par les
+// professeurs viennent en tête, car ce sont les seules qui permettent
+// à un travail d'arriver quelque part.
+//
+// Trois précautions, chacune pour une panne observée :
+//   · la liste est demandée quand la fiche s'ouvre, pas sur une
+//     minuterie qui peut tomber avant que la fiche existe ;
+//   · la dernière liste connue est gardée sur l'appareil, et posée
+//     tout de suite — la fiche est utilisable même hors ligne ;
+//   · un échec est dit à l'élève, pas avalé.
+var MP_CLASSES_CLE = 'mp_classes_profs';
+
+function mpClassesEnCache() {
+  try {
+    var v = JSON.parse(localStorage.getItem(MP_CLASSES_CLE) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch (e) { return []; }
+}
+
+function mpPoserClasses(sel, liste) {
+  if (!sel || !liste || !liste.length) return 0;
+  var grp = document.getElementById('em-classe-profs');
+  if (!grp) {
+    grp = document.createElement('optgroup');
+    grp.id = 'em-classe-profs';
+    grp.label = 'Classes de vos professeurs';
+    // En tête : juste après « — Choisir ma classe — ».
+    sel.insertBefore(grp, sel.options[0] ? sel.options[0].nextSibling : null);
+  }
+  var deja = {};
+  for (var i = 0; i < sel.options.length; i++) deja[sel.options[i].value] = true;
+  var poses = 0;
+  liste.forEach(function (c) {
+    if (!c || deja[c]) return;
+    deja[c] = true;
+    var o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    grp.appendChild(o);
+    poses++;
+  });
+  if (!grp.children.length) grp.remove();
+  return poses;
+}
+
+function mpNoteClasses(texte, genre) {
+  var sel = document.getElementById('em-classe');
+  if (!sel) return;
+  var n = document.getElementById('em-classe-note');
+  if (!n) {
+    n = document.createElement('p');
+    n.id = 'em-classe-note';
+    n.style.cssText = 'margin:6px 0 0;font-size:.74rem;line-height:1.45';
+    sel.parentNode.appendChild(n);
+  }
+  n.style.color = genre === 'ko' ? '#b91c1c' : '#64748b';
+  n.innerHTML = texte;
+}
+
 function majListeClasses() {
   var sel = document.getElementById('em-classe');
   if (!sel) return;
-  MP_SYNC.postBrut({ action:'classesPubliques' }).then(function (d) {
-    if (!d.ok || !d.classes || !d.classes.length) return;
+
+  // 1. Ce qu'on sait déjà, tout de suite.
+  var cache = mpClassesEnCache();
+  if (cache.length) {
+    mpPoserClasses(sel, cache);
+    MP_CLASSES_PROFS = cache.slice();
+  }
+
+  // 2. Ce que le serveur dit, ensuite.
+  MP_SYNC.postBrut({ action: 'classesPubliques' }).then(function (d) {
+    if (!d || d.ok !== true || !d.classes) {
+      if (!cache.length) {
+        mpNoteClasses('⚠️ La liste des classes de tes professeurs n’a pas pu '
+          + 'être chargée' + (d && d.erreur ? ' (' + String(d.erreur).slice(0, 80) + ')'
+                                            : '') + '.<br>Choisis dans la liste '
+          + 'ci-dessus, et préviens ton professeur si ta classe n’y est pas.', 'ko');
+      }
+      return;
+    }
+    try {
+      localStorage.setItem(MP_CLASSES_CLE, JSON.stringify(d.classes));
+    } catch (e) {}
     MP_CLASSES_PROFS = d.classes.slice();
+    if (!d.classes.length) {
+      mpNoteClasses('Aucun professeur n’a encore déclaré de classe.', 'note');
+      return;
+    }
+    mpPoserClasses(sel, d.classes);
+    var n = document.getElementById('em-classe-note');
+    if (n) n.remove();
     setTimeout(mpAvertirClasse, 600);
-    var deja = {};
-    for (var i = 0; i < sel.options.length; i++) {
-      deja[sel.options[i].value] = true;
-    }
-    var grp = document.getElementById('em-classe-profs');
-    if (!grp) {
-      grp = document.createElement('optgroup');
-      grp.id = 'em-classe-profs';
-      grp.label = 'Classes de vos professeurs';
-      // En tête de liste : ce sont les seules qui permettent au
-      // professeur de recevoir le travail.
-      sel.insertBefore(grp, sel.options[0] ? sel.options[0].nextSibling : null);
-    }
-    d.classes.forEach(function (c) {
-      if (deja[c]) return;
-      deja[c] = true;
-      var o = document.createElement('option');
-      o.value = c; o.textContent = c;
-      grp.appendChild(o);
-    });
-    if (!grp.children.length) grp.remove();
   });
 }
 
@@ -38883,6 +39040,16 @@ function mvMusDemarrer() {
     if (!MV_MUS) {
       MV_MUS = new Audio(LECON_MUSIQUE);
       MV_MUS.preload = 'auto';
+      // Sans le fichier, la vidéo se jouerait en silence sans rien dire.
+      // Le bouton le signale, et la page #diagnostic le vérifie.
+      MV_MUS.addEventListener('error', function () {
+        var b = document.getElementById('mv-mus');
+        if (b) {
+          b.textContent = '⚠';
+          b.title = 'Fichier musique introuvable : déposez '
+                  + LECON_MUSIQUE + ' à côté de index.html';
+        }
+      });
     }
     MV_MUS.volume = 1;
     if (Math.abs(MV_MUS.currentTime - MV.t) > 1.2) mvMusCaler();
